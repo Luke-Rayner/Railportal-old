@@ -1,0 +1,70 @@
+---
+identity_id:
+  integer:
+    message: VALIDATE_INTEGER
+  length:
+    min: 1
+    max: 6
+    message: IDENTITY_ID_LENGTH
+  sanitizers:
+    raw: {}
+first_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: IDENTITY_FIRST_NAME_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+last_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: IDENTITY_LAST_NAME_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+email_address:
+  validators:
+    length:
+      min: 1
+      max: 150
+      message: IDENTITY_EMAIL_CHAR_LIMIT
+    email:
+      message: ACCOUNT_INVALID_EMAIL
+  sanitizers:
+    raw: {}
+gender:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+birth_date_day:
+  validators:
+    length:
+      min: 1
+      max: 2
+      message: IDENTITY_BIRTH_DATE_DAY_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+birth_date_month:
+  sanitizers:
+    raw: {}
+birth_date_year:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    length:
+      min: 4
+      max: 4
+      message: BIRTH_YEAR_CHAR_LENGTH
+  sanitizers:
+    raw: {}
+postcode:
+  validators:
+    length:
+      min: 1
+      max: 10
+      message: POSTCODE_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+venue_id: {}

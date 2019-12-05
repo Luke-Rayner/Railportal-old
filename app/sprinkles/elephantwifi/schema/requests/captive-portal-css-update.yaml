@@ -1,0 +1,69 @@
+---
+venue_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    required:
+      message: VENUE_ID_REQUIRED
+venue_captive_portal_css_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    required:
+      message: VENUE_CAPTIVE_PORTAL_CSS_ID_REQUIRED
+panel_border_color:
+  validators:
+    length:
+      max: 7
+      message: CAPTIVE_PORTAL_COLOR_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+panel_bg_color:
+  validators:
+    length:
+      max: 7
+      message: CAPTIVE_PORTAL_COLOR_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+panel_header_bg_color:
+  validators:
+    length:
+      max: 7
+      message: CAPTIVE_PORTAL_COLOR_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+text_color:
+  validators:
+    length:
+      max: 7
+      message: CAPTIVE_PORTAL_COLOR_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+hyperlink_color:
+  validators:
+    length:
+      max: 7
+      message: CAPTIVE_PORTAL_COLOR_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+border_radius:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    length:
+      max: 2
+      message: CAPTIVE_PORTAL_BORDER_RADIUS_CHAR_LIMIT
+button_radius:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    length:
+      max: 2
+      message: CAPTIVE_PORTAL_BUTTON_RADIUS_CHAR_LIMIT
+css:
+  validators:
+    length:
+      max: 4000
+      message: CAPTIVE_PORTAL_CSS_CHAR_LIMIT
+  sanitizers:
+    raw: {}

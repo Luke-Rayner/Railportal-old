@@ -1,0 +1,232 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "IP Addresses",
+        "description" : "Page which displays all the whitelisted IPs for this venue"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">IP Addresses</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="ipAddresses" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                        	<th>Action</th>
+                            <th>IP Address</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn orange" id="addNewIp">
+                          <i class="fas fa-plus-square"></i> Add New IP
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addNewIpModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fas fa-building fa-fw fa-lg"></i> Add a new IP</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+
+                <form class="form-horizontal" id="addIpForm" action="{{site.uri.public}}/admin/elephantwifi/ips" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="ip_address" class="col-sm-offset-1 col-sm-4 control-label">IP Address</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="64" id="ip_address" name="ip_address" placeholder="IP Address">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment" class="col-sm-offset-1 col-sm-4 control-label">Comment</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="comment" name="comment" placeholder="Comment">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="ipSubmit" name="ipSubmit" class="btn btn-primary btn-sm"><i class="fas fa-cloud-upload-alt"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var ipstable;
+var validators   = {{validators | raw}};
+var ip_addresses = {{ip_addresses | raw}};
+
+function deleteIpAddress(d) {
+    /**
+     * populate the form with the values for this company
+     */
+    ip_id = d.getAttribute("data-ip_row");
+    var thisIp = ipstable.row( ip_id ).data();
+
+    $.ajax({
+        type: 'GET',
+        url: site.uri.public + '/admin/elephantwifi/ips/delete/' + thisIp.id,
+        success: onDeleteSuccess,
+        error: onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('delete success');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fas fa-spinner fa-fw fa-spin').addClass('fas fa-cloud-upload-alt fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fas fa-spinner fa-fw fa-spin').addClass('fas fa-cloud-upload-alt fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+}
+
+$(document).ready(function() {
+    ipstable = $('#ipAddresses').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        data: ip_addresses,
+        columns: [
+        	{data: 'id',
+                sortable: false,
+                render: function(data, type, full, meta) {
+                    return '<i class="clickable fas fa-trash fa-fw fa-lg text-primary" data-ip_row="'
+                        + meta.row + '" onclick="deleteIpAddress(this);" data-toggle="tooltip" data-placement="top" title="Delete IP Address"></i>';
+                }
+            },
+            {data: 'ip_address'},
+            {data: 'comment'}
+        ],
+    });
+
+    /**
+     * fix to get Bootstrap tooltips to work within Datatables (use the ID of the table container)
+     * also add data-container: 'body' to the element triggering the tooltip to get it on top of other elements
+     */
+    $('#ipAddresses').on('draw.dt', function () {
+        $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    });
+
+    $('#addIpForm').ufForm({
+        validator: validators,
+        msgTarget: $("#alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    $('#addNewIp').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        $('#addNewIpModal').modal('show');
+    });
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+        $('#form-alerts').empty();
+        $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $(".modal").on('shown', function() {
+        //
+    });
+
+    /**
+     * table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(ipstable.draw, 100);
+    });
+});
+</script>
+{% endblock %}

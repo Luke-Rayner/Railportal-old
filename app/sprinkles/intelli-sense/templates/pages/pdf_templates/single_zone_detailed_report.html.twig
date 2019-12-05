@@ -1,0 +1,707 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+	<!-- Page 1 -->
+	<div class="custom-row left">
+        <p class="header text-orange"><u>Detailed Zone Information for {{zone.name}}</u></p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_average_visits_per_year_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Average visitors, per year </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_average_visits_per_month_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Average visitors, per month </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_average_visits_per_week_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Average visitors, per week </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_average_visits_per_day_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Average visitors, per day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row center">
+        <p class="header">Specific to the date range selected</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row center">
+        <div class="half-page">
+            <p class="sub-header">The total visit count</p>
+        </div>
+        <div class="half-page">
+            <p class="sub-header">Average daily visit count</p>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_range_total_visit_count_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Total visitors this period </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_range_average_daily_visit_count_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Average visitors per day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row center">
+        <div class="half-page">
+            <p class="sub-header">Busiest time of day</p>
+        </div>
+        <div class="half-page">
+            <p class="sub-header">Average Dwell Period</p>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_range_busiest_time_day_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Busiest time of day </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_zone_range_average_dwell_time_{{zone_id}}"></span>
+                    </div>
+                    <div class="desc"> Average dwell time </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_zone_total_visitor_information_pie_{{zone_id}}" class="full_width_chart"></div>
+
+            <div class="center">
+                <p class="sub-header text-orange">Repeat visitors = <span id="total_zone_repeat_visitor_information_text_{{zone_id}}"></span> /&nbsp;New visitors = <span id="total_zone_new_visitor_information_text_{{zone_id}}"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2 -->
+    <div class="custom-row before">
+        <p>The chart below is a graphical view of each day showing the total number of visitors per day split by New and Repeat counts for the zone. A full breakdown per day is followed showing the total count for each day as well as the New vs Repeat splits.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_zone_daily_visitor_information_column_{{zone_id}}" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <div class="custom-row left">
+        <br>
+        <table id="table_zone_daily_visitor_information_{{zone_id}}">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>New visitors</th>
+                    <th>Repeat visitors</th>
+                    <th>Total visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Page 3 -->
+    <div class="custom-row left before">
+        <p class="header">Dwell Information</p>
+        <br>
+        <p>This chart shows a summary of the visitor dwell time analytics, each colour represents a dwell category as shown in the key. The second chart is a numerical breakdown of each day and the associated dwell category counts.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_zone_daily_dwell_information_area_{{zone_id}}" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_zone_daily_dwell_information_{{zone_id}}">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>120+ mins</th>
+                    <th>90-120 mins</th>
+                    <th>60-90 mins</th>
+                    <th>30-60 mins</th>
+                    <th>5-30 mins</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Page 4 -->
+    <div class="custom-row left before">
+        <p class="header">Time of day average</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_zone_average_time_day_area_{{zone_id}}" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_zone_average_time_day_{{zone_id}}">
+            <thead>
+                <tr>
+                    <th>Hour Range</th>
+                    <th>Average visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd = {{end_date}};
+var venue = {{venue | raw}};
+
+$(document).ready(function() {
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/alltime_averages/zone/' + {{zone_id}},
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Zone_AvgVisitor_DataReceived
+    });
+
+	function onPdf_Zone_AvgVisitor_DataReceived(data) {
+        $('#pdf_zone_average_visits_per_year_{{zone_id}}').html(data.average_yearly.toLocaleString());
+        $('#pdf_zone_average_visits_per_month_{{zone_id}}').html(data.average_monthly.toLocaleString());
+        $('#pdf_zone_average_visits_per_week_{{zone_id}}').html(data.average_weekly.toLocaleString());
+        $('#pdf_zone_average_visits_per_day_{{zone_id}}').html(data.average_daily.toLocaleString());
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/unique_daily/zone/{{zone_id}}/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Zone_Month_TotalVisits_AvgDailyVisits_ThisPeriod_DataReceived
+    });
+
+    function onPdf_Zone_Month_TotalVisits_AvgDailyVisits_ThisPeriod_DataReceived(data) {
+        var total_visitors = 0;
+        var counter = data.length;
+        _.forEach(data, function(value, key) {
+            total_visitors += value[1];
+        });
+
+        if (counter > 1) {
+            var average = Math.round(total_visitors/counter);
+        } else {
+            var average = total_visitors;
+        }
+
+        $('#pdf_zone_range_total_visit_count_{{zone_id}}').html(total_visitors.toLocaleString());
+        $('#pdf_zone_range_average_daily_visit_count_{{zone_id}}').html(average.toLocaleString());
+    }
+
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/zone_report/visitors_per_hourofday/{{zone_id}}/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Zone_Month_BusiestTimeOfDay_DataReceived
+    });
+
+    function onPdf_Zone_Month_BusiestTimeOfDay_DataReceived(data) {
+        var hours = _.sortBy(data, function(value, key) {
+            return value[1];
+        });
+
+        if (hours.length > 0) {
+            $('#pdf_zone_range_busiest_time_day_{{zone_id}}').html((_.last(hours)[0]) + ':00 - ' + (_.last(hours)[0] + 1) + ':00');
+        } else {
+            $('#pdf_zone_range_busiest_time_day_{{zone_id}}').html('<span style="font-size: 60%;">no data</span>');
+        }
+
+    }
+
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/average_dwelltime/zone/{{zone_id}}/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Zone_Month_AverageDwellTime_DataReceived
+    });
+
+    function onPdf_Zone_Month_AverageDwellTime_DataReceived(data) {
+        $('#pdf_zone_range_average_dwell_time_{{zone_id}}').html(data + ' <span style="font-size: 60%;">minutes</span>');
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/zone_report/new_vs_repeat/{{zone_id}}/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onChart_zone_total_visitor_information_DataReceived
+    });
+
+    var chart_zone_total_visitor_information_pie_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_zone_total_visitor_information_pie_{{zone_id}}',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        },
+        series: [{
+            name: "visitors",
+            data: [{
+                name: "new visitors",
+                y: 0,
+                color: '#e25826'
+            },
+            {
+                name: "repeat visitors",
+                y: 0,
+                color: '#132149'
+            }]
+        }]
+    };
+
+    var chart_zone_daily_visitor_information_column_Options = {
+        chart: {
+            renderTo: 'chart_zone_daily_visitor_information_column_{{zone_id}}',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    function onChart_zone_total_visitor_information_DataReceived(data) {
+        /**
+         * Load all the data for the chart
+         */
+        if (typeof data.new == 'undefined' || data.new == null) {
+            data.new = [];
+        }
+
+        if (typeof data.repeat == 'undefined' || data.repeat == null) {
+            data.repeat = [];
+        }
+
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * when date range is longer than 5 weeks we switch to area chart instead of column
+         */
+        if (data.new && data.new.length > 5*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_zone_daily_visitor_information_column_Options.series = seriesoptions;
+        var chart_zone_daily_visitor_information_column = new Highcharts.Chart(chart_zone_daily_visitor_information_column_Options);
+        chart_zone_daily_visitor_information_column.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_zone_daily_visitor_information_column.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_zone_daily_visitor_information_column.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data.new, function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data.repeat, function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            var total_visitors = value[1] + value[2]
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + total_visitors + '</td></tr>';
+        });
+
+        $('#table_zone_daily_visitor_information_{{zone_id}} tbody').append(html);
+
+        /**
+         * NOTE: with this function we also feed the "total visitors" data to chart 1.2
+         */
+        var totalnew = 0;
+        _.forEach(data.new, function(value) {
+            totalnew += value[1];
+        });
+
+        var totalrepeat = 0;
+        _.forEach(data.repeat, function(value) {
+            totalrepeat += value[1];
+        });
+
+        /**
+         * define font size percentage for the donut contents, reduce size if total is over 1M
+         */
+        var chart_zone_total_visitor_information_pie__font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var chart_1_2__font_size_perc = 120;
+        }
+
+        chart_zone_total_visitor_information_pie_Options.title.text = '<b style="font-size: ' + chart_zone_total_visitor_information_pie__font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b>Total</b>';
+        var chart_zone_total_visitor_information_pie = new Highcharts.Chart(chart_zone_total_visitor_information_pie_Options);
+        chart_zone_total_visitor_information_pie.series[0].setData([totalnew, totalrepeat]);
+
+        $('#total_zone_repeat_visitor_information_text_{{zone_id}}').html(totalrepeat.toLocaleString());
+        $('#total_zone_new_visitor_information_text_{{zone_id}}').html(totalnew.toLocaleString());
+    }
+
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/zone/visitors_durations/{{zone_id}}/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onChart_zone_daily_dwell_information_area_DataReceived
+    });
+
+    var chart_zone_daily_dwell_information_area_Options = $.extend(true, {}, dwell_time_analysis_options);
+    chart_zone_daily_dwell_information_area_Options.chart.renderTo = 'chart_zone_daily_dwell_information_area_{{zone_id}}';
+    chart_zone_daily_dwell_information_area_Options.xAxis.plotBands = weekends;
+    chart_zone_daily_dwell_information_area_Options.chart.zoomType = 'x';
+
+    function onChart_zone_daily_dwell_information_area_DataReceived(data) {
+        var seriesoptions = [
+            {
+                type: 'area',
+                name: '120+ mins',
+                color: '#949898'
+            },
+            {
+                type: 'area',
+                name: '90-120 mins',
+                color: '#5a5a5a'
+            },
+            {
+                type: 'area',
+                name: '60-90 mins',
+                color: '#6eb553'
+            },
+            {
+                type: 'area',
+                name: '30-60 mins',
+                color: '#4e5977'
+            },
+            {
+                type: 'area',
+                name: '5-30 mins',
+                color: '#e9825c'
+            }
+        ];
+
+        chart_zone_daily_dwell_information_area_Options.series = seriesoptions;
+        chart_zone_daily_dwell_information_area_Options.plotOptions.series.marker.enabled = false;
+        chart_zone_daily_dwell_information_area = new Highcharts.Chart(chart_zone_daily_dwell_information_area_Options);
+        chart_zone_daily_dwell_information_area.series[4].setData(noGapsDataArray(data['dt_level_5'], 86400));
+        chart_zone_daily_dwell_information_area.series[3].setData(noGapsDataArray(data['dt_level_4'], 86400));
+        chart_zone_daily_dwell_information_area.series[2].setData(noGapsDataArray(data['dt_level_3'], 86400));
+        chart_zone_daily_dwell_information_area.series[1].setData(noGapsDataArray(data['dt_level_2'], 86400));
+        chart_zone_daily_dwell_information_area.series[0].setData(noGapsDataArray(data['dt_level_1'], 86400));
+        chart_zone_daily_dwell_information_area.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data['dt_level_5'], function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data['dt_level_4'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['dt_level_3'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['dt_level_2'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['dt_level_1'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + '</td><td>' + value[4] + '</td><td>' + value[5] + '</td></tr>';
+        });
+
+        $('#table_zone_daily_dwell_information_{{zone_id}} tbody').append(html);
+    }
+
+
+
+
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/zone_report/visitors_per_hourofday/{{zone_id}}/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onChart_zone_average_time_day_area_DataReceived
+    });
+
+    var chart_zone_average_time_day_area_Options = {
+        chart: {
+            renderTo: 'chart_zone_average_time_day_area_{{zone_id}}',
+            backgroundColor: '#FFFFFF',
+            type: 'area'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    function onChart_zone_average_time_day_area_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'area',
+                color: '#e25826', // e25826
+                name: 'average visitors'
+            }
+        ];
+
+        chart_zone_average_time_day_area_Options.series = seriesoptions;
+        chart_zone_average_time_day_area = new Highcharts.Chart(chart_zone_average_time_day_area_Options);
+        chart_zone_average_time_day_area.series[0].setData(data);
+
+        var html = '';
+        $.each(data, function(key, value) {
+            var incremented_hour = value[0] + 1;
+            html += '<tr><td>' + value[0] + ':00 - ' + incremented_hour + ':00</td><td>' + value[1] + '</td></tr>';
+        });
+
+        $('#table_zone_average_time_day_{{zone_id}} tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+---
+ip_address:
+  validators:
+    length:
+      label: "&IP_ADDRESS"
+      min: 1
+      max: 64
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&IP_ADDRESS"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&IP_ADDRESS"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&IP_ADDRESS"
+      message: VALIDATE.REQUIRED
+comment:
+  validators:
+    length:
+      label: "&COMMENT"
+      min: 1
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&COMMENT"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&COMMENT"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&COMMENT"
+      message: VALIDATE.REQUIRED

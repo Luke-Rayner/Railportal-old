@@ -1,0 +1,96 @@
+{% extends "pages/pdf_templates/layouts/main-layout.twig" %}
+
+{% block content %}
+<style>
+    #table_average_time_day td {
+        font-size: 16px !important;
+    }
+</style>
+
+<div class="pdf-page-content">
+    <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Average Time of Day</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_average_time_day_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_average_time_day">
+            <thead>
+                <tr>
+                    <th>Hour Range</th>
+                    <th>Average visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() {
+
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/visitors_per_hourofday/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: chart_averageTimeDayArea_DataReceived
+    });
+
+    var chart_averageTimeDayArea_Options = {
+        chart: {
+            renderTo: 'chart_average_time_day_area',
+            backgroundColor: '#FFFFFF',
+            type: 'area'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    function chart_averageTimeDayArea_DataReceived(data) {
+        var seriesoptions = [
+            {
+                type: 'area',
+                color: '#e25826', // e25826
+                name: 'average visitors'
+            }
+        ];
+
+        chart_averageTimeDayArea_Options.series = seriesoptions;
+        chart_averageTimeDayArea = new Highcharts.Chart(chart_averageTimeDayArea_Options);
+        chart_averageTimeDayArea.series[0].setData(data);
+
+        var html = '';
+        $.each(data, function(key, value) {
+            html += '<tr><td>' + value[0] + ' - ' + (value[0] + 1) + '</td><td>' + value[1] + '</td></tr>';
+        });
+
+        $('#table_average_time_day tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

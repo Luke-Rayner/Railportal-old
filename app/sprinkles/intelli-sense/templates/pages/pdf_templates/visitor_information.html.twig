@@ -1,0 +1,387 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Visitor Information</p>
+        <br>
+        <p>The donut below shows the total number of visitors for the date range selected split by New and Repeat counts</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_total_visitor_information_pie" class="full_width_chart"></div>
+
+            <div class="center">
+                <p class="sub-header text-orange">Repeat visitors = <span id="total_repeat_visitor_information_text"></span></p>
+                <p class="sub-header text-orange">New visitors = <span id="total_new_visitor_information_text"></span></p>
+            </div>
+            <br>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <p>The graph below shows an area graph for the date range selected showing the number of visitors per day. The grey bars indicate weekends.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_visitor_information_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <!-- Page 2 -->
+    <div class="custom-row before">
+        <p>The chart below is a graphical view of each day showing the total number of visitors per day split by New and Repeat counts. The second chart is a full numerical breakdown per day showing the total count for each day as well as the New Vs Repeat splits.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_visitor_information_column" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <div class="custom-row left">
+        <br>
+        <table id="table_daily_visitor_information">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>New visitors</th>
+                    <th>Repeat visitors</th>
+                    <th>Total visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() {
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/new_vs_repeat/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Month_TotalVisits_AvgDailyVisits_ThisPeriod_DataReceived
+    });
+
+    /**
+     *
+     */
+    var chart_totalVisitorInformationPie_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_total_visitor_information_pie',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 + '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    chart_totalVisitorInformationPie_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "new visitors",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat visitors",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    var chart_dailyVisitorInformationColumn_Options = {
+        chart: {
+            renderTo: 'chart_daily_visitor_information_column',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     *
+     */
+    function onPdf_Month_TotalVisits_AvgDailyVisits_ThisPeriod_DataReceived(data) {
+        /**
+         * populate the charts
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_dailyVisitorInformationColumn_Options.series = seriesoptions;
+        var chart_dailyVisitorInformationColumn = new Highcharts.Chart(chart_dailyVisitorInformationColumn_Options);
+        chart_dailyVisitorInformationColumn.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_dailyVisitorInformationColumn.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_dailyVisitorInformationColumn.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data.new, function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data.repeat, function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            var total_visitors = value[1] + value[2]
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + total_visitors + '</td></tr>';
+        });
+
+        $('#table_daily_visitor_information tbody').append(html);
+
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        var chart_totalVisitorInformationPie_font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var chart_totalVisitorInformationPie_font_size_perc = 120;
+        }
+
+        chart_totalVisitorInformationPie_Options.title.text = '<b style="font-size: ' + chart_totalVisitorInformationPie_font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b>Total</b>';
+        var chart_totalVisitorInformationPie = new Highcharts.Chart(chart_totalVisitorInformationPie_Options);
+        chart_totalVisitorInformationPie.series[0].setData([totalnew, totalrepeat]);
+
+        /**
+         * Populate the text below pie chart
+         */
+        $('#total_repeat_visitor_information_text').html(totalrepeat.toLocaleString());
+        $('#total_new_visitor_information_text').html(totalnew.toLocaleString());
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/daily/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onVisitorsDataReceived
+    });
+
+    var chart_daily_visitor_information_area_Options = {
+        chart: {
+            renderTo:        'chart_daily_visitor_information_area',
+            backgroundColor: '#FFFFFF',
+            type:            'area',
+            zoomType:        'x'
+        },
+        xAxis: {
+            type:      'datetime',
+            plotBands: weekends,
+            labels: {
+                format: '{value: %e %b}'
+            }
+        },
+        plotOptions: {
+            area: {
+                pointPlacement: 'between',
+                marker: {
+                    enabled: false,
+                    symbol:  'circle',
+                    radius:  2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    function onVisitorsDataReceived(data) {
+        /**
+         * Load all the data for the charts and sort the json results
+         */
+        data.sort(function(a, b){
+            var x=a[0];
+            var y=b[0];
+            return x-y;
+        });
+
+        /**
+         * do something with the data
+         */
+        var uniqueMetrics =[];
+        uniqueMetrics     = data;
+        var seriesoptions = [
+            {
+                type:     'area',
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled:   true,
+                        lineWidth: 2
+                    }
+                },
+                color:      '#e25826',
+                name:       'unique visitors',
+                pointInterval: 24 * 3600 * 1000
+            }
+        ];
+
+        chart_daily_visitor_information_area_Options.series = seriesoptions;
+        var chart_daily_visitor_information_area            = new Highcharts.Chart(chart_daily_visitor_information_area_Options);
+        chart_daily_visitor_information_area.series[0].setData(noGapsDataArray(uniqueMetrics, 86400));
+    }
+});
+</script>
+{% endblock %}

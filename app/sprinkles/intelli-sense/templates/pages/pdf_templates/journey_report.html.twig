@@ -1,0 +1,252 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+       <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Journey Report</p>
+        <br>
+        <p>The journey report is only capable of reporting on a maximum of 7 days, 
+        below is a graphical overview of the last 7 days of the month showing how visitors move around the venue.</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_pdf_journey_report" class="journey_report_chart"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() { 
+    /**
+     * get the visitor data from the backend using ajax
+     * url: "/api/stats/venue/sankey_chart/visitors/:rangeStart/:rangeEnd"
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/venue/sankey_chart/visitors/' + pdfRangeStart + '/' + pdfRangeEnd + '/' + 4,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_JourneyReport_DataReceived
+    });
+
+    /**
+     * process received visitors data
+     */
+    function onPdf_JourneyReport_DataReceived(data) {
+        console.log(data);
+        /**
+         * if we don't have routes or nodes we don't continue, instead we display an error message
+         */
+        if (data.nodes.length == 0 || data.links.length == 0) {
+            console.log("error");
+        } else {
+            /**
+             * first we cleanup the node names by stripping the leading index
+             * (we only needed the leading index value as an intermediate step)
+             * we also count the number of steps so we can determine optimal width of canvas
+             *
+             * TODO:
+             * - consider making step_width a configuration parameter per venue
+             */
+            var steps      = [];
+            var step_width = 320;
+
+            data.nodes.forEach(function(part, index, theArray) {
+                steps.push(part.name.split('__')[0]);
+                theArray[index].name = part.name.split('__')[1];
+            });
+
+            /**
+             * dynamically define dimensions of the canvas
+             */
+            var margin      = {top: 20, bottom: 10, right: 20, left: 20},
+                full_width  = (_.max(steps)-1) * step_width,
+                full_height = 570, // leave 20px space for the horizontal scroller when needed
+                width       = full_width - (margin.left + margin.right),
+                height      = full_height - (margin.top + margin.bottom);
+
+            /**
+             * define other variables required
+             *
+             * NOTES:
+             * - color scales from here:
+             *   https://github.com/d3/d3-3.x-api-reference/blob/05d4f275bcf786aa84503cc82386f4b27cf2fa31/Ordinal-Scales.md
+             *   or here:
+             *   https://github.com/d3/d3/tree/v3.5.17/lib/colorbrewer
+             *
+             * TODO:
+             * - add pan/zoom of canvas like so??:
+             * https://bl.ocks.org/mbostock/6123708
+             */
+            var formatNumber = d3.format(",.0f"),
+                format       = function(d) {
+                                  if(d > 1) {
+                                      return formatNumber(d) + " visitors";
+                                  } else {
+                                      return formatNumber(d) + " visitor";
+                                  }
+                               },
+                color        = d3.scale.category20();
+
+            /**
+             * define d3.js chart and it's parameters
+             */
+            var sankey = d3.sankey()
+                .nodeWidth(30)
+                .nodePadding(20)
+                .size([width, height])
+                .rightJustifyEndpoints(false);
+
+            var svg = d3.select("#chart_pdf_journey_report").append("svg:svg")
+                .attr("width", full_width)
+                .attr("height", full_height)
+                .attr("preserveAspectRatio", "xMinYMid meet")
+                .attr("viewBox",
+                    + (0 - (margin.left) ) + " "                     // left
+                    + (0 - margin.top) + " "                         // top
+                    + (width + margin.left + margin.right) + " "     // width
+                    + (height + margin.top + margin.bottom) + " " ); // height
+
+            var rootGraphic = svg
+                // zoom almost works, only need to work on the dragging and adding a reset button
+                /*.call(d3.behavior.zoom().on("zoom", function () {
+                    svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+                }))*/
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var path = sankey.link();
+
+            /**
+             * function to actually draw the chart
+             */
+            function createChart(traffic) {
+                sankey
+                    .nodes(traffic.nodes)
+                    .links(traffic.links)
+                    .layout(32);
+
+                var allgraphics = svg.append("g").attr("id", "node-and-link-container" );
+
+                var link = allgraphics.append("g").attr("id", "link-container")
+                    .selectAll(".link")
+                    .data(traffic.links)
+                    .enter().append("path")
+                        .attr("class", function(d) { return (d.causesCycle ? "cycleLink" : "link") })
+                        .attr("d", path)
+                    .sort(function(a, b) { return b.dy - a.dy; });
+
+                link.filter( function(d) { return !d.causesCycle} )
+                    .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+
+                var node = allgraphics.append("g").attr("id", "node-container")
+                    .selectAll(".node")
+                    .data(traffic.nodes)
+                    .enter().append("g")
+                        .attr("class", "node")
+                        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                    .call(d3.behavior.drag()
+                        .origin(function(d) { return d; })
+                        .on("dragstart", function() { this.parentNode.appendChild(this); })
+                        .on("drag", dragmove))
+
+                node.append("rect")
+                    .attr("height", function(d) { return d.dy; })
+                    .attr("width", sankey.nodeWidth())
+                    .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+                    .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+                  .append("title")
+                    .text(function(d) { return tooltiptext(d) });
+
+                node.append("text")
+                    .attr("x", -6)
+                    .attr("y", function(d) { return d.dy / 2; })
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "end")
+                    .attr("transform", null)
+                    .text(function(d) { return d.name; })
+                    .filter(function(d) { return d.x < width / 2; })
+                    .attr("x", 6 + sankey.nodeWidth())
+                    .attr("text-anchor", "start");
+
+                link.filter( function(d) { return !d.causesCycle} )
+                    .style("stroke", function(d) { return d.source.color; })
+
+                link.append("title")
+                    .text(function(d) { return tooltiptext(d); })
+
+                function dragmove(d) {
+                    /**
+                     * two options, one for vertical movement only and one for 2-dimensional movement
+                     */
+                    d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+                    //d3.select(this).attr("transform", "translate("
+                    //    + (d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))) + ","
+                    //    + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+                    sankey.relayout();
+                    link.attr("d", path);
+                }
+
+                /**
+                 * function to format the various tooltip text labels
+                 */
+                function tooltiptext(d){
+                    if (d.sourceLinks) {
+                        if (d.sourceLinks.length > 0 && d.targetLinks.length > 0) {
+                            var total_exits = 0;
+                            _.forEach(d.sourceLinks, function(link) {
+                                total_exits += link.value;
+                            });
+
+                            if (d.value != total_exits) {
+                                return d.name + '\n' + format(d.value) + ' arrived here, of them' + '\n' + (d.value - total_exits) + ' (' + Math.round(((d.value - total_exits)/d.value) * 100) + '%) did not continue their journey';
+                            } else {
+                                return d.name + '\n' + format(d.value) + ' arrived here and continued their journey';
+                            }
+                        }
+
+                        if (d.sourceLinks.length > 0 && d.targetLinks.length == 0) {
+                            return d.name + '\n' + format(d.value) + ' started their journey here';
+                        }
+
+                        if (d.sourceLinks.length == 0 && d.targetLinks.length > 0) {
+                            return d.name + '\n' + format(d.value) + ' arrived and ended their journey here';
+                        }
+                    }
+
+                    if (d.source) {
+                        return d.source.name + ' → ' + d.target.name + '\n' + format(d.value) + ' (' + Math.round((d.value/d.source.value)*100) + '%)';
+                    }
+
+                    return '';
+                }
+
+                /**
+                 * The original coder of this Sankey chart function claims he needs to learn javascript ;-)
+                 */
+                var numCycles = 0;
+                for( var i = 0; i< sankey.links().length; i++ ) {
+                    if( sankey.links()[i].causesCycle ) {
+                        numCycles++;
+                    }
+                }
+
+            };
+
+            /**
+             * call the chart drawing function and reference the post-processed data array
+             */
+            createChart(data);
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,283 @@
+<div id='{{box_id}}' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+
+                <form class="form-horizontal" id="addZone" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="zone_name" class="col-sm-offset-2 col-sm-3 control-label">Zone name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="50" id="zone_name" value="{{target_zone.name}}" name="name" placeholder="Zone name">
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if include_venue == 1 %}
+                    <div class="form-group">
+                        <label for="zone_venue" class="col-sm-offset-2 col-sm-3 control-label">Zone venue</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="zone_venue" name="venue_id" class="form-control">
+                                    {% for venue in venues %}
+                                        <option value="{{ venue.id }}" {% if (target_zone.venue_id == venue.id) %}selected{% endif %}>{{ venue.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="capture_start" class="col-sm-offset-2 col-sm-3 control-label">Data capture start date</label>
+                        <div class="col-sm-5">
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar fa-fw fa-lg"></i></span>
+                                <div class="capture_start_wrapper"></div>
+                            </div>
+                            <p>If capture start isn't loading correct date click <a><span onclick="reloadVenueInfo('{{target_zone.id}}');">refresh</span></a></p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="zone_category" class="col-sm-offset-2 col-sm-3 control-label">Zone category</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-folder fa-fw fa-lg"></i></span>
+                                <select id="zone_category" name="category_id" class="form-control">
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if (target_zone.category_id == category.id) %}selected{% endif %}>{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="zone_tags" class="col-sm-offset-2 col-sm-3 control-label">Tags</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tags fa-fw fa-lg"></i></span>
+                                <select id="zone_tags" class="form-control select2 ufformsubmit_skip_serialise" multiple="multiple" name="associated_tags">
+                                    {% for tag in tags %}
+                                    <option value="{{tag.id}}" {% if tag.id in target_zone.getTagIds() %}selected{% endif %}>{{tag.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="zone_lat" class="col-sm-offset-2 col-sm-3 control-label">Lat position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="zone_lat" value="{{target_zone.lat}}" name="lat" placeholder="Lat position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="zone_lon" class="col-sm-offset-2 col-sm-3 control-label">Long position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="zone_lon" value="{{target_zone.lon}}" name="lon" placeholder="Long position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tracking_zone" class="col-sm-5 control-label">Geo sense zone</label>
+                        <div class="col-sm-2" style="margin-top:4px;">
+                             <div class="input-group">
+                                 <input id="tracking_zone" type="checkbox" name="tracking_zone" value="{{target_zone.tracking_zone}}" data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if target_zone.tracking_zone == 1 %} checked="checked"{% endif %}>
+                             </div>
+                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="wifi_zone" class="col-sm-5 control-label">WiFi zone</label>
+                        <div class="col-sm-2" style="margin-top:4px;">
+                             <div class="input-group">
+                                 <input id="wifi_zone" type="checkbox" name="wifi_zone" value="{{target_zone.wifi_zone}}" data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if target_zone.wifi_zone == 1 %} checked="checked"{% endif %}>
+                             </div>
+                         </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="zoneSubmit" name="zoneSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save new Zone</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type='button' id="deleteZone" name="deleteZone" class="btn btn-danger btn-sm"><i class="fa fa-ban"></i> Delete Zone</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- start confirmation modal -->
+<div id="confirmModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="confirmModalHeader" id="confirmModalHeader"><i class="fa fa-question-circle fa-lg fa-fw"></i>Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Are you sure you wish to permanently remove this zone?
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> Cancel
+                            </button>
+                            <button type='submit' id="confirmModalSubmit" name="confirmModalSubmit" class="btn btn-danger">
+                                <i class="fas fa-minus-circle fa-fw"></i> Delete
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+{% if mode == 'edit' %}
+var target_zone = {{target_zone | raw}};
+{% endif %}
+
+$(document).ready(function() {
+    $('#zone_tags').select2();
+
+    /**
+     * When we load the modal delete any existance of capture_start and then recreate it.
+     * - Prevents the inout from display invalid date
+     */
+    $('#capture_start').remove();
+    $('.capture_start_wrapper').append('<input type="text" id="capture_start" name="capture_start" value="{{target_zone.capture_start}}" class="form-control">');
+
+    /**
+     * display the timestamp in human-readable format
+     * TODO:
+     * - fix this not working after switching between edit/create usage of this form on the same page
+     */
+
+    if ($('#capture_start').val() == 0 || $('#capture_start').val() == '')
+        capture_start_date = moment().format('DD-MM-YYYY');
+    else 
+        capture_start_date = moment.unix($('#capture_start').val()).format('DD-MM-YYYY');
+
+    $('#capture_start').daterangepicker({
+            locale: {
+              format: 'DD-MM-YYYY'
+            },
+            singleDatePicker:   true,
+            startDate:          capture_start_date,
+            minDate:            moment('01-01-2015'),
+            maxDate:            moment()
+        }, function(start, end, label) {
+            // we are done here
+    });
+});
+
+/**
+ * enable Bootstrap tooltips on this page
+ */
+$(function () {
+    $("[data-toggle='tooltip']").tooltip();
+});
+
+$('#tracking_zone').bootstrapSwitch();
+$('#wifi_zone').bootstrapSwitch();
+ 
+$('#tracking_zone').bootstrapSwitch('setSizeClass', 'switch-mini');
+$('#wifi_zone').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+/**
+ * initialise the select2 class elements and destroy any old ones that might still exist
+ */
+$('#{{box_id}} .select2').select2('destroy');
+$('#{{box_id}} .select2').select2({
+    selectOnClose: true
+});
+
+/**
+ * function to open the confirmation modal in edit mode
+ */
+$('#deleteZone').click(function(e) {
+    $('#confirmModal').modal('show');
+});
+
+/**
+ * process zone delete request from the confirmation modal
+ */
+$('#confirmModalSubmit').click(function(){
+    $('#confirmModalSubmit').prop('disabled', true);
+    $('#confirmModalSubmit').find('i').removeClass().addClass('fa fa-spinner fa-fw fa-spin');
+
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site.uri.public + '/admin/zones/delete/' + target_zone.id,
+        success:    onDeleteSuccess,
+        error:      onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('delete success');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+});
+
+</script>

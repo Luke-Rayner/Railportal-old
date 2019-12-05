@@ -1,0 +1,260 @@
+---
+venue_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    required:
+      message: VENUE_ID_REQUIRED
+venue_captive_portal_text_labels_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    required:
+      message: VENUE_CAPTIVE_PORTAL_TEXT_LABELS_ID_REQUIRED
+page_title:
+  validators:
+    length:
+      max: 60
+      message: CP_LABELS_PAGE_TITLE_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+heading:
+  validators:
+    length:
+      max: 60
+      message: CP_LABELS_HEADING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+sub_heading:
+  validators:
+    length:
+      max: 128
+      message: CP_LABELS_SUB_HEADING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+basic_sub_heading:
+  validators:
+    length:
+      max: 128
+      message: CP_LABELS_SUB_HEADING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+registration_sub_heading:
+  validators:
+    length:
+      max: 128
+      message: CP_LABELS_REGISTRATION_SUB_HEADING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_sub_heading:
+  validators:
+    length:
+      max: 500
+      message: CP_LABELS_SOCIAL_AUTH_SUB_HEADING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+motd_sub_heading:
+  validators:
+    length:
+      max: 128
+      message: CP_LABELS_MOTD_SUB_HEADING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+tos_title:
+  validators:
+    length:
+      max: 60
+      message: CP_LABELS_TOS_TITLE_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+tos_pre_link_label:
+  validators:
+    length:
+      max: 128
+      message: CP_LABELS_TOS_PRE_PRE_LINK_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+tos_post_link_label:
+  validators:
+    length:
+      max: 128
+      message: CP_LABELS_TOS_POST_PRE_LINK_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+tos_modal_content:
+  validators:
+    length:
+      max: 4000
+      message: CP_LABELS_TOS_MODAL_CONTENT_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+tos_modal_dismiss_button_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_TOS_MODAL_DISMISS_BUTTON_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+basic_connect_button_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_BASIC_CONNECT_BUTTON_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+basic_connect_button_class:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_BASIC_CONNECT_BUTTON_CLASS_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+first_name_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_FIRST_NAME_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+last_name_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_LAST_NAME_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+email_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_EMAIL_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+first_name_placeholder:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_FIRST_NAME_PLACEHOLDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+last_name_placeholder:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_LAST_NAME_PLACEHOLDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+email_placeholder:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_EMAIL_PLACEHOLDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+registration_form_button_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_REGISTRATION_FORM_BUTTON_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+registration_form_button_class:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_REGISTRATION_FORM_BUTTON_CLASS_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+motd_form_button_label:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_MOTD_FORM_BUTTON_LABEL_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+motd_form_button_class:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_MOTD_FORM_BUTTON_CLASS_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+redirecting:
+  validators:
+    length:
+      max: 60
+      message: CP_LABELS_REDIRECTING_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_button_label_pre_provider:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_SOCIAL_AUTH_BUTTON_LABEL_PRE_PROVIDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_button_label_registration:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_SOCIAL_AUTH_BUTTON_LABEL_REGISTRATION_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_button_size:
+  validators:
+    length:
+      max: 2
+      message: CP_LABELS_SOCIAL_AUTH_BUTTON_SIZE_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_connecting_pre_provider:
+  validators:
+    length:
+      max: 60
+      message: CP_LABELS_SOCIAL_AUTH_CONNECTING_PRE_PROVIDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_redirecting_pre_provider:
+  validators:
+    length:
+      max: 60
+      message: CP_LABELS_SOCIAL_AUTH_REDIRECTING_PRE_PROVIDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim
+social_auth_redirecting_post_provider:
+  validators:
+    length:
+      max: 30
+      message: CP_LABELS_SOCIAL_AUTH_REDIRECTING_POST_PROVIDER_CHAR_LIMIT
+  transformations:
+  - escape
+  - trim

@@ -1,0 +1,200 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Drone summary",
+        "description" : "drone summary displaying status of drones for each venue"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Drones summary all venues</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="drones" class="table table-sorting table-striped table-hover datatable" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Drone Active</th>
+                            <th>Drone Inactive</th>
+                            <th>Drone Calibrating</th>
+                            <th>Capturing Online</th>
+                            <th>Capturing Quiet</th>
+                            <th>Capturing Offline</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END PORTLETS -->
+{# END PAGE CONTENT #}
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+var dronestable;
+
+function venueRedirect(venueid) {
+    var current_venue = '{{current_user.primaryVenue.id}}';
+
+    $.ajax ({
+        url: '{{site.uri.public}}/geo-sense/api/drone_summary/all_drones',
+        dataSrc: function(json) {
+            return json['rows'];
+        }
+    });
+
+    if (venueid !== current_venue) {
+        var requested_venue = venueid;
+
+        /**
+         * ajax function to request switch of primary_venue for the current user
+         */
+        $.ajax({
+            url: '{{site.uri.public}}' + '/users/switch_venue/' + requested_venue + '/' + current_venue,
+            type: 'GET',
+            dataType: 'json',
+            success: function () {
+                /**
+                 * Reload the page on success
+                 */
+                window.location.replace('{{site.uri.public}}/admin/geo-sense/drones');
+                console.log('venue switch approved and done')
+            }
+        });
+    } else {
+        // what we do when the current venue is selected
+    }
+}
+
+/**
+ * Set the global timezone for this session for use in moment.js
+ */
+moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+moment.updateLocale('en', {
+    week : {
+        dow : 1,
+    }
+});
+
+$(document).ready(function() {
+    var test = [];
+    dronestable = $('#drones').DataTable({
+        responsive: true,
+        autoWidth:  true,
+        scrollX:    true,
+        order: [[ 6, "desc" ], [ 5, "desc" ], [ 0, "asc" ]],
+        language: {
+            loadingRecords: '<br><br><h4>Loading...</h4>'
+        },
+        deferRender: true,
+        ajax: {
+            url: '{{site.uri.public}}/geo-sense/api/drone_summary/all_drones',
+            dataSrc: function(json) {
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'name',
+                render: function(data, type, full, meta) {
+                    return '<p class="clickable" onclick="venueRedirect(' + full.id + ')">' + data + '</p>';
+                }
+            },
+            {data: 'active',
+                render: function(data, type, full, meta) {
+                    return '<span class="label label-success" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                }
+            },
+            {data: 'inactive',
+                render: function(data, type, full, meta) {
+                    return '<span class="label label-default" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                }
+            },
+            {data: 'calibrating',
+                render: function(data, type, full, meta) {
+                    return '<span class="label label-primary" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                }
+            },
+            {data: 'online',
+                render: function(data, type, full, meta) {
+                    if (data > 0){
+                        return '<span class="label label-success" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                    }
+                    else {
+                        return '<span class="label label-default" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                    }
+
+                }
+            },
+            {data: 'quiet',
+                render: function(data, type, full, meta) {
+                    if (data > 0){
+                        return '<span class="label label-warning" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                    }
+                    else {
+                        return '<span class="label label-default" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                    }
+
+                }
+            },
+            {data: 'offline',
+                render: function(data, type, full, meta) {
+                    if (data > 0){
+                        return '<span class="label label-danger" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                    }
+                    else {
+                        return '<span class="label label-default" style="font-size: 150%; display:inline-block; width:50px;">' + data + '</span>';
+                    }
+
+                }
+            }
+        ],
+    });
+
+    setTimeout(refreshTimer1Minute, 60000);
+
+    function refreshTimer1Minute() {
+        /**
+         * refresh the drones table content
+         */
+        console.log('refreshing table contents');
+        dronestable.ajax.reload();
+        setTimeout(refreshTimer1Minute, 60000);
+    }
+
+    /**
+     *table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(dronestable.draw, 100);
+    });
+
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,382 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Visitor Journeys Diagram",
+        "description" : "Diagram showing visitor journeys between Zones"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="page_daterange" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+
+    <!-- <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="window.print();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Visitor journeys</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="loading_spinner" style="position: absolute; top: 50%; width: 100%; font-size: 100%; text-align: center; z-index: 11; opacity: 0.5;"><i class="fa fa-spinner fa-2x fa-spin"></i><br><p>This may take a few minutes</p></div>
+                <div id="sankey_container" style="width: 100%; height:600px; overflow-x:auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+/**
+ * some global vars which we might require
+ */
+
+$(document).ready(function() {
+    /**
+     * Set the global timezone for this session for use in moment.js
+     */
+    moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+    moment.updateLocale('en', {
+        week : {
+            dow : 1,
+        }
+    });
+
+    /**
+     * timeframe for the charts here
+     */
+    var rangeStart = moment().subtract(1, 'day').startOf('day');
+    var rangeEnd   = moment().subtract(1, 'day').endOf('day');
+
+    /**
+     * get the visitor data from the backend using ajax
+     * url: "/api/stats/venue/sankey_chart/visitors/:rangeStart/:rangeEnd"
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/geo-sense/api/stats/venue/sankey_chart/visitors/' + rangeStart + '/' + rangeEnd,
+        type:       'GET',
+        dataType:   'json',
+        beforeSend: function() {
+            $("#loading_spinner").html('<i class="fa fa-spinner fa-2x fa-spin"></i><br><p>This may take a few minutes</p>');
+            $("#loading_spinner").fadeIn();
+        },
+        success:    onVisitorDataReceived
+    });
+
+    /**
+     * process received visitors data
+     */
+    function onVisitorDataReceived(data) {
+        console.log(data);
+        //console.log(data);
+        /**
+         * if we don't have routes or nodes we don't continue, instead we display an error message
+         */
+        if (data.nodes.length == 0 || data.links.length == 0) {
+            $("#loading_spinner").html('<span style="font-size: 200%;">No journey data available</span>');
+        } else {
+            /**
+             * first we cleanup the node names by stripping the leading index
+             * (we only needed the leading index value as an intermediate step)
+             * we also count the number of steps so we can determine optimal width of canvas
+             *
+             * TODO:
+             * - consider making step_width a configuration parameter per venue
+             */
+            var steps      = [];
+            var step_width = 320;
+
+            data.nodes.forEach(function(part, index, theArray) {
+                steps.push(part.name.split('__')[0]);
+                theArray[index].name = part.name.split('__')[1];
+            });
+
+            /**
+             * dynamically define dimensions of the canvas
+             */
+            var margin      = {top: 20, bottom: 10, right: 20, left: 20},
+                full_width  = (_.max(steps)-1) * step_width,
+                full_height = 570, // leave 20px space for the horizontal scroller when needed
+                width       = full_width - (margin.left + margin.right),
+                height      = full_height - (margin.top + margin.bottom);
+
+            /**
+             * define other variables required
+             *
+             * NOTES:
+             * - color scales from here:
+             *   https://github.com/d3/d3-3.x-api-reference/blob/05d4f275bcf786aa84503cc82386f4b27cf2fa31/Ordinal-Scales.md
+             *   or here:
+             *   https://github.com/d3/d3/tree/v3.5.17/lib/colorbrewer
+             *
+             * TODO:
+             * - add pan/zoom of canvas like so??:
+             * https://bl.ocks.org/mbostock/6123708
+             */
+            var formatNumber = d3.format(",.0f"),
+                format       = function(d) {
+                                  if(d > 1) {
+                                      return formatNumber(d) + " visitors";
+                                  } else {
+                                      return formatNumber(d) + " visitor";
+                                  }
+                               },
+                color        = d3.scale.category20();
+
+            /**
+             * define d3.js chart and it's parameters
+             */
+            var sankey = d3.sankey()
+                .nodeWidth(30)
+                .nodePadding(20)
+                .size([width, height])
+                .rightJustifyEndpoints(false);
+
+            var svg = d3.select("#sankey_container").append("svg:svg")
+                .attr("width", full_width)
+                .attr("height", full_height)
+                .attr("preserveAspectRatio", "xMinYMid meet")
+                .attr("viewBox",
+                    + (0 - (margin.left) ) + " "                     // left
+                    + (0 - margin.top) + " "                         // top
+                    + (width + margin.left + margin.right) + " "     // width
+                    + (height + margin.top + margin.bottom) + " " ); // height
+
+            var rootGraphic = svg
+                // zoom almost works, only need to work on the dragging and adding a reset button
+                /*.call(d3.behavior.zoom().on("zoom", function () {
+                    svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+                }))*/
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var path = sankey.link();
+
+            /**
+             * function to actually draw the chart
+             */
+            function createChart(traffic) {
+                sankey
+                    .nodes(traffic.nodes)
+                    .links(traffic.links)
+                    .layout(32);
+
+                var allgraphics = svg.append("g").attr("id", "node-and-link-container" );
+
+                var link = allgraphics.append("g").attr("id", "link-container")
+                    .selectAll(".link")
+                    .data(traffic.links)
+                    .enter().append("path")
+                        .attr("class", function(d) { return (d.causesCycle ? "cycleLink" : "link") })
+                        .attr("d", path)
+                    .sort(function(a, b) { return b.dy - a.dy; });
+
+                link.filter( function(d) { return !d.causesCycle} )
+                    .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+
+                var node = allgraphics.append("g").attr("id", "node-container")
+                    .selectAll(".node")
+                    .data(traffic.nodes)
+                    .enter().append("g")
+                        .attr("class", "node")
+                        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                    .call(d3.behavior.drag()
+                        .origin(function(d) { return d; })
+                        .on("dragstart", function() { this.parentNode.appendChild(this); })
+                        .on("drag", dragmove))
+
+                node.append("rect")
+                    .attr("height", function(d) { return d.dy; })
+                    .attr("width", sankey.nodeWidth())
+                    .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+                    .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+                  .append("title")
+                    .text(function(d) { return tooltiptext(d) });
+
+                node.append("text")
+                    .attr("x", -6)
+                    .attr("y", function(d) { return d.dy / 2; })
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "end")
+                    .attr("transform", null)
+                    .text(function(d) { return d.name; })
+                    .filter(function(d) { return d.x < width / 2; })
+                    .attr("x", 6 + sankey.nodeWidth())
+                    .attr("text-anchor", "start");
+
+                link.filter( function(d) { return !d.causesCycle} )
+                    .style("stroke", function(d) { return d.source.color; })
+
+                link.append("title")
+                    .text(function(d) { return tooltiptext(d); })
+
+                function dragmove(d) {
+                    /**
+                     * two options, one for vertical movement only and one for 2-dimensional movement
+                     */
+                    d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+                    //d3.select(this).attr("transform", "translate("
+                    //    + (d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))) + ","
+                    //    + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+                    sankey.relayout();
+                    link.attr("d", path);
+                }
+
+                /**
+                 * function to format the various tooltip text labels
+                 */
+                function tooltiptext(d){
+                    if (d.sourceLinks) {
+                        if (d.sourceLinks.length > 0 && d.targetLinks.length > 0) {
+                            var total_exits = 0;
+                            _.forEach(d.sourceLinks, function(link) {
+                                total_exits += link.value;
+                            });
+
+                            if (d.value != total_exits) {
+                                return d.name + '\n' + format(d.value) + ' arrived here, of them' + '\n' + (d.value - total_exits) + ' (' + Math.round(((d.value - total_exits)/d.value) * 100) + '%) did not continue their journey';
+                            } else {
+                                return d.name + '\n' + format(d.value) + ' arrived here and continued their journey';
+                            }
+                        }
+
+                        if (d.sourceLinks.length > 0 && d.targetLinks.length == 0) {
+                            return d.name + '\n' + format(d.value) + ' started their journey here';
+                        }
+
+                        if (d.sourceLinks.length == 0 && d.targetLinks.length > 0) {
+                            return d.name + '\n' + format(d.value) + ' arrived and ended their journey here';
+                        }
+                    }
+
+                    if (d.source) {
+                        return d.source.name + ' → ' + d.target.name + '\n' + format(d.value) + ' (' + Math.round((d.value/d.source.value)*100) + '%)';
+                    }
+
+                    return '';
+                }
+
+                /**
+                 * The original coder of this Sankey chart function claims he needs to learn javascript ;-)
+                 */
+                var numCycles = 0;
+                for( var i = 0; i< sankey.links().length; i++ ) {
+                    if( sankey.links()[i].causesCycle ) {
+                        numCycles++;
+                    }
+                }
+
+            };
+
+            $("#loading_spinner").fadeOut();
+
+            /**
+             * call the chart drawing function and reference the post-processed data array
+             */
+            createChart(data);
+        }
+    }
+
+    /***************************************************************
+    * daterangepicker and ajax loading of all the data from here
+    ****************************************************************/
+    /*
+    functions to display the "active" custom date range and the picker for current page
+    */
+    $('#page_daterange').daterangepicker({
+        timePicker:             true,
+        timePicker24Hour:       true,
+        timePickerIncrement:    15,
+        showISOWeekNumbers:     true,
+        dateLimit: {
+            days: 7
+        },
+        locale: {
+            format: "DD/MM/YYYY",
+            firstDay: 1
+        },
+        ranges: {
+           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+           'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')]
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:    moment().subtract(1, 'day').endOf('day'),
+        opens:      'left'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        console.log('start: ' + start + ' end: ' + end);
+
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html('<b>' + start.format('H:mm dddd, D MMMM YYYY') + ' - ' + end.format('H:mm dddd, D MMMM YYYY') + '</b>');
+        $('#page_daterange_selected_small').html('<b>' + start.format('H:mm D MMM YYYY') + ' - ' + end.format('H:mm D MMM YYYY') + '</b>');
+
+        /**
+         * from here we call all ajax sources with the newly selected start/end:
+         */
+
+        /**
+         * fist remove the current chart canvas
+         */
+        d3.selectAll("svg").remove();
+
+        /**
+         * get the visitor data from the backend using ajax
+         * url: "/api/stats/venue/sankey_chart/visitors/:rangeStart/:rangeEnd"
+         */
+        $.ajax({
+            url: '{{site.uri.public}}/geo-sense/api/stats/venue/sankey_chart/visitors/' + start + '/' + end,
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+                $("#loading_spinner").html('<i class="fa fa-spinner fa-2x fa-spin"></i><br><p>This may take a few minutes</p>');
+                $("#loading_spinner").fadeIn();
+            },
+            success:    onVisitorDataReceived
+        });
+
+    }
+
+    /*
+    end of daterangepicker and ajax data loading
+    ***************************************************************/
+})
+</script>
+{% endblock %}

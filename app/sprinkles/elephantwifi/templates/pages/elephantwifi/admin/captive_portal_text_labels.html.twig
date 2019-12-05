@@ -1,0 +1,573 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Text Labels",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Manage the captive portal text labels</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form" id="form_portlet_body">
+                <div class="row">
+                    <div class="col-md-12 col-lg-7">
+                        <br>
+                        {# available variables:
+                        unifi_venue with 'controller', 'text_labels', 'free_access_settings', 'custom_css'
+                        oauthd_server
+                        #}
+                        <form class="form-horizontal" id="update_captive_portal_text_labels" action="{{site.uri.public}}/admin/elephantwifi/captive_portal/text_labels/u" method="post">
+                            {% include "forms/csrf.html.twig" %}
+                            <div id="{{alerts_id | default('update_captive_portal_form-alerts')}}">
+                            </div>
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingOne">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                <span class="caption-subject font-blue-sharp bold">General:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_page_title" class="col-sm-4 control-label">Page title
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The HTML page title"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="60" id="update_captive_portal_labels_page_title" name="page_title" placeholder="Page title"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.page_title}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_heading" class="col-sm-4 control-label">Page heading
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The page heading welcoming the users to the captive portal"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="60" id="update_captive_portal_labels_heading" name="heading" placeholder="Page heading"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.heading}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group basic_form_group">
+                                                <label for="update_captive_portal_labels_sub_heading" class="col-sm-4 control-label">Sub heading</label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The sub heading placed immediately after the page heading"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="128" id="update_captive_portal_labels_sub_heading" name="sub_heading"
+                                                            placeholder="Sub heading">{{unifi_venue.venue_wifi.text_labels.sub_heading}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group basic_form_group" style="display:none;">
+                                                <label for="update_captive_portal_labels_basic_sub_heading" class="col-sm-4 control-label">Sub heading (basic)
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The sub heading placed immediately above the connect button when using basic method. This method only notifies the user of the ToS."></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="128" id="update_captive_portal_labels_basic_sub_heading" name="basic_sub_heading"
+                                                            placeholder="Sub heading (basic)">{{unifi_venue.venue_wifi.text_labels.basic_sub_heading}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group registration_form_group" style="display:none;">
+                                                <label for="update_captive_portal_labels_registration_sub_heading" class="col-sm-4 control-label">Sub heading (registration form)
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The sub heading placed immediately above the registration form"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="128" id="update_captive_portal_labels_registration_sub_heading" name="registration_sub_heading"
+                                                            placeholder="Sub heading (registration form)">{{unifi_venue.venue_wifi.text_labels.registration_sub_heading}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group social_auth_form_group"  style="display:none;">
+                                                <label for="update_captive_portal_labels_social_auth_sub_heading" class="col-sm-4 control-label">Sub heading (Social auth)
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The sub heading placed immediately above the social media selection buttons"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="500" id="update_captive_portal_labels_social_auth_sub_heading" name="social_auth_sub_heading"
+                                                            placeholder="Sub heading above the Social auth provider selection list">{{unifi_venue.venue_wifi.text_labels.social_auth_sub_heading}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_redirecting" class="col-sm-4 control-label">Text label when redirecting
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display when redirecting the user to the landing page after a successfull authorisation"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="60" id="update_captive_portal_labels_redirecting" name="redirecting" placeholder="Text label when redirecting"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.redirecting}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default" id="basic_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingTwo">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseBasic" aria-expanded="false" aria-controls="collapseBasic">
+                                                <span class="caption-subject font-blue-sharp bold">Basic:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseBasic" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingBasic">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_basic_connect_button_label" class="col-sm-4 control-label">Label for connect button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to be placed on the connect button when using the basic captive portal"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_basic_connect_button_label" name="basic_connect_button_label" placeholder="Label for connect button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.basic_connect_button_label}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_basic_connect_button_class" class="col-sm-4 control-label">Class for connect button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="CSS class to apply to the connect button when using the basic captive portal. Valid options: default, primary, success, info, warning, danger, link or as defined in the custom CSS options for the captive portal."></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_basic_connect_button_class" name="basic_connect_button_class" placeholder="Class for re-connect button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.basic_connect_button_class}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if checkAccess('uri_site_admin') %}
+                                <div class="panel panel-default" id="registration_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingTwo">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                <span class="caption-subject font-blue-sharp bold">Registration form:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_first_name_label" class="col-sm-4 control-label">First name label
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display before first name field in registration form"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_first_name_label" name="first_name_label" placeholder="First name label"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.first_name_label}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_first_name_placeholder" class="col-sm-4 control-label">First name placeholder
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Placeholder to display in first name field in registration form"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_first_name_placeholder" name="first_name_placeholder" placeholder="First name label"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.first_name_placeholder}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_last_name_label" class="col-sm-4 control-label">Last name label
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display before last name field in registration form"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_last_name_label" name="last_name_label" placeholder="Last name placeholder"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.last_name_label}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_last_name_placeholder" class="col-sm-4 control-label">Last name placeholder
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Placeholder to display in last name field in registration form"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_last_name_placeholder" name="last_name_placeholder" placeholder="Last name placeholder"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.last_name_placeholder}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_email_label" class="col-sm-4 control-label">E-mail label
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display before e-mail field in registration form"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_email_label" name="email_label" placeholder="E-mail label"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.email_label}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_email_placeholder" class="col-sm-4 control-label">E-mail placeholder
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Placeholder to display in e-mail address field in registration form"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_last_name_placeholder" name="email_placeholder" placeholder="E-mail placeholder"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.email_placeholder}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_registration_form_button_label" class="col-sm-4 control-label">Label for registration submit button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to be placed on the registration form submit button"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_registration_form_button_label" name="registration_form_button_label" placeholder="Label for registration submit button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.registration_form_button_label}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_registration_form_button_class" class="col-sm-4 control-label">Class for registration button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="CSS class to apply to the registration form submit button. Valid options: default, primary, success, info, warning, danger, link or as defined in the custom CSS options for the captive portal"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_registration_form_button_class" name="registration_form_button_class" placeholder="Class for registration button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.registration_form_button_class}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingFour">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                                <span class="caption-subject font-blue-sharp bold">Re-connect page:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_motd_sub_heading" class="col-sm-4 control-label">Sub heading (re-connect page)
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The sub heading placed on the re-connect page (which is displayed when authorisation has expired but registration has not)"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="128" id="update_captive_portal_labels_motd_sub_heading" name="motd_sub_heading"
+                                                            placeholder="Sub heading (re-connect page)">{{unifi_venue.venue_wifi.text_labels.motd_sub_heading}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_motd_form_button_label" class="col-sm-4 control-label">Label for re-connect button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to be placed on the re-connect button"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_motd_form_button_label" name="motd_form_button_label" placeholder="Label for re-connect button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.motd_form_button_label}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_motd_form_button_class" class="col-sm-4 control-label">Class for re-connect button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="CSS class to apply to the re-connect button. Valid options: default, primary, success, info, warning, danger, link or as defined in the custom CSS options for the captive portal"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_registration_form_button_class" name="motd_form_button_class" placeholder="Class for re-connect button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.motd_form_button_class}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {# make this section conditionally visible using jquery hide() #}
+                                <div class="panel panel-default" id="social_auth_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingFive">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                                <span class="caption-subject font-blue-sharp bold">Social authentication:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                                        <div class="panel-body">
+
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_social_auth_button_label_pre_provider" class="col-sm-4 control-label">Label on social auth button
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Label on social auth button which precedes the name of the social auth provider (e.g. Facebook)"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_social_auth_button_label_pre_provider" name="social_auth_button_label_pre_provider" placeholder="Label on social auth button"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.social_auth_button_label_pre_provider}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_social_auth_button_label_registration" class="col-sm-4 control-label">Label for registration fallback
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Label on the registration-fallback button, if configured."></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="30" id="update_captive_portal_labels_social_auth_button_label_registration" name="social_auth_button_label_registration" placeholder="Label for registration fallback"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.social_auth_button_label_registration}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_social_auth_button_size" class="col-sm-4 control-label">Social media provider button size
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Social media provider button size."></i>
+                                                        </span>
+                                                        <select class="form-control" id="update_captive_portal_labels_social_auth_button_size" name="social_auth_button_size" placeholder="Social media provider button size"
+                                                            value="{{unifi_venue.venue_wifi.text_labels.social_auth_button_size}}">
+                                                            <option value="xs" {% if unifi_venue.venue_wifi.text_labels.social_auth_button_size == "xs" %} selected="selected"{% endif %}>extra small</option>
+                                                            <option value="sm" {% if unifi_venue.venue_wifi.text_labels.social_auth_button_size == "sm" %} selected="selected"{% endif %}>small</option>
+                                                            <option value="md" {% if unifi_venue.venue_wifi.text_labels.social_auth_button_size == "md" %} selected="selected"{% endif %}>medium</option>
+                                                            <option value="lg" {% if unifi_venue.venue_wifi.text_labels.social_auth_button_size == "lg" %} selected="selected"{% endif %}>large</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_social_auth_connecting_pre_provider" class="col-sm-4 control-label">Text label connecting
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display before Social media provider name (e.g. Facebook) when connecting"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="60" id="update_captive_portal_labels_social_auth_connecting_pre_provider" name="social_auth_connecting_pre_provider"
+                                                            placeholder="Text label connecting">{{unifi_venue.venue_wifi.text_labels.social_auth_connecting_pre_provider}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_social_auth_redirecting_pre_provider" class="col-sm-4 control-label">Text label redirecting
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display before Social media provider name (e.g. Facebook) when redirecting to the landing page after successful authentication"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="60" id="update_captive_portal_labels_social_auth_redirecting_pre_provider" name="social_auth_redirecting_pre_provider"
+                                                            placeholder="Text label connecting">{{unifi_venue.venue_wifi.text_labels.social_auth_redirecting_pre_provider}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_labels_social_auth_redirecting_post_provider" class="col-sm-4 control-label">Text label after the provider name
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Text label to display **after** Social media provider name (e.g. Facebook) when redirecting to the landing page after successful authentication"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="2" maxlength="60" id="update_captive_portal_labels_social_auth_redirecting_post_provider" name="social_auth_redirecting_post_provider"
+                                                            placeholder="Text label connecting">{{unifi_venue.venue_wifi.text_labels.social_auth_redirecting_post_provider}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button type='submit' id="captive_portal_submit" name="captive_portal_submit" class="btn blue pull-right"><i class="fas fa-cloud-upload-alt fa-lg"></i> Update text labels</button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="update_venue_id" name="venue_id" value="{{unifi_venue.id}}">
+                            <input type="hidden" id="venue_captive_portal_text_labels_id" name="venue_captive_portal_text_labels_id" value="{{unifi_venue.venue_wifi.text_labels.id}}">
+                        </form>
+                    </div>
+                    {# here we conditionally display the preview when the captive portal has been enabled. when we add more captive portal versions adapt this section #}
+                    {% if unifi_venue.venue_wifi.captive_portal == 'free' %}
+                    <div class="col-md-6 col-lg-5">
+                        <br>
+                        <span class="caption-subject font-blue-sharp bold">Mobile device preview:</span>
+                        <span id="open_preview" class="clickable">
+                            &nbsp;<i class="fas fa-external-link-alt" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Or open the splash page preview in a new browser window. You will need to refresh the new window after applying any changes here."></i>
+                        </span>
+                        <br><br>
+                        <div class="iframe-wrapper">
+                            <!-- <iframe src="{{site.uri.public}}/elephantwifi/captive_portal/preview/splash" height="548" width="100%" frameborder="0"></iframe> -->
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END PORTLETS -->
+{# END PAGE CONTENT #}
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript">
+$(document).ready(function() {
+    /**
+     * check which captive portal method is enabled
+     */
+    var primary_method = '{{ unifi_venue.venue_wifi.free_access_settings.primary_method }}';
+    if (primary_method === 'social_auth') {
+        $('#social_auth_form_section').show();
+        $('.social_auth_form_group').show();
+        $('#registration_form_section').show();
+        $('.registration_form_group').show();
+    }
+
+    if (primary_method === 'registration_form') {
+        $('#registration_form_section').show();
+        $('.registration_form_group').show();
+    }
+
+    if (primary_method === 'basic') {
+        $('#basic_form_section').show();
+        $('.basic_form_group').show();
+    }
+
+    /**
+     * Load the validator rules for the form in the modal
+     */
+    var validators = {{validators | raw}};
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data:
+     * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+     */
+    $('#update_captive_portal_text_labels').ufForm({
+        validator: validators,
+        msgTarget: $("#update_captive_portal_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    /**
+     * open the splash page in a new window
+     */
+    $('#open_preview').click(function(e) {
+        e.preventDefault();
+        window.open(site.uri.public + '/elephantwifi/captive_portal/preview/splash');
+        return false;
+    });
+});
+</script>
+{% endblock %}

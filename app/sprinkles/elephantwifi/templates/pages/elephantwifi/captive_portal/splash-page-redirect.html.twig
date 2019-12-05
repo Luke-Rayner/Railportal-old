@@ -1,0 +1,47 @@
+{% extends "pages/elephantwifi/captive_portal/base/layout-captive-portal.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Redirecting",
+        "description" : "Captive portal redirect page"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+    	<div class="panel panel-default">
+    		<div class="panel-body">
+                <div>
+                    {%  if unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid != ''  %}
+                        <img src="{{site.uri.public}}/assets-raw/images/captive_portal/custom/logo/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_name}}" class="center-block img-responsive" alt="Logo">
+                    {% else %}
+                        <img src="{{site.uri.public}}/assets-raw/images/captive_portal/logo.png" class="center-block img-responsive" alt="Logo">
+                    {% endif %}
+    			</div>
+    			<div id="header">
+    				<div style="text-align: center">
+    					<h3>{{unifi_venue.venue_wifi.text_labels.heading}}</h3>
+    				</div>
+    			</div>
+    			<br>
+    			<div style="text-align: center">
+    			    <h4><i class="fas fa-circle-notch fa-spin"></i> {{unifi_venue.venue_wifi.text_labels.redirecting}}</h4>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+/**
+ * place in seperate js file when done
+ */
+$(document).ready(function() {
+    setTimeout(function(){
+        window.location.href = '{{unifi_venue.venue_wifi.free_access_settings.redirect_url}}';
+    }, {{unifi_venue.venue_wifi.free_access_settings.redirect_timeout}});
+});
+</script>
+{% endblock %}

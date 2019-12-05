@@ -1,0 +1,549 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "View Alert Notifications",
+        "description" : "Lists the active and past notifications"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Active Notifications</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="active_portlet_body">
+                <table id="activeNotifications" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Set Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if checkAccess('uri_site_admin') == true %}
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" class="btn blue pull-right" id="createNotification">
+          <i class="fa fa-plus-square"></i> Create Notification
+        </button>
+    </div>
+</div>
+<br>
+{% endif %}
+
+<div id='viewNotificationModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                {% if checkAccess('uri_site_admin') == true %}
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> Edit Notification</h4>
+                {% else %}
+				<h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> View Notification</h4>
+                {% endif %}
+            </div>
+            <div class='modal-body'>
+            {% if checkAccess('uri_site_admin') == true %}
+
+                <div class="form-alerts" id="update-notification-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateNotificationForm" action="{{site.uri.public}}/admin/alert_notifications/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_title" class="col-sm-offset-1 col-sm-3 control-label">Title</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_title" name="title" placeholder="Notification Title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_message" class="col-sm-offset-1 col-sm-3 control-label">Message</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <textarea style="resize: vertical; min-height: 100px" type="text" class="form-control" maxlength="1000" id="update_message" name="message" placeholder="Notification Message" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_status" class="col-sm-offset-1 col-sm-3 text-right">Status
+                        </label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input id="update_status" type="checkbox" name="status" data-on-text="on" data-off-text="off" data-on="success" data-off="primary">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_link" class="col-sm-offset-1 col-sm-3 control-label">Notfication Link</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="100" id="update_link" name="link" placeholder="Notification Link">
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="form-group">
+		                <label for="update_input_venues_allowed" class="col-sm-offset-1 col-sm-3 control-label">Venues allowed</label>
+		                <div class="col-sm-8">
+			                <div class="input-group">
+			                    <select id="update_input_venues_allowed" class="form-control select2" multiple="multiple" name="venues_allowed">
+			                        {% for venue in venues %}
+			                        <option value="{{venue.id}}">{{venue.name}}</option>
+			                        {% endfor %}
+			                    </select>
+			                </div>
+			            </div>
+		            </div>
+
+		            <div class="input-group">
+                    	<input type="hidden" id="alert_notification_id" name="alert_notification_id">
+                	</div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <button type='button' id="notifications_update_example" name="alert_notifications_test" class="btn green btn-sm"><i class="fa fa-bell"></i> Test Notification</button>
+                            <button type='submit' id="notificationSubmit" name="notificationSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Update Notification</button>
+                            <button type='button' id="notificationSubmit" name="notificationDelete" style="margin-top: 1%" class="btn btn-danger btn-sm" onclick="showConfirmModal(this);"><i class="fa fa-trash"></i> Delete</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            {% else %}
+                <div class="col-sm-offset-2 col-sm-3">
+                    <span><b>Title:</b></span>
+                </div>
+                <div class="col-sm-5">
+                    <span id="notification_title"></span>
+                </div>
+                <br>
+                <br>
+                <div class="col-sm-offset-2 col-sm-3">
+                    <span><b>Message:</b></span>
+                </div>
+                <div class="col-sm-5">
+                    <span id="notification_message"></span>
+                </div>
+                <br>
+                <br>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if checkAccess('uri_site_admin') == true %}
+<div id='createNotificationModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> Create Notification</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-notification-alerts-page"></div>
+
+                <form class="form-horizontal" id="createNotificationForm" action="{{site.uri.public}}/admin/alert_notifications/create" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="create_title" class="col-sm-offset-1 col-sm-3 control-label">Title</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="create_title" name="title" placeholder="Notification Title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_message" class="col-sm-offset-1 col-sm-3 control-label">Message</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <textarea style="resize: vertical; min-height: 100px" type="text" class="form-control" maxlength="1000" id="create_message" name="message" placeholder="Notification Message" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_status" class="col-sm-offset-1 col-sm-3 text-right">Status
+                        </label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input id="create_status" type="checkbox" name="status" data-on-text="on" data-off-text="off" data-on="success" data-off="primary">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="create_link" class="col-sm-offset-1 col-sm-3 control-label">Notfication Link</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="100" id="create_link" name="link" placeholder="Notification Link">
+                            </div>
+                        </div>
+                    </div> 
+
+                    <div class="form-group">
+                        <label for="input_venues_allowed" class="col-sm-offset-1 col-sm-3 control-label">Venues allowed</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select id="input_venues_allowed" class="form-control select2" multiple="multiple" name="venues_allowed">
+                                    {% for venue in venues %}
+                                    <option value="{{venue.id}}">{{venue.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <button type='button' id="notifications_create_example" name="alert_notifications_test" class="btn green btn-sm"><i class="fa fa-bell"></i> Test Notification</button>
+                            <button type='submit' id="notificationSubmit" name="notificationSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Create Notification</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if checkAccess('uri_site_admin') == true %}
+<div id="confirmModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="confirmModalHeader" id="confirmModalHeader"><i class="fa fa-question-circle fa-lg fa-fw"></i>Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Are you really sure you wish to permanently remove this alert?
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> Cancel
+                            </button>
+                            <button type='submit' id="confirmModalSubmit" name="confirmModalSubmit" class="btn red">
+                                <i class="fa fa-trash fa-fw"></i> Delete
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+$('.select2').select2();
+
+var activeNotifications = {{activeNotifications | raw}};
+var validators = {{validators | raw }};
+var user_group = '{{user_group | raw }}';
+
+$(document).ready(function() {
+
+	/**
+     * enable the toggle switches
+     */
+    $('#update_status').bootstrapSwitch();
+    $('#update_status').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+    $('#create_status').bootstrapSwitch();
+    $('#create_status').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+	var activeNotificationstable = $('#activeNotifications').on('error.dt', flashToasts).DataTable({
+        order: [],
+        processing: true,
+        scrollX: true,
+        searching: false,
+        data: activeNotifications,
+        bFilter: false,
+        bInfo: false,
+        paging: false,
+        aaSorting: false,
+        columns: [
+            {data: 'title'},
+            {data: 'message'},
+            {data: 'set_date',
+                render: function(data, type, full, meta) {
+                	if(data > 0) {
+						return moment.unix(data).format("D MMM YYYY, HH:mm");
+                	}
+                	else {
+                		return 'N/A';
+                	}
+                }
+            }
+        ]
+    });
+
+    /**
+     * open the viewNotificationModal upon tap/click on a row in the notification tables
+     */
+    if(activeNotifications.length > 0) {
+	    $('body').on('click', '#activeNotifications tbody tr', function(e) {
+	        e.preventDefault();
+
+            /**
+             * populate the form with the values for this zone
+             */
+            var thisNotification = activeNotificationstable.row( this ).data();
+
+            UpdateModal(thisNotification);
+	    });
+	}
+
+    /**
+     * open the addNewNotificationModal upon click on the button
+     */
+    $('#createNotification').click(function(e) {
+        e.preventDefault();
+
+        $('#create_status').bootstrapSwitch('setState', true);
+
+        /**
+         * show the modal
+         */
+        $('#createNotificationModal').modal('show');
+    });
+
+    /**
+     * Show the notification with the inputted values
+     */
+    $('#notifications_create_example').click(function() {
+        TestNotification('create');
+
+        toastr['info'](message, title);
+    });
+
+    /**
+     * Show the notification with the inputted values
+     */
+    $('#notifications_update_example').click(function() {
+        TestNotification('update');
+
+        toastr['info'](message, title);
+    })
+
+    /**
+     * Form subit for updating an alert
+     */
+    $('#updateNotificationForm').ufForm({
+        validator: validators,
+        msgTarget: $("#update-notification-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    /**
+     * Form subit for creating an alert
+     */
+    $('#createNotificationForm').ufForm({
+        validator: validators,
+        msgTarget: $("#create-notification-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    /**
+     * fix to redraw the tables in hidden divs with scrollx enabled upon tab being opened
+     */
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .columns.adjust();
+    });
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+    });
+});
+
+/**
+ * function to open the confirmation modal in edit mode
+ */
+function showConfirmModal(d) {
+    /**
+     * close calling modal and open confirmation modal
+     */
+    $('#{{box_id}}').modal('hide');
+    $('#confirmModal').modal('show');
+}
+
+/**
+ * process venue delete request from the confirmation modal
+ */
+$('#confirmModalSubmit').click(function(){
+    $('#confirmModalSubmit').prop('disabled', true);
+    $('#confirmModalSubmit').find('i').removeClass().addClass('fa fa-spinner fa-fw fa-spin');
+
+    alert_id = $('#alert_notification_id').val()
+
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site.uri.public + '/admin/alert_notifications/delete/' + alert_id,
+        success:    onDeleteSuccess,
+        error:      onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('delete success');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+});
+
+function TestNotification(modalType, thisNotification = null) {
+    if (user_group == 'admin') {
+        title    = $('#update_title').val();
+        message  = $('#' + modalType + '_message').val();
+        link     = $('#' + modalType + '_link').val();
+    }
+    else {
+        title    = thisNotification.title;
+        message  = thisNotification.message;
+        link     = thisNotification.link;
+    }
+
+    toastr.options = {
+      "closeButton": true,
+      "newestOnTop": false,
+      "positionClass": "toast-bottom-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": 0,
+      "extendedTimeOut": 0,
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut",
+      "tapToDismiss": false
+    };
+
+    if(link != '') {
+        toastr.options.onclick = function() { 
+            if (link && !link.match(/^http([s]?):\/\/.*/)) {
+                link = ('http://' + link);
+            }
+
+            $('.toast .toast-close-button').focus();
+            var newTab = window.open(link, '_blank');
+            newTab.focus();
+        }
+    }
+}
+
+function UpdateModal(thisNotification) {
+    if (user_group == 'admin') {
+        // Default the switches to off
+        $('#update_status').bootstrapSwitch('setState', false);
+
+        // Populates the Admin view
+        $('#update_title').val(thisNotification.title);
+        $('#update_message').val(thisNotification.message);
+        if(thisNotification.status == 1) 
+            $('#update_status').bootstrapSwitch('setState', true);
+        alertVenues = [];
+        $.each(thisNotification.venues, function() {
+            alertVenues.push(this['id']);
+        })
+        $('#update_link').val(thisNotification.link);
+        $('#update_input_venues_allowed').val(alertVenues).trigger('change');
+        $('#alert_notification_id').val(thisNotification.id)
+
+        /**
+         * show the modal
+         */
+        $('#viewNotificationModal').modal('show');
+    } 
+    else {
+        TestNotification('update', thisNotification);
+
+        toastr['info'](message, title);
+
+        // Populate PortalUser view
+        $('#notification_title').html(thisNotification.title);
+        $('#notification_message').html(thisNotification.message);
+    }
+}
+</script>
+{% endblock %}

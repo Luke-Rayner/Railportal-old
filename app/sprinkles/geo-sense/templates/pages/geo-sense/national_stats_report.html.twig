@@ -1,0 +1,2269 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "National Statistics comparison report",
+        "description" : "Compare a venue's metrics against averages of other venues"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="row text-center" style="display: none" id="pdf_title">
+        <img src="{{site.uri.public}}/images/WiFi-Logo-Image-Blue.png" height="50px" width="50px" style="margin-top: 5px"/>
+        <u><h1 class="bold">INTELLI-SENSE</h1></u>
+    </div>
+
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="page_daterange" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <span class="pull-right">
+                <b>
+                    <span id="span_filter_categories">All categories</span> > <span id="span_filter_sub-categories">All sub-categories</span> > <span id="span_filter_countries">All countries</span> > <span id="span_filter_regions">All regions</span> > <span id="span_filter_areas">All areas</span>
+                </b>
+                <i id="venue_filter_icon" class="fa fa-filter fa-lg fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Define filter criteria for venues to compare against"></i>
+            </span>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-6" style="border-right: 1px solid #EEEEEE">
+        <div class="row" style="PAGE-BREAK-AFTER: always">
+            <div class="col-xs-12 text-center">
+                <h2><b>{{current_user.venue_name}}</b></h2>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors this period </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Average visitors per day </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="donut_container_5" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="donut_container_6" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="chart_container_1_2" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Total Visitors - New Vs Repeat</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="chart_container_3_2" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Number of Visitors - New Vs Repeat</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="chart_3_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="chart_container_2_2" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Time of Day - Average</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="chart_container_1_1" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Average dwell time</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-6">
+        <div class="row" style="PAGE-BREAK-AFTER: always">
+            <div class="col-xs-12 text-center">
+                <h2><b>Selected Comparison Results</b></h2>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="right_donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="right_donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Average total visitors this period </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="right_donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="right_donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Average visitors per day </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="right_donut_container_5" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="right_donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="right_donut_container_6" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="right_donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="right_donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="right_donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <a id="right_donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+                    <div class="visual">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number bold">
+                            <span id="right_donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                        </div>
+                        <div class="desc"> Total visitors difference </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="right_chart_container_1_2" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Average Total Visitors - New Vs Repeat</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="right_chart_1_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="right_chart_container_3_2" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Average Number of Visitors - New Vs Repeat</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="right_chart_3_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="right_chart_container_2_2" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Average Time of Day</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="right_chart_2_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="right_chart_container_1_1" class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold">Average dwell time</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <div class="tools">
+                            <i class="fa fa-question-circle info-icon"></i>
+                            <a href="" class="collapse"> </a>
+                            <a href="" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="right_chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Start of Filter Modal #}
+<div id='venueFilterModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-filter fa-fw fa-lg"></i> Define filters for Venues to compare against</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="updateVenueFilters" action="#" method="post">
+                    <div class="alert alert-info">
+                        For geographic classification of Venues we adhere to the <strong>NUTS</strong> structure as explained <a href="https://en.wikipedia.org/wiki/Nomenclature_of_Territorial_Units_for_Statistics" target="_default">here</a>
+                    </div>
+                    <div id="{{alerts_id | default('update_form-alerts')}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="category_id" class="col-sm-offset-1 col-sm-3 control-label">Venue category</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="category_id" name="category_id" class="form-control">
+                                    <option value="0" selected>All categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="venue_sub_categories" class="col-sm-offset-1 col-sm-3 control-label">Sub-categories</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tags fa-fw fa-lg"></i></span>
+                                <select id="venue_sub_categories" class="form-control select2 ufformsubmit_skip_serialise" multiple="multiple" name="sub_categories" placeholder="All sub-categories">
+                                {% for sub_category in sub_categories %}
+                                    <option value="{{sub_category.id}}">{{sub_category.name}}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="country_id" class="col-sm-offset-1 col-sm-3 control-label">Country</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="country_id" name="country_id" class="form-control">
+                                    <option value="0" selected>All countries</option>
+                                {% for country in countries %}
+                                    <option value="{{ country.id }}">{{ country.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="region_id" class="col-sm-offset-1 col-sm-3 control-label">Region (NUTS 1)</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="region_id" name="region_id" class="form-control">
+                                    <option value="0" selected>All regions</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="area_id" class="col-sm-offset-1 col-sm-3 control-label">Area (NUTS 2)</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="area_id" name="area_id" class="form-control">
+                                    <option value="0" selected disabled>All areas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group">
+                        <label for="population_filter" class="col-sm-offset-1 col-sm-3 control-label">Population Filter</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <input id="population_filter" type="checkbox" name="population_filter" data-on-text="on" data-off-text="off" data-on="success" data-off="primary" checked />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateVenueFiltersSubmit" name="TagSubmit" class="btn btn-primary"><i class="fa fa-cloud-upload"></i> Apply filters</button>
+                        </span>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row text-center" style="display: none" id="pdf_url">
+    website address: <a>www.elephantwifi.co.uk</a>
+</div>
+
+{# End of Filter Modal #}
+
+{# END PAGE CONTENT #}
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+
+$('#population_filter').bootstrapSwitch(); 
+$('#population_filter').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+function genPDF() {
+    var pdf_title = document.getElementById("pdf_title");
+    if (pdf_title.style.display === "none") {
+        pdf_title.style.display = "block";
+    }
+
+    var pdf_url = document.getElementById("pdf_url");
+    if (pdf_url.style.display === "none") {
+        pdf_url.style.display = "block";
+    }
+
+    var element = document.getElementsByClassName("page-content")[0];
+    var opt = {
+        margin:       1,
+        filename:     'national_stats_report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 1 },
+        jsPDF:        { unit: 'pt', format: [1280, 720], orientation: 'l' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+
+    // Hide the element after 2 seconds allowing the screenshot to be taken while the element is shown
+    window.setTimeout(hidePdfElements, 2000);
+}
+
+function hidePdfElements() {
+    var pdf_title = document.getElementById("pdf_title");
+    pdf_title.style.display = "none";
+
+    var pdf_url = document.getElementById("pdf_url");
+    pdf_url.style.display = "none";
+}
+
+/**
+ * global vars for later use
+ */
+var left_total_visitors  = 0;
+var left_daily_visitors  = 0;
+var right_total_visitors = 0;
+var right_daily_visitors = 0;
+var selected_zone = {{selected_zone}};
+
+/**
+ * populate categories, sub-categories, countries, regions and areas arrays
+ */
+var categories = [
+{% for category in categories %}
+    {
+        id: {{ category.id }},
+        name: '{{ category.name }}'
+    },
+{% endfor %}
+];
+var sub_categories = [
+{% for category in sub_categories %}
+    {
+        id: {{ category.id }},
+        name: '{{ category.name }}'
+    },
+{% endfor %}
+];
+var countries = [
+{% for country in countries %}
+    {
+        id: {{ country.id }},
+        name: '{{ country.name }}'
+    },
+{% endfor %}
+];
+var regions = [
+{% for region in regions %}
+    {
+        id: {{ region.id }},
+        country_id: {{ region.country_id }},
+        name: '{{ region.name }}'
+    },
+{% endfor %}
+];
+var areas = [
+{% for area in areas %}
+    {
+        id: {{ area.id }},
+        country_id: {{ area.region.country_id }},
+        region_id: {{ area.region_id }},
+        name: '{{ area.name }}'
+    },
+{% endfor %}
+];
+
+/**
+ * Set the global timezone for this session for use in moment.js
+ */
+moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+moment.updateLocale('en', {
+    week : {
+        dow : 1,
+    }
+});
+
+/**
+ * define default start and end for the page
+ */
+var rangeStart   = moment().startOf('day').subtract(7, 'days');
+var rangeEnd     = moment().startOf('day');
+var global_start = 0;
+var global_end   = 0;
+
+/**
+ * initialise objects which contains the venue filters
+ */
+var venue_filters = {
+    category:          0,
+    sub_categories:    [],
+    country:           0,
+    region:            0,
+    area:              0,
+    population_filter: true,
+};
+var new_venue_filters = {};
+
+/**
+ * function to be executed when we want to print a page
+ * (custom version for this page)
+ */
+var printUpdate = function () {
+    /**
+     * reflow all Highcharts instances
+     */
+    $('#chart_1_2').highcharts().reflow();
+    $('#chart_1_1').highcharts().reflow();
+    $('#chart_3_2').highcharts().reflow();
+    $('#chart_2_2').highcharts().reflow();
+    $('#right_chart_1_2').highcharts().reflow();
+    $('#right_chart_1_1').highcharts().reflow();
+    $('#right_chart_3_2').highcharts().reflow();
+    $('#right_chart_2_2').highcharts().reflow();
+};
+
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * global var to prevent loops in charts syncing when zooming in/out
+ * more examples here: http://jsfiddle.net/vgsp1duo/1/
+ */
+var rezoom_calling = 0;
+
+/**
+ * file name, venue name and report title for CSV download
+ */
+var csv_filename = 'National_Statistics_comparison_report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title = '';
+var venue_name = '{{current_user.venue_name}}';
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    /**
+     * update export title to reflect selected range and applied filters
+     */
+    var filter_string   = '';
+    var sub_cats_string = '';
+    if (typeof venue_filters.sub_categories === 'undefined' || venue_filters.sub_categories === null || venue_filters.sub_categories.length == 0) {
+        sub_cats_string = 'All sub-categories';
+    } else {
+        venue_filters.sub_categories.forEach(function(element) {
+            sub_cats_string += '(' + element.name + ') ';
+        });
+    }
+
+    filter_string += '[ ' + $('#span_filter_categories').html();
+    filter_string += ' > ' + sub_cats_string;
+    filter_string += ' > ' + $('#span_filter_countries').html();
+    filter_string += ' > ' + $('#span_filter_regions').html();
+    filter_string += ' > ' + $('#span_filter_areas').html() + ' ]';
+
+    var csv_title = 'GEO-Sense: National Statistics comparison report ({{current_user.venue_name}} - selected range: ' +
+                    $('#page_daterange_selected_large').text().replace(/,/g , '') +
+                    ' - applied filters: ' + filter_string + ')';
+
+    /**
+     * get the data from the charts, left-hand section
+     */
+    csv_data.push({
+        heading: 'Overall metrics {{current_user.venue_name}}',
+        process: true,
+        data: [['DateTime', 'Total visitors this period', 'Busiest time of day', 'Average dwell time', 'Average visitors per day'],
+               [
+                    moment().format("DD MMMM YYYY HH:mm"),
+                    $('#donut_1').text().replace(/,/g , ''),
+                    $('#donut_2').text().replace(/,/g , ''),
+                    $('#donut_3').text().replace(/,/g , ''),
+                    $('#donut_4').text().replace(/,/g , ''),
+               ]]
+               // when process is true there must be at least two arrays (lines) of content: headers and data
+    });
+
+    csv_data.push({
+        heading: 'Total Visitors - New Vs Repeat',
+        process: false,
+        data: $('#chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Number of Visitors - New Vs Repeat',
+        process: false,
+        data: $('#chart_3_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Dwell time analysis',
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Time of Day - average',
+        process: false,
+        data: $('#chart_2_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    /**
+     * get the data from the charts, right-hand section
+     */
+    csv_data.push({
+        heading: 'Average of venues matching filter criteria',
+        process: true,
+        data: [['DateTime', 'Total visitors this period', 'Busiest time of day', 'Average dwell time', 'Average visitors per day'],
+               [
+                    moment().format("DD MMMM YYYY HH:mm"),
+                    $('#right_donut_1').text().replace(/,/g , ''),
+                    $('#right_donut_2').text().replace(/,/g , ''),
+                    $('#right_donut_3').text().replace(/,/g , ''),
+                    $('#right_donut_4').text().replace(/,/g , ''),
+               ]]
+               // when process is true there must be at least two arrays (lines) of content: headers and data
+    });
+
+    csv_data.push({
+        heading: 'Average Total Visitors - New Vs Repeat',
+        process: false,
+        data: $('#right_chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Average Number of Visitors - New Vs Repeat',
+        process: false,
+        data: $('#right_chart_3_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Average Dwell time',
+        process: false,
+        data: $('#right_chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Average Time of Day',
+        process: false,
+        data: $('#right_chart_2_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+});
+
+var venue_name = '{{current_user.venue_name}}';
+
+/**
+ * open the venueFilterModal upon click on the filter icon
+ */
+$('#venue_filter_icon').on('click', function(e) {
+    e.preventDefault();
+
+    /**
+     * show the modal
+     */
+    $('#venueFilterModal').modal('show');
+});
+
+
+/**
+ * function to update the filter spans based on the contents of the venue_filters object properties
+ */
+function updateFilterSpan() {
+    if (typeof venue_filters.category === 'undefined' || venue_filters.category == 0) {
+        $('#span_filter_categories').html('All categories');
+    } else {
+        var selected_category = _.filter(categories, { 'id': parseInt(venue_filters.category) });
+        $('#span_filter_categories').html('Category: ' + selected_category[0].name);
+    }
+
+    if (typeof venue_filters.sub_categories === 'undefined' || venue_filters.sub_categories === null || venue_filters.sub_categories.length == 0) {
+        $('#span_filter_sub-categories').html('All sub-categories');
+    } else {
+        var span_content = '';
+        venue_filters.sub_categories.forEach(function(element) {
+            var selected_sub_category = _.filter(sub_categories, { 'id': parseInt(element) });
+            span_content += '<span class="badge badge-primary" style="font-size:x-small;">' + selected_sub_category[0].name + '</span>&nbsp;';
+        });
+        $('#span_filter_sub-categories').html(span_content);
+    }
+
+    if (typeof venue_filters.country === 'undefined' || venue_filters.country == 0) {
+        $('#span_filter_countries').html('All countries');
+    } else {
+        var selected_country = _.filter(countries, { 'id': parseInt(venue_filters.country) });
+        $('#span_filter_countries').html(selected_country[0].name);
+    }
+
+    if (typeof venue_filters.region === 'undefined' || venue_filters.region == 0) {
+        $('#span_filter_regions').html('All regions');
+    } else {
+        var selected_region = _.filter(regions, { 'id': parseInt(venue_filters.region) });
+        $('#span_filter_regions').html(selected_region[0].name);
+    }
+
+    if (typeof venue_filters.area === 'undefined' || venue_filters.area === null || venue_filters.area == 0) {
+        $('#span_filter_areas').html('All areas');
+    } else {
+        var selected_area = _.filter(areas, { 'id': parseInt(venue_filters.area) });
+        $('#span_filter_areas').html(selected_area[0].name);
+    }
+}
+
+/**
+ * shared function to update the "delta donuts"
+ */
+function update_comparison_donut (number_value, container_id, donut_id, perc = false) {
+    var number_up = true;
+    container_id = '#' + container_id;
+    donut_id = '#' + donut_id;
+
+    if (number_value < 0) {
+        var number_up = false;
+    }
+
+    if (!number_up) {
+        $(donut_id).css({color: '#DD686E'});
+        var donut_suffix = ' <i class="fa fa-arrow-down"></i>';
+    } else {
+        $(donut_id).css({color: '#66B366'});
+
+        if (number_value > 0) {
+            var donut_suffix = ' <i class="fa fa-arrow-up"></i>';
+        } else {
+            var donut_suffix = '';
+        }
+    }
+
+    if (number_value == 0) {
+        donut_suffix = '';
+    }
+
+    if (perc) {
+        $(donut_id).html(number_value.toLocaleString() + '%' + donut_suffix);
+    } else {
+        $(donut_id).html(number_value.toLocaleString() + donut_suffix);
+    }
+}
+
+$(document).ready(function() {
+    /**
+     * empty weekends array for plotbands
+     */
+    var weekends = [];
+
+    /**
+     * initialise the sub_categories field for use with select2
+     */
+    $('#venue_sub_categories').select2();
+
+    /**
+     * update the span containing the current filter values
+     */
+    updateFilterSpan();
+
+    /***************************************************************
+     * start preparations for the individual left-hand charts from here
+     ***************************************************************/
+
+    /***************************************************************
+     * top row donut charts from here
+     ***************************************************************/
+
+    /**
+     * push the received dwelltime data for a range not starting today to the page
+     */
+    function onDonut_3_DataReceived(data) {
+        // Load all the data into the DOM
+        $('#donut_3').html(data + ' <span style="font-size: 60%;">minutes</span>');
+    }
+
+    /***************************************************************
+     * end of top row donut charts
+     ***************************************************************/
+
+    /***************************************************************
+     * start of new/repeat chart
+     * container: chart_1_2
+     ***************************************************************/
+
+    /**
+     * define specific options then draw "chart 1.2" to
+     * container: chart_1_2
+     */
+    var chart_1_2_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_1_2',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 +
+                                     '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    chart_1_2_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "new visitors",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat visitors",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+    chart_1_2.showLoading();
+
+    /***************************************************************
+     * end of chart 1.2
+     ***************************************************************/
+
+    /***************************************************************
+     * start of dwell time analysis chart
+     * container: chart_1_1
+     ***************************************************************/
+    var chart_1_1_Options = {
+        chart: {
+            type: 'column'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: [{
+        }, {
+            opposite: true,
+            min:      0,
+            labels: {
+                formatter: function() {
+                    return moment.duration(this.value, 'minutes').format('H [h] m [m]');
+                }
+            }
+        }],
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                // we have to loop here as we don't yet know how many series we will have
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' +
+                                      moment.duration(this.y, 'minutes').format('H [h] m [m]') ;
+                });
+
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    enabled: null,
+                    symbol:  'circle',
+                    radius:  2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    chart_1_1_Options.chart.renderTo  = 'chart_1_1';
+    chart_1_1_Options.xAxis.plotBands = weekends;
+    chart_1_1_Options.chart.zoomType  = 'x';
+    chart_1_1_Options.xAxis.events = {
+        /**
+         * sync charts when zoom is triggered
+         */
+        afterSetExtremes: function (event) {
+            if (event.trigger == 'zoom' && rezoom_calling == 0) {
+                rezoom_calling = '1_1';
+
+                var xMin = event.min;
+                var xMax = event.max;
+
+                var chart_3_2 = $("#chart_3_2").highcharts();
+                var ex = chart_3_2.xAxis[0].getExtremes();
+                if (ex.min != xMin || ex.max != xMax) chart_3_2.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                var right_chart_1_1 = $("#right_chart_1_1").highcharts();
+                var ex = right_chart_1_1.xAxis[0].getExtremes();
+                if (ex.min != xMin || ex.max != xMax) right_chart_1_1.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                var chart_3_2 = $("#chart_3_2").highcharts();
+                var ex = chart_3_2.xAxis[0].getExtremes();
+                if (ex.min != xMin || ex.max != xMax) chart_3_2.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                rezoom_calling = 0;
+            }
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.showLoading();
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onChart_1_1_DataReceived(data) {
+        /**
+         * define the series received
+         */
+        var seriesoptions = [
+            {
+                type: 'line',
+                name: 'average dwelltime',
+                yAxis: 1,
+                color: '#C6D4FC'
+            }
+        ];
+
+        /**
+         * if our date range is longer than 2 days, we disable the markers for clean lines
+         * if shorter we switch to a stacked column chart
+         */
+        if (data['dt_level_1'].length > 2) {
+            chart_1_1_Options.plotOptions.series.marker.enabled = false;
+        } else {
+            chart_1_1_Options.plotOptions.series.marker.enabled = true;
+        }
+
+        chart_1_1_Options.series = seriesoptions;
+        chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+        chart_1_1.series[0].setData(noGapsDataArray(data['dt_average'], 86400));
+        chart_1_1.xAxis[0].update({
+            plotBands: weekends
+        });
+    }
+
+    /***************************************************************
+     * end of chart 1.1
+     ***************************************************************/
+
+    /***************************************************************
+     * start of timeOfDay average: chart 2.2
+     * container: chart_2_2
+     * url: {{site.uri.public}}/api/visitor_report/visitors_per_hourofday/
+     ***************************************************************/
+    var chart_2_2_Options = {
+        chart: {
+            renderTo: 'chart_2_2',
+            backgroundColor: '#FFFFFF',
+            type: 'area'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                var tooltipcontent = '<b>Between ' + this.x + ':00 and ' + (this.x+1) + ':00</b>';
+                // we have to loop here as we don't yet know how many series we will have
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' + this.y.toLocaleString();
+                });
+
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the timeOfDay average chart
+     */
+    var chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+    chart_2_2.showLoading();
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function chart_2_2_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'area',
+                color: '#e25826', // e25826
+                name: 'average visitors'
+            }
+        ];
+
+        chart_2_2_Options.series = seriesoptions;
+        chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+        chart_2_2.series[0].setData(data);
+
+        /**
+         * here we also get the busiest hour and send that to donut 4
+         */
+        var hours = _.sortBy(data, function(value, key) {
+            return value[1];
+        });
+
+        if (hours.length > 0) {
+            $('#donut_2').html((_.last(hours)[0]) + ':00 - ' + (_.last(hours)[0] + 1) + ':00');
+        } else {
+            $('#donut_2').html('<span style="font-size: 60%;">no data</span>');
+        }
+    }
+
+    /***************************************************************
+     * end of chart 2.2
+     ***************************************************************/
+
+    /***************************************************************
+     * start of visitor stats chart
+     * container: chart_3_2
+     ***************************************************************/
+    var chart_3_2_Options = {
+        chart: {
+            renderTo: 'chart_3_2',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends,
+            events: {
+                /**
+                 * sync charts when zoom is triggered
+                 */
+                afterSetExtremes: function (event) {
+                    if (event.trigger == 'zoom' && rezoom_calling == 0) {
+                        rezoom_calling = '3_2';
+
+                        var xMin = event.min;
+                        var xMax = event.max;
+
+                        var chart_1_1 = $("#chart_1_1").highcharts();
+                        var ex = chart_1_1.xAxis[0].getExtremes();
+                        if (ex.min != xMin || ex.max != xMax) chart_1_1.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                        var right_chart_3_2 = $("#right_chart_3_2").highcharts();
+                        var ex = right_chart_3_2.xAxis[0].getExtremes();
+                        if (ex.min != xMin || ex.max != xMax) right_chart_3_2.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                        var right_chart_1_1 = $("#right_chart_1_1").highcharts();
+                        var ex = right_chart_1_1.xAxis[0].getExtremes();
+                        if (ex.min != xMin || ex.max != xMax) right_chart_1_1.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                        rezoom_calling = 0;
+                    }
+                }
+            }
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var chart_3_2 = new Highcharts.Chart(chart_3_2_Options);
+    chart_3_2.showLoading();
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onChart_3_2_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * when date range is longer than 6 weeks we switch to area chart instead of column
+         */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_3_2_Options.yAxis = {
+            stackLabels: {
+                useHTML: true,
+                enabled: true,
+                align: 'center',
+                verticalAlign: 'top',
+                formatter: function () {
+                    var day_epoch  = this.x;
+                    var event = '';
+                    var event_categories = [];
+                    $.each(data.event, function(key, value) {
+                        if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                            if (event_categories.length == 0) {
+                                event = `<span padding-top: 20px;><i style="background-color:` + value['color'] + `" class="circle-icon fa fa-calendar"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+
+                            if ($.inArray(value['category_id'], event_categories) == -1) {
+                                event += `<br><span><i style="background-color:` + value['color'] + `" class="circle-icon fa fa-calendar fa-sm"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+                        }
+                    });
+                    return event;
+                }
+            }
+        }
+
+        chart_3_2_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                var day_epoch  = this.x;
+                $.each(data.event, function(key, value) {
+                    if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                        tooltipcontent += '<p><b>Event: </b>' + value['name'] + '</p>';
+                    }
+                });
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        }
+
+        chart_3_2_Options.series = seriesoptions;
+        var chart_3_2 = new Highcharts.Chart(chart_3_2_Options);
+        chart_3_2.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_3_2.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_3_2.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * NOTE: with this function we also feed the "total visitors" data to chart 1.2
+         */
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * define font size percentage for the donut contents, reduce size if total is over 1M
+         */
+        var chart_1_2__font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var chart_1_2__font_size_perc = 120;
+        }
+
+        chart_1_2_Options.title.text = '<b style="font-size: ' +
+                                       chart_1_2__font_size_perc +
+                                       '%; font-weight: bold;">' +
+                                       (totalnew + totalrepeat).toLocaleString() +
+                                       '</b><br><b>Total</b>';
+
+        var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+        chart_1_2.series[0].setData([totalnew, totalrepeat]);
+
+        /**
+         * NOTE: with this function we also feed donut_1
+         */
+        left_total_visitors  = totalnew + totalrepeat;
+        $('#donut_1').html((left_total_visitors).toLocaleString());
+
+        /**
+         * NOTE: with this function we also feed the "average visitors" data to donut 4
+         */
+        var total_visitors = totalnew + totalrepeat;
+        var counter = data.new.length;
+
+        if (counter > 1) {
+            var average = Math.floor(total_visitors/counter);
+        } else {
+            var average = total_visitors;
+        }
+
+        left_daily_visitors = average;
+        $('#donut_4').html(average.toLocaleString());
+
+        /**
+         * initially set the delta's on the left-hand side to 0
+         */
+        $('#donut_5').html('0');
+        $('#donut_6').html('0%');
+    }
+
+    /***************************************************************
+     * end of chart 3.2
+     ***************************************************************/
+
+    /***************************************************************
+     * start of timeOfDay average: right-hand chart 2.2
+     * container: right_chart_2_2
+     * url: {{site.uri.public}}/api/visitor_report/visitors_per_hourofday/
+     ***************************************************************/
+    var rightChart_2_2_Options = {
+        chart: {
+            renderTo: 'right_chart_2_2',
+            backgroundColor: '#FFFFFF',
+            type: 'area'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                var tooltipcontent = '<b>Between ' + this.x + ':00 and ' + (this.x+1) + ':00</b>';
+                // we have to loop here as we don't yet know how many series we will have
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' + this.y.toLocaleString();
+                });
+
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the right-hand timeOfDay average chart
+     */
+    var right_chart_2_2 = new Highcharts.Chart(rightChart_2_2_Options);
+    right_chart_2_2.showLoading();
+
+    function rightChart_2_2_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'area',
+                color: '#e25826', // e25826
+                name: 'average visitors'
+            }
+        ];
+
+        rightChart_2_2_Options.series = seriesoptions;
+        rightChart_2_2 = new Highcharts.Chart(rightChart_2_2_Options);
+        rightChart_2_2.series[0].setData(data);
+
+        /**
+         * here we also get the busiest hour and send that to donut 4
+         */
+        var hours = _.sortBy(data, function(value, key) {
+            return value[1];
+        });
+
+        if (hours.length > 0) {
+            $('#right_donut_2').html((_.last(hours)[0]) + ':00 - ' + (_.last(hours)[0] + 1) + ':00');
+        } else {
+            $('#right_donut_2').html('<span style="font-size: 60%;">no data</span>');
+        }
+    }
+
+    /***************************************************************
+     * end of right-hand chart 2.2
+     ***************************************************************/
+
+    /***************************************************************
+     * start of right-hand new/repeat chart
+     * container: right_chart_1_2
+     ***************************************************************/
+
+    /**
+     * define specific options then draw "right_chart 1.2" to
+     * container: right_chart_1_2
+     */
+    var right_chart_1_2_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'right_chart_1_2',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 +
+                                     '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    right_chart_1_2_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "new visitors",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat visitors",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    var right_chart_1_2 = new Highcharts.Chart(right_chart_1_2_Options);
+    right_chart_1_2.showLoading();
+
+    /***************************************************************
+     * end of right-hand chart 1.2
+     ***************************************************************/
+
+    /***************************************************************
+     * start of right-hand visitor stats chart
+     * container: chart_3_2
+     ***************************************************************/
+    var right_chart_3_2_Options = {
+        chart: {
+            renderTo: 'right_chart_3_2',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends,
+            events: {
+                /**
+                 * sync charts when zoom is triggered
+                 */
+                afterSetExtremes: function (event) {
+                    if (event.trigger == 'zoom' && rezoom_calling == 0) {
+                        rezoom_calling = 'right_3_2';
+
+                        var xMin = event.min;
+                        var xMax = event.max;
+
+                        var right_chart_1_1 = $("#right_chart_1_1").highcharts();
+                        var ex = right_chart_1_1.xAxis[0].getExtremes();
+                        if (ex.min != xMin || ex.max != xMax) right_chart_1_1.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                        var chart_1_1 = $("#chart_1_1").highcharts();
+                        var ex = chart_1_1.xAxis[0].getExtremes();
+                        if (ex.min != xMin || ex.max != xMax) chart_1_1.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                        var chart_3_2 = $("#chart_3_2").highcharts();
+                        var ex = chart_3_2.xAxis[0].getExtremes();
+                        if (ex.min != xMin || ex.max != xMax) chart_3_2.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                        rezoom_calling = 0;
+                    }
+                }
+            }
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' +
+                                      this.point.color + '">' + symbol + '</span> ' +
+                                      this.series.name + ':</td><td style="text-align: right;">' +
+                                      this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' +
+                                  mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var right_chart_3_2 = new Highcharts.Chart(right_chart_3_2_Options);
+    right_chart_3_2.showLoading();
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function rightChart_3_2_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * when date range is longer than 6 weeks we switch to area chart instead of column
+         */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        right_chart_3_2_Options.series = seriesoptions;
+        var right_chart_3_2 = new Highcharts.Chart(right_chart_3_2_Options);
+        right_chart_3_2.series[0].setData(noGapsDataArray(data.new, 86400));
+        right_chart_3_2.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        right_chart_3_2.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * NOTE: with this function we also feed the "total visitors" data to chart 1.2
+         */
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * define font size percentage for the donut contents, reduce size if total is over 1M
+         */
+        var right_chart_1_2__font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var right_chart_1_2__font_size_perc = 120;
+        }
+
+        right_chart_1_2_Options.title.text = '<b style="font-size: ' +
+                                             right_chart_1_2__font_size_perc +
+                                             '%; font-weight: bold;">' +
+                                             (totalnew + totalrepeat).toLocaleString() +
+                                             '</b><br><b>Total</b>';
+
+        var right_chart_1_2 = new Highcharts.Chart(right_chart_1_2_Options);
+        right_chart_1_2.series[0].setData([totalnew, totalrepeat]);
+
+        /**
+         * NOTE: with this function we also feed right-hand donut_1
+         */
+        right_total_visitors = totalnew + totalrepeat;
+        $('#right_donut_1').html((right_total_visitors).toLocaleString());
+
+        /**
+         * NOTE: with this function we also feed the "average visitors" data to right-hand donut 4
+         */
+        var total_visitors = totalnew + totalrepeat;
+        var counter = data.new.length;
+
+        if (counter > 1) {
+            var average = Math.floor(total_visitors/counter);
+        } else {
+            var average = total_visitors;
+        }
+
+        right_daily_visitors = average;
+        $('#right_donut_4').html(average.toLocaleString());
+
+        /**
+         * initially we set the content to 0
+         */
+        $('#right_donut_5').html('0');
+        $('#right_donut_6').html('0%');
+    }
+
+    /***************************************************************
+     * end of right-hand chart 3.2
+     ***************************************************************/
+
+    /***************************************************************
+     * start of right-hand dwell time analysis chart
+     * container: right_chart_1_1
+     ***************************************************************/
+    var right_chart_1_1_Options = {
+        chart: {
+            type: 'column'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: [{
+        }, {
+            opposite: true,
+            min:      0,
+            labels: {
+                formatter: function() {
+                    return moment.duration(this.value, 'minutes').format('H [h] m [m]');
+                }
+            }
+        }],
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                // we have to loop here as we don't yet know how many series we will have
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' + moment.duration(this.y, 'minutes').format('H [h] m [m]') ;
+                });
+
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    enabled: null,
+                    symbol:  'circle',
+                    radius:  2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    right_chart_1_1_Options.chart.renderTo  = 'right_chart_1_1';
+    right_chart_1_1_Options.xAxis.plotBands = weekends;
+    right_chart_1_1_Options.chart.zoomType  = 'x';
+    right_chart_1_1_Options.xAxis.events = {
+        /**
+         * sync charts when zoom is triggered
+         */
+        afterSetExtremes: function (event) {
+            if (event.trigger == 'zoom' && rezoom_calling == 0) {
+                rezoom_calling = 'right_1_1';
+
+                var xMin = event.min;
+                var xMax = event.max;
+
+                var right_chart_3_2 = $("#right_chart_3_2").highcharts();
+                var ex = right_chart_3_2.xAxis[0].getExtremes();
+                if (ex.min != xMin || ex.max != xMax) right_chart_3_2.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                var chart_1_1 = $("#chart_1_1").highcharts();
+                var ex = chart_1_1.xAxis[0].getExtremes();
+                if (ex.min != xMin || ex.max != xMax) chart_1_1.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                var chart_3_2 = $("#chart_3_2").highcharts();
+                var ex = chart_3_2.xAxis[0].getExtremes();
+                if (ex.min != xMin || ex.max != xMax) chart_3_2.xAxis[0].setExtremes(xMin, xMax, true, false);
+
+                rezoom_calling = 0;
+            }
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var right_chart_1_1 = new Highcharts.Chart(right_chart_1_1_Options);
+    right_chart_1_1.showLoading();
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function rightChart_1_1_DataReceived(data) {
+        /**
+         * define the series received
+         */
+        var seriesoptions = [
+            {
+                type: 'line',
+                name: 'average dwelltime',
+                yAxis: 1,
+                color: '#C6D4FC'
+            }
+        ];
+
+        /**
+         * if our date range is longer than 2 days, we disable the markers for clean lines
+         * if shorter we switch to a stacked column chart
+         */
+        if (data['dt_average'].length > 2) {
+            right_chart_1_1_Options.plotOptions.series.marker.enabled = false;
+        } else {
+            right_chart_1_1_Options.plotOptions.series.marker.enabled = true;
+        }
+
+        right_chart_1_1_Options.series = seriesoptions;
+        right_chart_1_1 = new Highcharts.Chart(right_chart_1_1_Options);
+        right_chart_1_1.xAxis[0].update({
+            plotBands: weekends
+        });
+        right_chart_1_1.series[0].setData(noGapsDataArray(data['dt_average'], 86400));
+    }
+
+    /***************************************************************
+     * end of right-hand chart 1.1
+     ***************************************************************/
+
+    /***************************************************************
+     * daterangepicker and ajax loading of all the data from here
+     ***************************************************************/
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     */
+    $('#page_daterange').daterangepicker({
+        timePicker:             true,
+        timePicker24Hour:       true,
+        timePickerIncrement:    60,
+        showISOWeekNumbers:     true,
+        locale: {
+            format: "DD/MM/YYYY",
+            firstDay: 1
+        },
+        ranges: {
+           'Yesterday':             [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+           'Current Day Last Week': [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+           'This Week to-date':     [moment().startOf('week'), moment().startOf('day')],
+           'This Month to-date':    [moment().startOf('month'), moment().startOf('day')],
+           'Past 7 days':           [rangeStart, rangeEnd],
+           'Previous Month':        [moment().startOf('month').subtract(1, 'months'), moment().startOf('month')],
+           'All Time':              ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment().startOf('day')]
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:    moment().startOf('day'),
+        opens:      'left'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        if (end.format('H:mm') == '0:00' && !(end.isSame(start))) {
+            var subtract_minutes_from_end = 1;
+        } else {
+            var subtract_minutes_from_end = 0;
+        }
+
+        $('#page_daterange_selected').html('<b>' + start.format('H:mm dddd, D MMMM YYYY') + ' - ' + end.subtract(subtract_minutes_from_end, 'minutes').format('H:mm dddd, D MMMM YYYY') + '</b>');
+        $('#page_daterange_selected_small').html('<b>' + start.format('ddd, D MMM YYYY') + ' - ' + end.subtract(subtract_minutes_from_end, 'minutes').format('ddd, D MMM YYYY') + '</b>');
+
+        console.log(start + ':' + end);
+        global_start = start;
+        global_end   = end;
+
+        /**
+         * update the weekend plotbands
+         */
+        weekends = weekendAreasDaily(start, end);
+
+        /**
+         * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+         */
+        var chart_1_1 = $("#chart_1_1").highcharts();
+        var chart_1_2 = $("#chart_1_2").highcharts();
+        var chart_2_2 = $("#chart_2_2").highcharts();
+        var chart_3_2 = $("#chart_3_2").highcharts();
+
+        chart_1_1.showLoading();
+        chart_1_2.showLoading();
+        chart_2_2.showLoading();
+        chart_3_2.showLoading();
+
+        $('#donut_1').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_2').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_3').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_4').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_5').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_6').html('<i class="fa fa-spinner fa-spin"></i>');
+
+        /**
+         * from here we call all ajax sources with the newly selected start/end:
+         */
+
+        /**
+         * get the average dwell time for donut_3
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/stats/average_dwelltime/zone/' + selected_zone + '/' + start + "/" + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onDonut_3_DataReceived
+        });
+
+        /**
+         * get the data for chart 1.1, donut_4
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/stats/zone/visitors_durations/' + selected_zone + '/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_1_DataReceived
+        });
+
+        /**
+         * get the data for chart 3.2, chart 1.2, donut_1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/zone_report/new_vs_repeat/' + selected_zone + '/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_3_2_DataReceived
+        });
+
+        /**
+         * get the data for chart 2.2, donut_2
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/zone_report/visitors_per_hourofday/' + selected_zone + '/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    chart_2_2_DataReceived
+        });
+
+        /**
+         * and we also trigger fetching the data for the right-hand side
+         */
+        fetchNationalStatsAverages(start, end, venue_filters);
+    }
+
+    /***************************************************************
+     * end of daterangepicker and ajax data loading
+     ***************************************************************/
+
+    /*********************************************************************************
+     * functions and logic related to the right-hand side of the comparison report
+     *********************************************************************************/
+
+    /**
+     * listen to change in country
+     */
+    $('#country_id').on('change', function() {
+        var selected = $(this).val();
+
+        var filtered_regions = _.filter(regions, { 'country_id': parseInt(selected) });
+        var filtered_areas = _.filter(areas, { 'country_id': parseInt(selected) });
+
+        var regions_options = '<option value="0" selected>All regions</option>';
+
+        $.each(filtered_regions, function (index, value) {
+            regions_options += '<option value="' + value.id + '">' + value.name + '</option>';
+        });
+
+        $('#region_id').empty().append(regions_options);
+
+
+        var areas_options = '<option value="0" selected disabled>All areas</option>';
+
+        $.each(filtered_areas, function (index, value) {
+            areas_options += '<option value="' + value.id + '">' + value.name + '</option>';
+        });
+
+        $('#area_id').empty().append(areas_options);
+    });
+
+    /**
+     * listen to change in region
+     */
+    $('#region_id').on('change', function() {
+        var selected = $(this).val();
+        var filtered_areas = _.filter(areas, { 'region_id': parseInt(selected) });
+        var areas_options = '<option value="0" selected>All areas</option>';
+
+        $.each(filtered_areas, function (index, value) {
+            areas_options += '<option value="' + value.id + '">' + value.name + '</option>';
+        });
+
+        $('#area_id').empty().append(areas_options);
+    });
+
+    /**
+     * listen to the filter form submit button in the filter Modal
+     */
+    $('#updateVenueFiltersSubmit').on("click",function(e) {
+        e.preventDefault();
+
+        /**
+         * hide the modal
+         */
+        $('#venueFilterModal').modal('hide');
+
+        /**
+         * whatever else we want to do
+         * - somehow we should check whether the filters have changed
+         *   and only when they have changed do we issue new AJAX calls
+         */
+        new_venue_filters = {
+            category:          $('#category_id').val(),
+            sub_categories:    $('#venue_sub_categories').val(),
+            country:           $('#country_id').val(),
+            region:            $('#region_id').val(),
+            area:              $('#area_id').val(),
+            population_filter: $("#population_filter").bootstrapSwitch('state')
+        }
+
+        if (
+            new_venue_filters.category != venue_filters.category ||
+            new_venue_filters.sub_categories != venue_filters.sub_categories ||
+            new_venue_filters.country != venue_filters.country ||
+            new_venue_filters.region != venue_filters.region ||
+            new_venue_filters.area != venue_filters.area ||
+            new_venue_filters.population_filter != venue_filters.population_filter
+            )
+        {
+            console.log('venue filters changed');
+            venue_filters = new_venue_filters
+
+            /**
+             * update the filter spans
+             */
+            updateFilterSpan();
+
+            /**
+             * at this point we issue new AJAX POST requests containing the venue_filters object
+             */
+            fetchNationalStatsAverages(global_start, global_end, venue_filters);
+        } else {
+            //we do nothing
+        }
+    });
+
+    function onNationalStatsAvgDwelltimeDataReceived(data) {
+        $('#right_donut_3').html(data + ' <span style="font-size: 60%;">minutes</span>');
+    }
+
+    /**
+     * function to fetch all stats for the right hand section of the report
+     */
+    function fetchNationalStatsAverages(start, end, venue_filters) {
+        /**
+         * make it clear we are re-loading the data
+         */
+        $("#right_chart_1_1").highcharts().showLoading();
+        $("#right_chart_1_2").highcharts().showLoading();
+        $("#right_chart_2_2").highcharts().showLoading();
+        $("#right_chart_3_2").highcharts().showLoading();
+
+        $('#right_donut_1').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#right_donut_2').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#right_donut_3').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#right_donut_4').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#right_donut_5').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#right_donut_6').html('<i class="fa fa-spinner fa-spin"></i>');
+
+        /**
+         * get the average dwell time for right-hand donut_3
+         */
+        venue_filters["{{site.csrf.keys.name}}"] = "{{site.csrf.name}}";
+        venue_filters["{{site.csrf.keys.value}}"] = "{{site.csrf.value}}";
+
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/national_stats_report/average_dwelltime/' + start + "/" + end,
+            type:       'POST',
+            data:       venue_filters,
+            dataType:   'json',
+            success:    onNationalStatsAvgDwelltimeDataReceived
+        });
+
+        /**
+         * get the data for right-hand chart 2.2, donut_2
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/national_stats_report/visitors_per_hourofday/' + start + '/' + end,
+            type:       'POST',
+            data:       venue_filters,
+            dataType:   'json',
+            success:    rightChart_2_2_DataReceived
+        });
+
+        /**
+         * get the data for right-hand chart 1.1, donut_4
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/national_stats_report/visitors_durations/' + start + '/' + end,
+            type:       'POST',
+            data:       venue_filters,
+            dataType:   'json',
+            success:    rightChart_1_1_DataReceived
+        });
+
+        /**
+         * get the data for right-hand chart 3.2, chart 1.2, donut_1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/national_stats_report/new_vs_repeat/' + start + '/' + end,
+            type:       'POST',
+            data:       venue_filters,
+            dataType:   'json',
+            success:    rightChart_3_2_DataReceived
+        });
+
+    }
+
+    /***************************************************************
+     * other shared functions from here
+     ***************************************************************/
+
+    /**
+     * whatever we need to do when *all* AJAX requests have finished
+     */
+    $(document).ajaxStop(function () {
+        /**
+         * now we are able to compare left-hand and right-hand results and update
+         * the contents of donuts 5 & 6 accordingly
+         */
+        if (left_total_visitors != 0 && right_total_visitors != 0 && left_daily_visitors != 0 && right_daily_visitors != 0) {
+            /**
+             * work on donut 5
+             */
+            var delta_total_left = left_total_visitors - right_total_visitors;
+            update_comparison_donut (delta_total_left, 'donut_container_5', 'donut_5');
+
+            /**
+             * work on donut 6
+             */
+            var delta_perc_left = Math.round(((left_total_visitors - right_total_visitors)/right_total_visitors)*10000)/100;
+            update_comparison_donut (delta_perc_left, 'donut_container_6', 'donut_6', true);
+
+            /**
+             * work on right donut 5
+             */
+            var delta_total_right = right_total_visitors - left_total_visitors;
+            update_comparison_donut (delta_total_right, 'right_donut_container_5', 'right_donut_5');
+
+            /**
+             * work on right donut 6
+             */
+            var delta_perc_right = Math.round(((right_total_visitors - left_total_visitors)/left_total_visitors)*10000)/100;
+            update_comparison_donut (delta_perc_right, 'right_donut_container_6', 'right_donut_6', true);
+        } else {
+            //console.log('at least one of the values equals zero');
+        }
+    });
+
+    /**
+     * force a resize event after page load
+     */
+    window.dispatchEvent(new Event('resize'));
+})
+</script>
+{% endblock %}

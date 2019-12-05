@@ -1,0 +1,682 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Comparison Charts - fixed dates",
+        "description" : "Report page with Comparison Charts based on fixed date ranges."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <!-- <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Current Week, Previous Week, This week Last year<span class="visible-sm-inline visible-lg-inline"> – Week {{ "now"|date("W") }}</span></span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Current Month, Previous Month, This month Last Year</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Current Year, Previous Year</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Visitors per day, Week day comparison</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+function genPDF() {
+    var element = document.getElementsByClassName("page-content")[0];
+    var opt = {
+        margin:       1,
+        filename:     'fixed_comparison_report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 1 },
+        jsPDF:        { unit: 'pt', format: [1280, 720], orientation: 'l' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}
+
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * file name and report title for CSV download
+ */
+var csv_filename = 'Comparison_Charts_fixed_dates-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title = 'GEO-Sense: Comparison Charts - fixed dates ({{current_user.venue_name}})';
+var venue_name = '{{current_user.venue_name}}';
+
+/**
+ * define some common settings for the three stacked-column charts
+ */
+var common_tooltip_options = {
+    shared: true,
+    useHTML: true,
+    borderWidth: 0,
+    backgroundColor: "rgba(255,255,255,0)",
+    shadow: false,
+    formatter: function () {
+        //console.log(this);
+        var symbol = '■';
+        var tooltipcontent = '<b>' + this.x + '</b>';
+        tooltipcontent += '<table style="width:100%">';
+        tooltipcontent += '<tr><td><span style="color:' + this.points[0].color + '">' + symbol + '</span> ' + this.points[0].series.name + ' visitors:</td>';
+        tooltipcontent += '<td style="text-align: right;">' + this.points[0].y.toLocaleString() + '</td>';
+
+        /*
+        if the total equals 0 we don't display a percentage
+        */
+        if (this.points[0].total !==0) {
+            tooltipcontent += '<td>&nbsp;(' + Math.round((this.points[0].y/this.points[0].total)*1000)/10 + '%)</td></tr>';
+        } else {
+            tooltipcontent += '<td></td></tr>';
+        }
+        tooltipcontent += '<tr><td><span style="color:' + this.points[1].color + '">' + symbol + '</span> ' + this.points[1].series.name + ' visitors:</td>';
+        tooltipcontent += '<td style="text-align: right;">' + this.points[1].y.toLocaleString() + '</td>';
+
+        /*
+        if the total equals 0 we don't display a percentage
+        */
+        if (this.points[0].total !==0) {
+            tooltipcontent += '<td>&nbsp;(' + Math.round((this.points[1].y/this.points[0].total)*1000)/10 + '%)</td></tr>';
+        } else {
+            tooltipcontent += '<td></td></tr>';
+        }
+        tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + this.points[0].total.toLocaleString() + '</b><td><td></td></tr>';
+        tooltipcontent += '</table>';
+        return tooltipcontent;
+    }
+};
+
+var common_plot_options = {
+    column: {
+        stacking: 'normal'
+    },
+    series: {
+        stacking: 'normal',
+        animation: {
+            duration: 500,
+            easing: 'easeInOutQuart'
+        },
+        dataLabels: {
+            enabled: true,
+            allowOverlap: true,
+            formatter: function() {
+                if (this.y != 0) {
+                  return this.series.name;
+                } else {
+                  return null;
+                }
+            },
+            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+            style: {
+                textShadow: '0 0 3px black'
+            }
+        }
+    }
+};
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    csv_data.push({
+        heading: 'Current Week/Previous Week/This week Last year',
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Current Month/Previous Month/This month Last Year',
+        process: false,
+        data: $('#chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Current Year/Previous Year',
+        process: false,
+        data: $('#chart_2_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Visitors per day - Week day comparison',
+        process: false,
+        data: $('#chart_2_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+});
+
+$(document).ready(function() {
+    /**
+     * Set the global timezone and "startofweek day" for this session for use in moment.js
+     */
+    moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+    moment.updateLocale('en', {
+        week : {
+            dow : 1,
+        }
+    });
+
+    /**
+     * calculate weekends for plotbands, going back 1 year
+     * may be not very efficient but this works...
+     */
+    var seriesEnd = moment().startOf('day');
+    var seriesStart = seriesEnd - (3600000*24*365);
+    var weekends = weekendAreas(seriesStart, seriesEnd);
+
+
+    /***************************************************************
+     * start preparations for the individual charts from here
+     ***************************************************************/
+
+    /***************************************************************
+    start of weeks compared chart
+    container: chart_1_1
+    url: "{{site.uri.public}}/api/stats/venue/unique_visitors/current_week_compared/incl_prev_year/" + rangeStart + "/" + rangeEnd,
+    TODO:
+    - check addition of hourly stats to fill the full range for previous week and previous year
+    */
+    var chart_1_1_options = {
+        chart: {
+            renderTo: 'chart_1_1',
+            backgroundColor: '#FFFFFF',
+            type: 'column'
+        },
+        xAxis: {
+            type: 'category',
+            categories: [moment().subtract(1, 'year').format('YYYY, [week] W'), 'Previous, week ' + moment().subtract(1, 'week').format('W'), 'Current, week ' + moment().format('W')]
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: common_plot_options,
+        tooltip: common_tooltip_options
+    };
+
+    /*
+    initialize chart_1_1
+    */
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_options);
+    chart_1_1.showLoading();
+
+    /*
+    define start and end
+    */
+    var rangeEnd = moment();
+    var rangeStart = moment().startOf('week');
+
+    /*
+    get the weeks data with ajax
+    */
+    $.ajax({
+        url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/current_week_compared/incl_prev_year/" + rangeStart + "/" + rangeEnd,
+        type: "GET",
+        dataType: "json",
+        success: onWeeksDataReceived
+    });
+
+    function onWeeksDataReceived(data) {
+        /*
+        do something with the data, first prepare the arrays
+        */
+        var newVisitors =[];
+        newVisitors = data['new'];
+        var repeatVisitors =[];
+        repeatVisitors = data['repeat'];
+
+        /**
+         * set the options for the series before we load the data
+         * order of data: last year, previous week, this week
+         */
+        var chart_1_1 = new Highcharts.Chart(chart_1_1_options);
+        chart_1_1.hideLoading();
+
+        /*
+        set the options for the series while we load the data
+        */
+        chart_1_1.addSeries({
+            name: 'new',
+            data: [{color: '#3E9C1A', y: newVisitors[0]}, {color: '#132149', y: newVisitors[1]}, {color: '#e25826', y: newVisitors[2]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_1_1.addSeries({
+            name: 'repeat',
+            data: [{color: '#b6d1b7', y: repeatVisitors[0]}, {color: '#b3bbd2', y: repeatVisitors[1]}, {color: '#e2ab97', y: repeatVisitors[2]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_1_1.redraw();
+    }
+
+    /***************************************************************
+    start of months compared chart
+    container: chart_1_2
+    url: "{{site.uri.public}}/api/stats/venue/unique_visitors/current_month_compared/incl_prev_year/" + rangeStart + "/" + rangeEnd,
+    TODO:
+    - check addition of hourly stats to fill the full range for previous week and previous year
+    */
+    var chart_1_2_options = {
+        chart: {
+            renderTo: 'chart_1_2',
+            backgroundColor: '#FFFFFF',
+            type: 'column'
+        },
+        xAxis: {
+            type: 'category',
+            categories: [moment().subtract(1, 'year').format('MMMM YYYY'), moment().subtract(1, 'month').format('MMMM'), moment().format('MMMM')]
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: common_plot_options,
+        tooltip: common_tooltip_options
+    };
+
+    /*
+    initialize chart_1_2
+    */
+    var chart_1_2 = new Highcharts.Chart(chart_1_2_options);
+    chart_1_2.showLoading();
+
+    /*
+    define start and end
+    */
+    var rangeEnd = moment();
+    var rangeStart = moment().startOf('month');
+
+    /*
+    get the months data with ajax
+    */
+    $.ajax({
+        url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/current_month_compared/incl_prev_year/" + rangeStart + "/" + rangeEnd,
+        type: "GET",
+        dataType: "json",
+        success: onMonthsDataReceived
+    });
+
+    function onMonthsDataReceived(data) {
+        /*
+        do something with the data, first prepare the arrays
+        */
+        var newVisitors =[];
+        newVisitors = data['new'];
+        var repeatVisitors =[];
+        repeatVisitors = data['repeat'];
+
+        /*
+        set the options for the series before we load the data
+        order of data: last year, previous month, this month
+        */
+        var chart_1_2 = new Highcharts.Chart(chart_1_2_options);
+        chart_1_2.hideLoading();
+
+        /*
+        set the options for the series while we load the data
+        */
+        chart_1_2.addSeries({
+            name: 'new',
+            data: [{color: '#3E9C1A', y: newVisitors[0]}, {color: '#132149', y: newVisitors[1]}, {color: '#e25826', y: newVisitors[2]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_1_2.addSeries({
+            name: 'repeat',
+            data: [{color: '#b6d1b7', y: repeatVisitors[0]}, {color: '#b3bbd2', y: repeatVisitors[1]}, {color: '#e2ab97', y: repeatVisitors[2]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_1_2.redraw();
+    }
+
+    /***************************************************************
+    start of years compared chart
+    container: chart_2_1
+    url: "{{site.uri.public}}/api/stats/venue/unique_visitors/current_year_compared/incl_prev_year/" + rangeStart + "/" + rangeEnd,
+    TODO:
+    - check addition of hourly stats to fill the full range for previous week and previous year
+    */
+    var chart_2_1_options = {
+        chart: {
+            renderTo: 'chart_2_1',
+            backgroundColor: '#FFFFFF',
+            type: 'column'
+        },
+        xAxis: {
+            type: 'category',
+            categories: [moment().subtract(1, 'year').format('YYYY'), moment().format('YYYY')]
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: common_plot_options,
+        tooltip: common_tooltip_options
+    };
+
+    /*
+    initialize chart_2_1
+    */
+    var chart_2_1 = new Highcharts.Chart(chart_2_1_options);
+    chart_2_1.showLoading();
+
+    /*
+    define start and end
+    */
+    var rangeEnd = moment();
+    var rangeStart = moment().startOf('year');
+
+    /*
+    get the years data with ajax
+    */
+    $.ajax({
+        url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/current_year_compared/incl_prev_year/" + rangeStart + "/" + rangeEnd,
+        type: "GET",
+        dataType: "json",
+        success: onYearsDataReceived
+    });
+
+    function onYearsDataReceived(data) {
+        /*
+        do something with the data, first prepare the arrays
+        */
+        var newVisitors =[];
+        newVisitors = data['new'];
+        var repeatVisitors =[];
+        repeatVisitors = data['repeat'];
+
+        /*
+        set the options for the series before we load the data
+        order of data: last year, previous month, this month
+        */
+        var chart_2_1 = new Highcharts.Chart(chart_2_1_options);
+        chart_2_1.hideLoading();
+
+        /*
+        set the options for the series while we load the data
+        */
+        chart_2_1.addSeries({
+            name: 'new',
+            data: [{color: '#3E9C1A', y: newVisitors[0]}, {color: '#e25826', y: newVisitors[1]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_2_1.addSeries({
+            name: 'repeat',
+            data: [{color: '#b6d1b7', y: repeatVisitors[0]}, {color: '#e2ab97', y: repeatVisitors[1]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_2_1.redraw();
+    }
+
+    /***************************************************************
+    start of weekdays compared chart
+    container: chart_2_2
+    url: /api/unique_visitors/weekdays_compared
+    TODO:
+    - add last year, same date range
+    - requires new route and query returning 3 series instead of 2
+    */
+    var chart_2_2_options = {
+        chart: {
+            renderTo: 'chart_2_2',
+            backgroundColor: '#FFFFFF',
+            type: 'column'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.points[0].key + '</b>';
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /*
+                we loop through the values for the three series
+                */
+                $.each(this.points, function () {
+                    //console.log(this);
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                });
+
+                if (typeof this.points[1] !== undefined && typeof this.points[2] !== undefined) {
+                    /*
+                    only when we have two datapoints do we display the change between the last two values
+                    */
+                    var change = (this.points[2].y - this.points[1].y)/this.points[1].y;
+                    if (change >= 0 ) {
+                        tooltipcontent += '<tr><td><b>Change:</b></td><td style="text-align: right; color: #66B366"><b>+' + Math.round(change*1000)/10 + '%</b></td></tr>';
+                    } else {
+                        tooltipcontent += '<tr><td><b>Change:</b></td><td style="text-align: right; color: #DD686E"><b>' + Math.round(change*1000)/10 + '%</b></td></tr>';
+                    }
+                }
+
+                /*
+                close the table and return the tooltip
+                */
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            series: {
+                animation: {
+                    duration: 500,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /*
+    initialize chart_2_2
+    weekRangeEnd and weekRangeStart mark start and end of the most recent week
+    the previous week before this week, will be determined automatically
+    */
+    var chart_2_2 = new Highcharts.Chart(chart_2_2_options);
+    chart_2_2.showLoading();
+
+    /*
+    define start and end
+    */
+    var startToday = moment().startOf('day');
+    var weekRangeEnd = startToday;
+    var weekRangeStart = moment(weekRangeEnd).subtract(7, 'days');
+
+    /*
+    get the weekdays data with ajax
+    */
+    $.ajax({
+        url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/weekdays_compared/incl_prev_year/" + weekRangeStart + "/" + weekRangeEnd,
+        type: "GET",
+        dataType: "json",
+        success: onWeekdaysDataReceived
+    });
+
+    function onWeekdaysDataReceived(data) {
+        /*
+        do something with the data, first prepare
+        */
+        var thisWeekdays =[];
+        thisWeekdays = data['this_week'];
+        var prevWeekdays =[];
+        prevWeekdays = data['prev_week'];
+        var prevYearWeekdays =[];
+        prevYearWeekdays = data['prev_year'];
+
+        /*
+        then sort the days of the week up to yesterday
+        */
+        var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var today = new Date().getDay();
+        for (var i=0;i<today;i++) daysOfWeek.push(daysOfWeek.shift());
+
+        function daysOfWeekSorter(x,y) {
+            return daysOfWeek.indexOf(x[0])-daysOfWeek.indexOf(y[0]);
+        }
+
+        prevWeekdays.sort(daysOfWeekSorter);
+        thisWeekdays.sort(daysOfWeekSorter);
+        prevYearWeekdays.sort(daysOfWeekSorter);
+
+        var chart_2_2 = new Highcharts.Chart(chart_2_2_options);
+        chart_2_2.hideLoading();
+
+        /**
+         * set the options for the series while we load the data
+         */
+        chart_2_2.addSeries({
+            color: '#3E9C1A', // green
+            name: 'same period last year',
+            data: prevYearWeekdays
+        }, false);
+
+        chart_2_2.addSeries({
+            color: '#001E4C', // dark blue
+            name: 'previous 7 days',
+            data: prevWeekdays
+        }, false);
+
+        chart_2_2.addSeries({
+            color: '#e25826', // dark blue
+            name: 'last 7 days',
+            data: thisWeekdays
+        }, false);
+
+        chart_2_2.redraw();
+    }
+
+    /*
+    end of weekdays compared chart
+    ***************************************************************/
+
+    /***************************************************************
+    * other shared functions from here
+    ****************************************************************/
+
+    /*
+    this function is for calculating plotbands for the weekends
+    TODO: check how we can use moment.js here to have full benefit of it's timezone awareness
+    */
+    function weekendAreas(start, end) {
+        var markings = [];
+
+        // go to the first Saturday
+        var begin = moment(start);
+        var daystoSaturday = 0 - (begin.isoWeekday() - 6) + 7;
+        var i = begin.add(daystoSaturday, 'days');
+        do {
+            markings.push({
+                    color: '#F5F5F5', // the color of the weekend plotbands
+                    from: i,
+                    to: i + 2 * 24 * 60 * 60 * 1000
+            });
+            i += 7 * 24 * 60 * 60 * 1000;
+        } while (i < end);
+
+        return markings;
+    }
+
+    /*
+    force a resize event after page load
+    */
+    window.dispatchEvent(new Event('resize'));
+})
+</script>
+{% endblock %}

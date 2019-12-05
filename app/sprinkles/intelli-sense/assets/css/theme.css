@@ -1,0 +1,883 @@
+*
+ * custom CSS for the Metronic-based theme
+ */
+.page-header.navbar .top-menu .navbar-nav>li.dropdown.open .dropdown-toggle {
+    background-color: #1A4B80;
+}
+
+.page-header.navbar .top-menu .navbar-nav>li.dropdown .dropdown-toggle:hover {
+    background-color: #1A4B80;
+}
+
+.dropdown-menu-default {
+    height: auto;
+    max-height: 600px;
+    overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+    .page-header.navbar .page-top {
+        background: #003166;
+    }
+}
+
+/**
+ * custom CSS for daterangepicker
+ */
+.daterangepicker .ranges li:hover {
+  background: #FF981E !important;
+  border: 1px solid #FF981E !important;
+  color: #fff;
+}
+
+.daterangepicker .ranges li.active {
+  background: #E87E04 !important;
+  border: 1px solid #E87E04 !important;
+  color: #fff;
+}
+
+/**
+ * custom progress bars
+ */
+progress {
+    color: #26C281;
+    width: 50px;
+    height: 10px;
+    background: #fff;
+}
+
+progress::-webkit-progress-bar {
+    background: #EAEAEA;
+}
+
+progress::-webkit-progress-value {
+    background: #26C281;
+}
+
+progress.signal {
+    color: #E1974D;
+    width: 50px;
+    height: 10px;
+    background: #26C281;
+}
+
+progress.signal::-webkit-progress-bar {
+    background: #26C281;
+}
+
+progress.signal::-webkit-progress-value {
+    background: #E1974D;
+}
+
+progress.clients {
+    color: #26C281;
+    width: 50px;
+    height: 10px;
+    background: #fff;
+}
+
+progress.clients::-webkit-progress-bar {
+    background: #EAEAEA;
+}
+
+progress.clients::-webkit-progress-value {
+    background: #26C281;
+}
+
+/**
+ * for the processing message <div> for Datatables
+ */
+div.dataTables_processing {
+    z-index: 999;
+    background: rgba(25, 25, 25, .00004) !important;
+    border: 0px !important;
+}
+
+/**
+ * tabbable line (used in tabbed portlets) colors
+ */
+.tabbable-line>.nav-tabs>li.open, .tabbable-line>.nav-tabs>li:hover {
+    border-bottom: 4px solid #54B7FB;
+}
+
+.tabbable-line>.nav-tabs>li.active {
+    border-bottom: 4px solid #3598DC;
+}
+
+/**
+ * make element clickable
+ */
+.clickable {
+    cursor: pointer;
+}
+
+/**
+ * iframe wrapper for captive portal preview panel
+ */
+.iframe-wrapper {
+    width: 335px;
+    height: 568px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/**
+ * custom styling for success alerts
+ */
+.alert-success {
+    background-color: #C0DFFB;
+    border-color: #C0DFFB;
+    color: #697882;
+}
+
+/**
+ * custom styling for form validation success
+ * http://formvalidation.io/examples/changing-success-error-colors/
+ */
+.has-success .input-group-addon {
+    color: #129b03;
+    border-color: #129b03;
+    background-color: #95C888;
+}
+
+/**
+ * override background color for active alarm rows in datatables
+ */
+.table>tbody>tr.danger>td, .table>tbody>tr.danger>th, .table>tbody>tr>td.danger, .table>tbody>tr>th.danger, .table>tfoot>tr.danger>td, .table>tfoot>tr.danger>th, .table>tfoot>tr>td.danger, .table>tfoot>tr>th.danger, .table>thead>tr.danger>td, .table>thead>tr.danger>th, .table>thead>tr>td.danger, .table>thead>tr>th.danger {
+    background-color: #fbe1e3 !important;
+}
+
+/**
+ * fixes for select2 in Bootstrap modal with Metronic theme
+ */
+.select2-drop {
+    z-index: 11000;
+}
+
+.select2-drop-mask {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 11000;
+}
+
+/**
+ * fix for wide select2 elements caused by long content
+ */
+.input-group .select2-container {
+    position: relative;
+    z-index: 2;
+    float: left;
+    width: 100%;
+    margin-bottom: 0;
+    display: table;
+    table-layout: fixed;
+}
+
+/**
+ * modified styles for Fine Uploader
+ */
+.qq-upload-list li {
+    border-top: none;
+    border-bottom: none;
+}
+.qq-upload-list li:first-child {
+    border-top: none;
+    border-bottom: none;
+}
+.qq-upload-list li:last-child {
+    border-top: none;
+    border-bottom: none;
+}
+.qq-upload-list li.qq-upload-success {
+    border-top: none;
+    border-bottom: none;
+}
+.qq-upload-list li.qq-upload-fail {
+    border-top: none;
+    border-bottom: none;
+}
+.qq-upload-list * {
+    border-top: none;
+    border-bottom: none;
+}
+
+/**
+ * to fix colorpicker hue panel width when not showing the alpha channel (hex colors only)
+ */
+.colorpicker .colorpicker-hue {
+    width: 58px;
+}
+
+/**
+ * For the site selector drop-down
+ * https://stackoverflow.com/questions/17726641/bootstrap-how-to-disable-vertical-scrollbar
+ */
+/*.scrollable-menu {
+    overflow-y: auto;
+    max-height: 500px;
+    height: auto;
+}*/
+@media (max-width: 2000px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    .scrollable-menu {
+        overflow-y: auto;
+        max-height: 600px;
+        height: auto;
+    }
+}
+
+@media (max-width: 800px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    .scrollable-menu {
+        overflow-y: auto;
+        max-height: 300px;
+        height: auto;
+    }
+}
+
+/**
+ * custom CSS for sidebar nav
+ */
+.page-sidebar .page-sidebar-menu, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu {
+     margin-top: 0; 
+}
+
+.page-sidebar-closed .page-sidebar .page-sidebar-menu.page-sidebar-menu-closed>li>a>.arrow, .page-sidebar-closed .page-sidebar .page-sidebar-menu.page-sidebar-menu-closed>li>a>.badge, .page-sidebar-closed .page-sidebar .page-sidebar-menu.page-sidebar-menu-closed>li>a>.title, .page-sidebar-closed .page-sidebar .page-sidebar-menu.page-sidebar-menu-closed>div>.wifi-logo-text {
+    display: none!important;
+}
+
+/*.page-sidebar {
+    width: 235px;
+    float: left; 
+    position: relative;
+    margin-right: -100%;
+}*/
+
+.page-sidebar .page-sidebar-menu li.active a, .page-sidebar .page-sidebar-menu li.active a:hover {
+    background: rgba(225, 89, 16, 0.2);
+    color: #5b9bd1;
+}
+
+.page-sidebar .page-sidebar-menu li.active a, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu li.active a {
+	border-left: 3px solid #e15910!important;
+    margin-left: -3px;
+    padding-left: 15px;
+}
+
+.page-sidebar .page-sidebar-menu li:hover a {
+	background: rgba(225, 89, 16, 0.1);
+	color: #5b9bd1;
+}
+
+.page-sidebar .page-sidebar-menu li.open li a:hover {
+	background: rgba(225, 89, 16, 0.1)!important;
+	color: #5b9bd1;
+}
+
+/**
+ * Main dropdown item
+ */
+.page-sidebar .page-sidebar-menu li.open.active a, .page-sidebar .page-sidebar-menu li.open.active a:hover {
+	background: rgba(225, 89, 16, 0.2);
+}
+
+.page-sidebar .page-sidebar-menu li.open li.active a {
+	background: rgba(225, 89, 16, 0.2)!important;
+	color: #5b9bd1;
+}
+
+.page-sidebar .page-sidebar-menu li.open.active li a {
+	border: 0!important;
+	margin-left: 0;
+    padding-left: 30px;
+}
+
+.page-sidebar .page-sidebar-menu li.open li a {
+	background: #FFF!important;
+	color: #678098;
+}
+
+.page-sidebar .page-sidebar-menu li.open a {
+	background: rgba(225, 89, 16, 0.1);
+}
+
+.page-sidebar .page-sidebar-menu li.open.active a, .page-sidebar .page-sidebar-menu li.open.active a:hover {
+    background: rgba(225, 89, 16, 0.2);
+}
+
+.speech-bubble {
+    margin-top: 4%;
+    position: relative;
+    background: #F2F2F2;
+    border-radius: .4em;
+    padding-left: 2%;
+    padding-top: 2%;
+}
+
+.speech-bubble:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5%;
+    width: 0;
+    height: 0;
+    border: 17px solid transparent;
+    border-bottom-color: #F2F2F2;
+    border-top: 0;
+    border-left: 0;
+    margin-left: -8.5px;
+    margin-top: -17px;
+}
+
+.list-icon {
+    background-color: #6CC0C9; 
+    height: 50px; 
+    width:50px; 
+    color: white; 
+    display: inline-block;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-stat.blue-soft {
+    background-color: #1c2746;
+}
+
+.dashboard-stat.yellow-gold {
+    background-color: #e15910;
+}
+
+.font-blue-sharp {
+    color: #1c2746!important;
+}
+
+.btn.blue-soft:not(.btn-outline) {
+    background-color: #1c2746;
+    border-color: #1c2746;
+}
+
+.btn.blue-soft:not(.btn-outline):hover {
+    background-color: #000033;
+    border-color: #000033;
+}
+
+.portlet>.portlet-title>.caption>.caption-helper {
+    color: #282828;
+}
+
+.dashboard-stat .details .number {
+    font-size: 40px;
+}
+
+.dashboard-stat .details .desc {
+    font-size: 20px;
+}
+
+.portlet.light>.portlet-title>.caption>.caption-subject {
+    font-size: 18px;
+}
+
+.info-icon {
+    display: inline-block; 
+    top: -3px; 
+    position: relative; 
+    font-size: 20px; 
+    color: #ACACAC;
+}
+
+.info-icon:hover {
+    color: #ACACAC;
+}
+
+.absoluteClass {
+    position: absolute;
+}
+
+.page-sidebar {
+    float: none;
+}
+
+/**
+ * Start of Venue Wizard CSS
+ */
+@import url(http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700);
+/* written by riliwan balogun http://www.facebook.com/riliwan.rabo*/
+
+.board{
+    width: 75%;
+    margin: 60px auto;
+    background: #fff;
+    /*box-shadow: 10px 10px #ccc,-10px 20px #ddd;*/
+}
+
+.board .nav-tabs {
+    position: relative;
+    /* border-bottom: 0; */
+    /* width: 80%; */
+    margin: 40px auto;
+    margin-bottom: 0;
+    box-sizing: border-box;
+}
+
+.board > div.board-inner{
+    background: #fafafa url(http://subtlepatterns.com/patterns/geometry2.png);
+    background-size: 30%;
+}
+
+p.narrow{
+    width: 60%;
+    margin: 10px auto;
+}
+
+.liner{
+    height: 2px;
+    background: #ddd;
+    position: absolute;
+    width: 80%;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: 50%;
+    z-index: 1;
+}
+
+/*.board-inner > .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+    color: #555555;
+    cursor: default;
+    border: 0;
+    border-bottom-color: transparent;
+}*/
+
+span.round-tabs{
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    display: inline-block;
+    border-radius: 100px;
+    background: white;
+    z-index: 2;
+    position: absolute;
+    left: 0;
+    text-align: center;
+    font-size: 25px;
+}
+
+span.round-tabs{
+    color: #1c2746;
+    border: 2px solid #1c2746;
+}
+
+li.active span.round-tabs{
+    background: #fff !important;
+    border: 2px solid #e15910;
+    color: #e15910;
+}
+
+.board-inner > .nav-tabs > li.active > a span.round-tabs{
+    background: #fafafa;
+}
+
+.board-inner > .nav-tabs > li {
+    width: 11%;
+}
+
+/*li.active:before {
+    content: " ";
+    position: absolute;
+    left: 45%;
+    opacity:0;
+    margin: 0 auto;
+    bottom: -2px;
+    border: 10px solid transparent;
+    border-bottom-color: #fff;
+    z-index: 1;
+    transition:0.2s ease-in-out;
+}*/
+
+.board-inner > .nav-tabs > li:after {
+    content: " ";
+    position: absolute;
+    left: 45%;
+    opacity:0;
+    margin: 0 auto;
+    bottom: 0px;
+    border: 5px solid transparent;
+    border-bottom-color: #ddd;
+    transition:0.1s ease-in-out;
+    
+}
+
+.board-inner > .nav-tabs > li.active:after {
+    content: " ";
+    position: absolute;
+    left: 45%;
+    opacity:1;
+    margin: 0 auto;
+    bottom: 0px;
+    border: 10px solid transparent;
+    border-bottom-color: #ddd;
+    
+}
+.board-inner > .nav-tabs > li a{
+   width: 70px;
+   height: 70px;
+   margin: 20px auto;
+   border-radius: 100%;
+   padding: 0;
+}
+
+.board-inner > .nav-tabs > li a:hover{
+    background: transparent;
+}
+
+.tab-content{
+}
+
+.board > .tab-content > .tab-pane{
+    position: relative;
+    padding-top: 50px;
+}
+
+.tab-content .head{
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 25px;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+}
+.btn-outline-rounded{
+    padding: 10px 40px;
+    margin: 20px 0;
+    border: 2px solid transparent;
+    border-radius: 25px;
+}
+
+.btn.green{
+    background-color:#5cb85c;
+    /*border: 2px solid #5cb85c;*/
+    color: #ffffff;
+}
+
+
+
+@media( max-width : 585px ){
+    .board {
+        width: 90%;
+        height:auto !important;
+    }
+
+    span.round-tabs {
+        font-size:16px;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+    }
+        
+    .board > .tab-content .head{
+        font-size:20px;
+    }
+
+    .board-inner > .nav-tabs > li a {
+        width: 50px;
+        height: 50px;
+        line-height:50px;
+    }
+
+    .board-inner > .nav-tabs > li.active:after {
+        content: " ";
+        position: absolute;
+        left: 35%;
+    }
+
+    .board-inner > .btn-outline-rounded {
+        padding:12px 20px;
+    }
+}
+
+/*
+ *  STYLE 1
+ */
+
+.scrollbar::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+}
+
+.scrollbar::-webkit-scrollbar
+{
+    width: 5px;
+    background-color: #F5F5F5;
+}
+
+.scrollbar::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
+}
+
+#marketing_custom_fields {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 50%;
+}
+
+#marketing_custom_fields td, #marketing_custom_fields th {
+    border: 1px solid #dddddd;
+    text-align: center;
+}
+
+#marketing_custom_fields tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+/**
+ * End of Venue Wizard CSS
+ */
+
+.custom-panel_content-wrapper {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+.alert-info {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    border-left: 5px solid #327ad5 !important;
+}
+
+/**
+ * IMPORTANT: fixes the DataTable unaligned bug
+ */
+.dataTables_scrollHeadInner, .dataTables_scrollHeadInner table {
+    width: 100% !important;
+}
+
+/**
+ * IMPORTANT: fixes the journey report colours
+ */
+.link {
+    fill: none;
+    stroke: #222A38;
+    stroke-opacity: .2;
+    shape-rendering: auto;
+}
+
+#zone-selection:hover {
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.checkbox-customised {
+    padding-left: 20px; 
+    cursor: pointer;
+}
+.checkbox-customised label {
+    display: inline-block;
+    position: relative;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+.checkbox-customised label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out, color 0.15s ease-in-out; 
+}
+
+.checkbox-customised label::after {
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 0;
+    margin-left: -20px;
+    padding-left: 3px;
+    padding-top: 1px;
+    font-size: 11px;
+    color: #555555; 
+}
+
+.checkbox-customised input[type="checkbox"] {
+    opacity: 0; 
+}
+
+.checkbox-customised input[type="checkbox"]:focus + label::before {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px; 
+}
+
+.checkbox-customised input[type="checkbox"]:checked + label::after {
+    font-family: "Font Awesome 5 Free";
+    content: "\f00c"; 
+    font-weight: 900;
+}
+
+.checkbox-customised input[type="checkbox"]:disabled + label {
+    opacity: 0.65; 
+}
+
+.checkbox-customised input[type="checkbox"]:disabled + label::before {
+    background-color: #eeeeee;
+    cursor: not-allowed; 
+}
+
+.checkbox-customised.checkbox-circle label::before {
+    border-radius: 50%; 
+}
+.checkbox-customised.checkbox-inline {
+    margin-top: 0; 
+}
+
+.checkbox-customised-primary input[type="checkbox"]:checked + label::before {
+    background-color: #428bca;
+    border-color: #428bca; 
+}
+
+.checkbox-customised-primary input[type="checkbox"]:checked + label::after {
+    color: #fff; 
+}
+
+.checkbox-customised-danger input[type="checkbox"]:checked + label::before {
+    background-color: #d9534f;
+    border-color: #d9534f; 
+}
+
+.checkbox-customised-danger input[type="checkbox"]:checked + label::after {
+    color: #fff; 
+}
+
+.checkbox-customised-info input[type="checkbox"]:checked + label::before {
+    background-color: #5bc0de;
+    border-color: #5bc0de; 
+}
+
+.checkbox-customised-info input[type="checkbox"]:checked + label::after {
+    color: #fff; 
+}
+
+.checkbox-customised-warning input[type="checkbox"]:checked + label::before {
+    background-color: #f0ad4e;
+    border-color: #f0ad4e; 
+}
+
+.checkbox-customised-customised-warning input[type="checkbox"]:checked + label::after {
+    color: #fff; 
+}
+
+.checkbox-customised-success input[type="checkbox"]:checked + label::before {
+    background-color: #5cb85c;
+    border-color: #5cb85c; 
+    cursor: pointer;
+}
+.checkbox-customised-success input[type="checkbox"]:checked + label::after {
+    color: #fff; 
+}
+
+.map-scroll:before {
+    content: 'Use ctrl + scroll to zoom the map';
+    position: absolute;
+    top: 50%;
+    left: 18%;
+    z-index: 999;
+    font-size: 34px;
+}
+
+.map-scroll:after {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    content: '';
+    background: #00000061;
+    z-index: 999;
+}
+
+.no-hover:hover {
+    background-color: transparent !important;
+}
+
+.highcharts-stack-labels span {
+    z-index: 0 !important;
+}
+
+ .label {
+     z-index: 1 !important;
+ }
+
+.highcharts-tooltip > span {
+    padding: 8px;
+    background-color: white;
+    border: 1px solid black;
+    opacity: 0.9;
+    z-index: 9999 !important;
+}
+
+.tooltip {
+    padding: 5px;
+}
+
+i.circle-icon.fa {
+    display: inline-block;
+    border-radius: 60px;
+    box-shadow: 0px 0px 2px #888;
+    padding: 0.5em 0.6em;
+    color: black;
+    border: 1px solid black;
+}
+
+/* Calendar IO remove time prefix */
+.fc-time{
+   display : none;
+}
+
+.page-header.navbar .page-logo {
+    padding-left: 0;
+}
+
+@media (min-width: 992px) {
+    .page-sidebar, .page-sidebar .page-sidebar-menu {
+        margin-bottom: 0px;
+    }
+
+    .page-sidebar.navbar-collapse {
+        max-height: none!important;
+        margin-bottom: 15px;
+    }
+}

@@ -1,0 +1,647 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "NUTS Classifications",
+        "description" : "Page to manage countries, regios, areas"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            For geographic classification of venues we adhere to the <strong>NUTS</strong> structure as explained <a href="https://en.wikipedia.org/wiki/Nomenclature_of_Territorial_Units_for_Statistics" target="_default">here</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Drone Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+        <div class="portlet-body" id="notification_portlet_body">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="active"><a href="#countries_tab" aria-controls="countries_tab" role="tab" data-toggle="tab"><i class="fa fa-folder fa-fw fa-lg"></i> Countries</a></li>
+                <li><a href="#regions_tab" aria-controls="regions_tab" role="tab" data-toggle="tab"><i class="fa fa-folder fa-fw fa-lg"></i> Regions (NUTS 1)</a></li>
+                <li><a href="#areas_tab" aria-controls="areas_tab" role="tab" data-toggle="tab"><i class="fa fa-folder fa-fw fa-lg"></i> Areas (NUTS 2)</a></li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="countries_tab">
+                    <br><br>
+                    <table id="countries_table" class="table table-sorting table-striped table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Country name</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <button type="button" class="btn btn-success" id="addNewCountry">
+                      <i class="fa fa-plus-square"></i> Add new Country
+                    </button>
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="regions_tab">
+                    <br><br>
+                    <table id="regions_table" class="table table-sorting table-striped table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Country</th>
+                                <th>Region name</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <button type="button" class="btn btn-success" id="addNewRegion">
+                      <i class="fa fa-plus-square"></i> Add new Region
+                    </button>
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="areas_tab">
+                    <br><br>
+                    <table id="areas_table" class="table table-sorting table-striped table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Region</th>
+                                <th>Area name</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <button type="button" class="btn btn-success" id="addNewArea">
+                      <i class="fa fa-plus-square"></i> Add new Area
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# country-related modals #}
+<div id='addNewCountryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Add a new Country</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-country-alerts-page"></div>
+
+                <form class="form-horizontal" id="addCountry" action="{{site.uri.public}}/admin/countries" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="add_country_name" class="col-sm-offset-2 col-sm-3 control-label">Country name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="add_country_name" name="name" placeholder="Country name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="addCountrySubmit" name="countrySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateCountryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Edit Country</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-country-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateCountry" action="{{site.uri.public}}/admin/country/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_country_name" class="col-sm-offset-2 col-sm-3 control-label">Country name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_country_name" name="name" placeholder="Country name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateCountrySubmit" name="countrySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_country_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{# /country-related modals #}
+
+{# region-related modals #}
+<div id='addNewRegionModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Add a new Region</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-region-alerts-page"></div>
+
+                <form class="form-horizontal" id="addRegion" action="{{site.uri.public}}/admin/regions" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="country_id" class="col-sm-offset-2 col-sm-3 control-label">Country</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="add_region_country_id" name="country_id" class="form-control">
+                                    <option value="0" selected disabled>Select a country</option>
+                                {% for country in countries %}
+                                    <option value="{{ country.id }}">{{ country.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_region_name" class="col-sm-offset-2 col-sm-3 control-label">Region name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="add_region_name" name="name" placeholder="Region name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="addRegionSubmit" name="regionSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateRegionModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Edit Region</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-region-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateRegion" action="{{site.uri.public}}/admin/region/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="country_id" class="col-sm-offset-2 col-sm-3 control-label">Country</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="update_region_country_id" name="country_id" class="form-control">
+                                    <option value="0" selected disabled>Select a country</option>
+                                {% for country in countries %}
+                                    <option value="{{ country.id }}">{{ country.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_region_name" class="col-sm-offset-2 col-sm-3 control-label">Region name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_region_name" name="name" placeholder="Region name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateRegionSubmit" name="regionSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_region_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{# /region-related modals #}
+
+{# area-related modals #}
+<div id='addNewAreaModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Add a new Area</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-area-alerts-page"></div>
+
+                <form class="form-horizontal" id="addArea" action="{{site.uri.public}}/admin/areas" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="add_area_region_id" class="col-sm-offset-2 col-sm-3 control-label">Region</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="add_area_region_id" name="region_id" class="form-control">
+                                    <option value="0" selected disabled>Select a region</option>
+                                {% for region in regions %}
+                                    <option value="{{ region.id }}">{{ region.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_area_name" class="col-sm-offset-2 col-sm-3 control-label">Area name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="80" id="add_area_name" name="name" placeholder="Area name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="addAreaSubmit" name="areaSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateAreaModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Edit Area</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-area-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateArea" action="{{site.uri.public}}/admin/area/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_area_region_id" class="col-sm-offset-2 col-sm-3 control-label">Region</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="update_area_region_id" name="region_id" class="form-control">
+                                    <option value="0" selected disabled>Select a region</option>
+                                {% for region in regions %}
+                                    <option value="{{ region.id }}">{{ region.name }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_area_name" class="col-sm-offset-2 col-sm-3 control-label">Area name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="80" id="update_area_name" name="name" placeholder="Area name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateAreaSubmit" name="areaSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_area_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{# /area-related modals #}
+
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+    $(document).ready(function() {
+        var countries_table = $('#countries_table').DataTable({
+            autoWidth: false,
+            language: {
+                "loadingRecords": "<br><br><h4>Loading...</h4>"
+            },
+            deferRender: true,
+            ajax: {
+                url: "{{site.uri.public}}/api/countries/all",
+                dataSrc: function(json) {
+                    return json['rows'];
+                }
+            },
+            columns: [
+                {data: 'id'},
+                {data: 'name'}
+            ],
+        });
+
+        var regions_table = $('#regions_table').DataTable({
+            autoWidth: false,
+            language: {
+                "loadingRecords": "<br><br><h4>Loading...</h4>"
+            },
+            deferRender: true,
+            ajax: {
+                url: "{{site.uri.public}}/api/regions/all",
+                dataSrc: function(json) {
+                    return json['rows'];
+                }
+            },
+            columns: [
+                {data: 'id'},
+                {data: 'country.name'},
+                {data: 'name'}
+            ],
+        });
+
+        var areas_table = $('#areas_table').DataTable({
+            autoWidth: false,
+            language: {
+                "loadingRecords": "<br><br><h4>Loading...</h4>"
+            },
+            deferRender: true,
+            ajax: {
+                url: "{{site.uri.public}}/api/areas/all",
+                dataSrc: function(json) {
+                    return json['rows'];
+                }
+            },
+            columns: [
+                {data: 'id'},
+                {data: 'region.name'},
+                {data: 'name'}
+            ],
+        });
+
+        /**
+         * Load the validator rules for the forms in the modal
+         */
+        var country_validators = {{country_validators | raw}};
+        var region_validators  = {{region_validators | raw}};
+        var area_validators    = {{area_validators | raw}};
+
+        /**
+         * we need to use the function ufFormSubmit to submit the data:
+         * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+         * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+         */
+        $('#addCountry').ufForm({
+            validator: country_validators,
+            msgTarget: $("#create-country-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        $('#updateCountry').ufForm({
+            validator: country_validators,
+            msgTarget: $("#update-country-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        /**
+         * open the addNewCountryModal upon click on the button
+         */
+        $('#addNewCountry').click(function(e) {
+            e.preventDefault();
+
+            /**
+             * show the modal with default time zone
+             */
+            $('#addNewCountryModal').modal('show');
+        });
+        /**
+         * end of addNewCountryModal
+         */
+
+        /**
+         * open the updateCountryModal upon tap/click on a row in the countries table
+         */
+        $('body').on('click touchstart', '#countries_table tbody tr', function(e) {
+            e.preventDefault();
+
+            /**
+             * populate the form with the values for this Country
+             */
+            var thisCountry = countries_table.row( this ).data();
+            $('#update_country_name').val(thisCountry.name);
+            $('#update_country_id').val(thisCountry.id);
+
+            /**
+             * show the modal
+             */
+            $('#updateCountryModal').modal('show');
+        });
+        /**
+         * end of updateCountryModal
+         */
+
+        /**
+         * we need to use the function ufFormSubmit to submit the data:
+         * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+         * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+         */
+        $('#addRegion').ufForm({
+            validator: region_validators,
+            msgTarget: $("#create-region-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        $('#updateRegion').ufForm({
+            validator: region_validators,
+            msgTarget: $("#update-region-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        /**
+         * open the addNewRegionModal upon click on the button
+         */
+        $('#addNewRegion').click(function(e) {
+            e.preventDefault();
+
+            /**
+             * show the modal with default time zone
+             */
+            $('#addNewRegionModal').modal('show');
+        });
+        /**
+         * end of addNewRegionModal
+         */
+
+        /**
+         * open the updateRegionModal upon tap/click on a row in the sub_categories table
+         */
+        $('body').on('click touchstart', '#regions_table tbody tr', function(e) {
+            e.preventDefault();
+
+            /**
+             * populate the form with the values for this Sub-category
+             */
+            var thisRegion = regions_table.row( this ).data();
+            $('#update_region_name').val(thisRegion.name);
+            $('#update_region_id').val(thisRegion.id);
+            $('#update_region_country_id').val(thisRegion.country.id);
+
+            /**
+             * show the modal
+             */
+            $('#updateRegionModal').modal('show');
+        });
+        /**
+         * end of updateRegionModal
+         */
+
+        /**
+         * we need to use the function ufFormSubmit to submit the data:
+         * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+         * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+         */
+        $('#addArea').ufForm({
+            validator: area_validators,
+            msgTarget: $("#create-area-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        $('#updateArea').ufForm({
+            validator: area_validators,
+            msgTarget: $("#update-area-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        /**
+         * open the addNewAreaModal upon click on the button
+         */
+        $('#addNewArea').click(function(e) {
+            e.preventDefault();
+
+            /**
+             * show the modal with default time zone
+             */
+            $('#addNewAreaModal').modal('show');
+        });
+        /**
+         * end of addNewAreaModal
+         */
+
+        /**
+         * open the updateAreaModal upon tap/click on a row in the sub_categories table
+         */
+        $('body').on('click touchstart', '#areas_table tbody tr', function(e) {
+            e.preventDefault();
+
+            /**
+             * populate the form with the values for this Sub-category
+             */
+            var thisArea = areas_table.row( this ).data();
+            $('#update_area_name').val(thisArea.name);
+            $('#update_area_id').val(thisArea.id);
+            $('#update_area_region_id').val(thisArea.region.id);
+
+            /**
+             * show the modal
+             */
+            $('#updateAreaModal').modal('show');
+        });
+        /**
+         * end of updateAreaModal
+         */
+
+        /**
+         * what we want to do when a modal gets hidden
+         */
+        $('.modal').on('hidden.bs.modal', function(e) {
+	       $('#form-alerts').empty();
+	       $('#update_form-alerts').empty();
+           $('#update_sub_form-alerts').empty();
+        });
+
+        /**
+         * whatever we want to do when a modal gets shown
+         */
+        $('.modal').on('shown', function() {
+            //
+        });
+
+        /**
+         * whatever we want to do when a modal gets closed
+         */
+        $('.modal').on('hidden.bs.modal', function () {
+            /**
+             * clear feedback state of all form-groups
+             */
+            $('.form-group').removeClass('has-success has-feedback has-error');
+        })
+
+        /**
+         * table redraw on resize of window and collapse of sidebar
+         */
+        $(window).resize(function(){
+            setTimeout(countries_table.draw, 100);
+            setTimeout(regions_table.draw, 100);
+            setTimeout(areas_table.draw, 100);
+        });
+    });
+</script>
+{% endblock %}

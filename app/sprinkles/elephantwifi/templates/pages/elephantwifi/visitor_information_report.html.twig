@@ -1,0 +1,846 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Visitor Information",
+        "description" : "view all visitors currently stored in the database for the selected date range"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="dashboard-report-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+
+    <!-- <button class="btn btn-warning pull-right" id="tour_btn" style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+    <!-- <button class="btn green-jungle pull-right" id="csv_button" aria-hidden="true" style="margin-right: 5px" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button> -->
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Total Registrations /<br> Marketing Consent </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Monthly Registrations </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-cloud-download"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Weekly Registrations </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc"> Daily Registrations </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_5" class="dashboard-stat dashboard-stat-v2 yellow-gold" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Total Registrations /<br> Marketing Consent </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_6" class="dashboard-stat dashboard-stat-v2 yellow-gold" href="#">
+            <div class="visual">
+                <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Monthly Registrations </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_7" class="dashboard-stat dashboard-stat-v2 yellow-gold" href="#">
+            <div class="visual">
+                <i class="fa fa-cloud-download"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_7"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Weekly Registrations </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_8" class="dashboard-stat dashboard-stat-v2 yellow-gold" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_8"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc"> Daily Registrations </div>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="clearfix"></div>
+
+{% if checkAccess('uri_personal_data') %}
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase" id="list_title"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="active_portlet_body">
+                <table id="visitorTable" class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Visitor</th>
+                            <th>Email</th>
+                            <th>Last Seen</th>
+                            <th>Favoured Connection</th>
+                            <th>Marketing Lists</th>
+                            <!-- {% for marketing_list in user.primaryVenue.marketing_lists %}
+                                <th>{{ marketing_list.list_name }}</th>
+                            {% endfor %} -->
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div style="display:block; text-align:center" id="spinner">
+                <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="visitorModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="confirmModalHeader" id="confirmModalHeader"><i class="fas fa-question-circle fa-lg fa-fw"></i>Visitor In-Depth Details</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-lg-6 col-xs-12 col-sm-12">
+                        <div class="portlet light">
+                            <div class="portlet-body">
+                                <div id="profile_details_block" style="width: 100%; height: 200px; margin: 0 auto">
+                                    <div class="col-lg-2 col-xs-4 col-sm-4">
+                                        <a id="basic_info_picture" target="_blank"></a>
+                                    </div>
+                                    <div class="col-lg-10 col-xs-8 col-sm-4">
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>Name:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_name"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>Gender:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_gender"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>Age:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_age"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>E-mail:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_email"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>Location:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_location"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>Marketing:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_marketing"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-6 col-sm-6">
+                                                <p>Connection:</p>
+                                            </div>
+                                            <div class="col-lg-8 col-xs-6 col-sm-6">
+                                                <p><font color="#778899" id="identity_provider"></font></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <br>
+                                            <div class="col-lg-12">
+                                                <a id="view_profile" class="btn orange" target="_blank" hidden></a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-xs-4 col-sm-4">
+                        <div class="portlet">
+                            <div class="portlet-body">
+                                <div style="width: 100%; height: 200px; margin: 0 auto; text-align: center; background-color: rgba(225, 89, 16, 0.5); color: white;">
+                                   <h2 style="padding-top: 60px;" name="venue_count" id="device_count"><i class="fa fa-map-marker fa-xs fa-fw"></i><b>0</b></h2>
+                                   <p>Total Devices</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-xs-4 col-sm-4">
+                        <div class="portlet">
+                            <div class="portlet-body">
+                                <div style="width: 100%; height: 200px; margin: 0 auto; text-align: center; background-color: rgba(0, 49, 102, 0.5); color: white;">
+                                    <h2 style="padding-top: 60px;" name="device_count" id="total_visit_count"><i class="fa fa-flag fa-xs fa-fw"></i><b>0</b></h2>
+                                    <p>Total venue visits</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-xs-4 col-sm-4">
+                        <div class="portlet">
+                            <div class="portlet-body">
+                                <div style="width: 100%; height: 200px; margin: 0 auto; text-align: center; background-color: #6CC0C9; color: white;">
+                                    <h2 style="padding-top: 60px;" name="eshot_count" id="eshot_count"><i class="fa fa-envelope fa-xs fa-fw"></i><b>0</b></h2>
+                                    <p>E-shots received</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-xs-12 col-sm-12">
+                        <div class="portlet light bordered">
+                            <div class="portlet-body">
+                                <div style="width: 100%; max-height: 400px; margin: 0 auto">
+                                    <div class="row">
+                                        <div class="col-offset-1 col-lg-11">
+                                            <p id="eshot_section_header"><font color="#E15910"> E-shots received</font> | 0 e-shots</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <ul class="list-group" style="overflow-y: auto; height: 350px;">
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-xs-12 col-sm-12">
+                        <div class="portlet light bordered">
+                            <div class="portlet-body">
+                                <div style="width: 100%; max-height: 400px; margin: 0 auto;">
+                                    <div class="row">
+                                        <div class="col-offset-1 col-lg-11">
+                                            <p id="device_section_header"><font color="#E15910"> Devices used</font> | 1 venue totalling 0 devices</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <ul id="device_list" class="list-group" style="overflow-y: auto; height: 350px;"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+
+var identities = [];
+
+var today = moment().subtract(1, 'day').endOf('day');
+var venue_start = '{{current_user.primaryVenue.venue_wifi.capture_start}}' * 1000;
+
+// Start the tour
+$('#tour_btn').click(function(e) {
+    // Instance the tour
+    var tour = new Tour({
+        debug: true,
+        backdropPadding: 3,
+        backdrop: true,
+        steps: [{
+            element: "#visitorTable tbody tr:first td:nth-child(1)",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }, {
+            element: "#visitorTable tbody tr:first td:nth-child(2)",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }, {
+            element: "#visitorTable tbody tr:first td:nth-child(3)",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }, {
+            element: "#visitorTable tbody tr:first td:nth-child(4)",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }, {
+            element: "#visitorTable tbody tr:first td:nth-child(5)",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }, {
+            element: "#visitorTable tbody tr:first td:nth-child(6)",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }, {
+            element: "#visitorTable tbody tr:first",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom",
+            onNext: function(tour) {
+                $('#visitorTable tbody tr:first').click();
+                tour.end();
+                setTimeout(function(){
+                    tour.restart();
+                    tour.goTo(7); //substitute your step index here
+                }, 500); //change this to as little as your load time allows
+            }
+        }, {
+            element: "#device_count",
+            title: "Title of my step",
+            content: "Content of my step",
+            placement: "bottom"
+        }          
+    ]});
+
+    // Initialize the tour
+    tour.init();
+    tour.restart();
+});
+
+$(document).ready(function() {
+
+    /**
+     * get the data for donut_1
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/elephantwifi/api/stats/total_unique_venue_visitors/'  + venue_start + '/' + today + '/all',
+        type: 'GET',
+        dataType: 'json',
+        success: onDonut_top_DataReceived
+    });
+
+    /**
+     * Get the URL Param which can be used to filter the table
+     */
+    var getUrlParam = function getUrlParam(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
+
+    /***************************************************************
+     * BEGIN daterangepicker from here
+     ***************************************************************/
+
+    /**
+     * define $start and $end for most of the charts
+     * and determine how far back do we go back to get clients stats
+     * TODO:
+     */
+    var rangeEnd       = moment().endOf('day').subtract(1, 'day');
+    var rangeStart     = moment().subtract(1, 'weeks').startOf('day');
+    var rightNow       = moment();
+
+    /**
+     * Store the URL Param
+     * If URL has a Search Pram change the date range
+     */
+    var searchText = getUrlParam('Search');
+    if (searchText != null) {
+        rangeStart = moment().subtract(30, 'days').startOf('day');
+    }
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     * - assuming start of data collection is January 1st, 2015
+     * TODO:
+     * - consider a venue variable that holds the start date and is checked/updated when setting up
+     */
+    $('#dashboard-report-range').daterangepicker({
+        timePicker:             false,
+        showISOWeekNumbers:     true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        ranges: {
+           'Current week':     [moment().startOf('week'), rightNow],
+           'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
+           'Past 7 days':      [rangeStart, rangeEnd],
+           'Current month':    [moment().startOf('month'), moment().endOf('month')],
+           'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
+           'Past 31 days':     [moment().startOf('day').subtract(31, 'days'), rightNow],
+           'Current year':     [moment().startOf('year'), rightNow],
+           'Past 365 days':    [moment().startOf('day').subtract(1, 'years'), rightNow]
+        },
+        startDate:   rangeStart,
+        endDate:     rangeEnd,
+        minDate:     '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:     moment().endOf('day').subtract(1, 'day'),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        console.log(start + ':' + end);
+        /**
+         * update these global variables for the daterangepicker and the ajax calls
+         */
+        rangeStart = start;
+        rangeEnd = end;
+        now = moment().valueOf();
+
+        /**
+         * place the selected range in the <span>s at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        /**
+         * get the data for donuts
+         */
+        $.ajax({
+            url: '{{site.uri.public}}/elephantwifi/api/stats/total_unique_venue_visitors/' + start + '/' + end + '/range',
+            type: 'GET',
+            dataType: 'json',
+            success: onDonut_bottom_DataReceived
+        });
+
+        /**
+         * Populate the table with data
+         */
+        var visitorTable = $('#visitorTable').on('error.dt', flashToasts).DataTable({
+            serverSide: false,
+            ajax: {
+                url: '{{site.uri.public}}/elephantwifi/api/list/visitors_basic_details/' + start + '/' + end,
+                dataSrc: function(json) {
+                    $('#list_title').html(json.length + ' Marketing visitors for the selected date range');
+                    identities = json;
+                    $('#spinner').hide();
+                    console.log(json);
+                    return json;
+                }
+            },
+            order: [[ 3, "desc" ]],
+            processing: true,
+            language: {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="margin-top: 100px"></i><span class="sr-only">Loading...</span> '
+            },
+            scrollX: true,
+            columns: [
+                {data: 'avatar_url',
+                    "orderable": false,
+                    render: function(data, type, full, meta) {
+                        if(data != '') {
+                            image = '<img src="' + data + '" alt="Profile Picture">';
+                        } else {
+                            if(full.gender == 1)
+                                image = '<img src="' + site.uri.public + '/images/female-avatar.png" alt="Profile Picture" height="50px" width="50px">';
+                            else if(full.gender == 0)
+                                image = '<img src="' + site.uri.public + '/images/male-avatar.png" alt="Profile Picture" height="50px" width="50px">';
+                            else
+                                image = '<img src="' + site.uri.public + '/images/mixed-avatar.png" alt="Profile Picture" height="50px" width="50px">';
+                        }
+
+                        return image;
+                    }
+                },
+                {data: 'first_name',
+                    render: function(data, type, full, meta) {
+                        if (full.gender != null) {
+                            if(full.gender == 0) {
+                                gender = 'Male';
+                            } else {
+                                gender = 'Female';
+                            }
+                        } else {
+                            gender = '';
+                        }
+
+                        if (full.birth_date != null) {
+                            age = Math.round(((new Date()).getTime()/1000 - full.birth_date) / (60 * 60 * 24 * 365));
+                        } else {
+                            age = '';
+                        }
+
+                        return '<font color="#E15910">' + data + ' ' + full.last_name + '</font>' + '<br>' + gender + ' ' + age;
+                        // return (new Date()).getTime();
+                    }
+                },
+                {data: 'email_address'},
+                {data: 'last_seen',
+                    render: function(data, type, full, meta) {
+                        if (data != null) {
+                            last_seen = moment.unix(data).format("DD/MM/YYYY HH:mm");
+                        } else {
+                            last_seen = '';
+                        }
+
+                        // Hide the timestamp so you are able to sort the column correctly
+                        return last_seen;
+                    }
+                },
+                {data: 'provider',
+                    render: function(data, type, full, meta) {
+                        if (data == '') {
+                            return 'Registration Form';
+                        } else {
+                            return capitalizeFirstLetter(data);
+                        }
+                    }
+                },
+                {data: 'marketing_lists',
+                    render: function(data, type, full, meta) {
+                        var lists = [];
+                        $.each( data, function( index, value ){
+                            lists.push(value.list_name);
+                        });
+
+                        return lists.toString();
+                    }
+                }
+            ]
+        });
+
+        // Use the stored URL Param to search through the table
+        if (searchText != null) {
+            visitorTable.search(searchText).draw();
+        }
+
+        // Reload the table when the datetimepicker is changed
+        visitorTable.ajax.url(site.uri.public + '/elephantwifi/api/list/visitors_basic_details/' + start + '/' + end).load();
+
+        $('body').unbind("click").on('click', '#visitorTable tbody tr', function(e) {
+            e.preventDefault();
+
+            /**
+             * populate the form with the values for this row
+             */
+            var thisNotification = visitorTable.row( this ).data();
+            console.log(thisNotification.user_id);
+
+            /**
+            * get the device data with ajax
+            */
+            $.ajax({
+                url:      site.uri.public + '/elephantwifi/api/list/visitor_details/' + thisNotification.user_id,
+                type:     'GET',
+                dataType: 'json',
+                success:  onIdentityDataReceived,
+                error:    console.log("error")
+            });
+
+            $('#visitorModal').modal('show');
+        });      
+    }
+
+    /***************************************************************
+     * END of daterangepicker
+     ***************************************************************/
+
+    function onIdentityDataReceived(data) {
+        console.log("hello");
+        console.log(data);
+
+        /************************
+         ** Basic Info Section **
+         ***********************/
+
+        var identity = data.identities[data.identities.length - 1];
+        var url;
+
+        if (identity.provider == 'twitter') {
+            url = identity.avatar_url;
+            $('#view_profile').hide();
+        } 
+        else if (identity.provider == 'facebook') {
+            url = identity.avatar_url + '?width=200&height=200'
+
+            $('#basic_info_picture').attr("href", "https://www.facebook.com/" + identity.profile_id);
+
+            $('#view_profile').show();
+            $('#view_profile').html('View Facebook Profile');
+            $('#view_profile').attr("href", "https://www.facebook.com/" + identity.profile_id);
+        }
+        else {
+            $('#view_profile').hide();
+
+            if(identity.gender == 1)
+                url = site.uri.public + '/images/female-avatar.png';
+            else if(identity.gender == 0)
+                url = site.uri.public + '/images/male-avatar.png';
+            else
+                url = site.uri.public + '/images/mixed-avatar.png';
+        }
+
+        $('#basic_info_picture').html('<img src="' + url + '" alt="Profile Picture" height="80px" width="80px">');
+
+        identity.postcode          = (identity.postcode) != null ? identity.postcode : '';
+        identity.hometown          = (identity.hometown) != null ? identity.hometown + ', ' : '';
+        identity.city              = (identity.city) != null ? identity.city + ', ' : '';
+        identity.county            = (identity.county) != null ? identity.county + ', ' : '';
+        identity.provider          = (identity.provider) != '' ? identity.provider : 'Registration Form';
+        identity.marketing_consent = (identity.marketing_lists.length) > 0 ? 'Yes' : 'No';
+        age                        = (identity.birth_date) != null ? Math.round(((new Date()).getTime()/1000 - identity.birth_date) / (60 * 60 * 24 * 365)) : 'N/A';
+
+        if (identity.gender != null) {
+            identity.gender = (identity.gender) == 0 ? 'Male' : 'Female';
+        } else {
+            identity.gender = 'N/A';
+        }
+
+        $('#identity_name').html(identity.first_name + ' ' + identity.last_name);
+        $('#identity_gender').html(identity.gender);
+        $('#identity_age').html(age);
+        $('#identity_email').html(identity.email_address);
+        $('#identity_location').html(identity.county + identity.city + identity.hometown + identity.postcode);
+        $('#identity_marketing').html(identity.marketing_consent);
+        $('#identity_provider').html(identity.provider);
+
+        /*******************
+         ** Donut Section **
+         ******************/
+
+        $('#device_count').html('<i class="fa fa-map-marker fa-xs fa-fw"></i><b>' + data.identities.length + '</b>')
+
+        var authorised_visits = 0;
+        var unauthorised_visits = 0;
+        $.each(data.identities, function(identity_index, identity_value) {
+            authorised_visits = authorised_visits + identity_value.sessions[identity_value.sessions.length - 1].device.authorised_visits;
+            unauthorised_visits = unauthorised_visits + identity_value.sessions[identity_value.sessions.length - 1].device.unauthorised_visits;
+        });
+
+        var total_visits = authorised_visits + unauthorised_visits;
+        if (total_visits == 0) {
+            total_visits = 1;
+        }
+
+        $('#total_visit_count').html('<i class="fa fa-flag fa-xs fa-fw"></i><b>' + total_visits + '</b>');
+
+        /**
+         * Add Eshots to the list of Eshots
+         */ 
+
+        /*******************
+         ** Eshot Section **
+         ******************/
+
+
+        /**
+         * Add Eshots to the list of Eshots
+         */   
+        
+
+        /********************
+         ** Device Section **
+         *******************/
+        $('#device_section_header').html('<font color="#E15910"> Devices used</font> | 1 venue totalling ' + data.identities.length + ' devices');
+     
+        /**
+         * Add devices to the list of devices
+         */   
+        $.each(data.identities, function(identity_index, identity_value) {
+            var device = identity_value.sessions[0].device;
+            var visits = device.unauthorised_visits + device.authorised_visits;
+
+            var last_seen = moment.unix(device.last_seen).format("DD/MM/YYYY HH:mm");
+            if (visits == 0) {
+                visits = 1;
+                device.authorised_visits = 1;
+            }
+
+            $("#device_list").append('<li class="list-group-item"><div class="list-icon"><i style="padding-top: 17px" class="fa fa-mobile fa-3x"></i></div><div style="padding-left: 3%; display: inline-block"><strong>' + device.brand + '</strong><font color="#E15910">&nbsp &nbsp ' + device.mac_address + '</font> <br>Visits: ' + visits +'&nbsp &nbsp Last visit: ' + last_seen + '</div><div class="speech-bubble" hidden><p>' + device.os + '</p><br><p><font color="#E15910">' + device.browser + '</font></p><br><p><b>Internet Visits: </b>' + device.authorised_visits + '</p><br><p><b>WiFi Visits: </b>' + device.unauthorised_visits + '</p><br></div></li>');
+        });
+
+        $('ul#device_list li:first .speech-bubble').show();
+
+        /*****************************
+         ** Social Interest Section **
+         ****************************/
+        var marketing_lists = data.identities[0].marketing_lists;
+
+        /**
+         * Get the marketing list names which we then add to the header of the eshot section
+         */
+        var marketing_list_names = '';
+        $.each(marketing_lists, function(index, value) {
+            marketing_list_names = marketing_list_names + ' - ' + value.list_name;
+        });
+
+        $('#eshot_section_header').html('<font color="#E15910"> E-shots recieved</font> | 0 eshots ' + marketing_list_names);
+    }
+
+    /**
+     * When the modal is closed empty all the fields
+     */
+    $(".modal").on("hidden.bs.modal", function(){
+        $('#basic_info_picture').removeAttr("href");
+        $("#basic_info_picture").html('');
+        $("#identity_name").html('');
+        $("#identity_gender").html('');
+        $("#identity_age").html('');
+        $("#identity_email").html('');
+        $("#identity_location").html('');
+        $("#identity_marketing").html('');
+        $("#identity_provider").html('');
+        $('#view_profile').hide();
+
+        $("#device_count").html('');
+        $("#total_visit_count").html('');
+
+        $("#device_section_header").html('');
+        $("#device_list").html('');
+
+        $('#social_interest_section_header').html('');
+        $("#social_interest_list").html('');
+    });
+
+    function onDonut_top_DataReceived(data) {
+        $('#donut_1').html(data.total.toLocaleString() + ' / ' + data.marketing_total.toLocaleString());
+        $('#donut_2').html(data.average_monthly.toLocaleString());
+        $('#donut_3').html(data.average_weekly.toLocaleString());
+        $('#donut_4').html(data.average_daily.toLocaleString());
+    }
+
+    function onDonut_bottom_DataReceived(data) {
+        $('#donut_5').html(data.total.toLocaleString() + ' / ' + data.marketing_total.toLocaleString());
+        $('#donut_6').html(data.average_monthly.toLocaleString());
+        $('#donut_7').html(data.average_weekly.toLocaleString());
+        $('#donut_8').html(data.average_daily.toLocaleString());
+    }
+});
+
+$('#device_list').on('click', '.list-group-item', function() {
+    var speech_bubble = $(this).children('.speech-bubble');
+    if (speech_bubble.is(':visible') === true) {
+        speech_bubble.hide()
+    } else {
+        speech_bubble.show()
+    }
+});
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+</script>
+{% endblock %}

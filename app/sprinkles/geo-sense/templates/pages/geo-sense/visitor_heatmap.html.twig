@@ -1,0 +1,1105 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{# Set page properties (page.*) here. #}
+{% block page %}
+    {# By putting this in a special block, we ensure that it will be set AFTER the default values are set in the parent template,
+    but BEFORE the page itself is rendered. #}
+    {% set page = page | merge({
+        "title"       : "Visitor Heatmap",
+        "description" : "Heatmap showing unique visitor counts"
+    }) %}
+    {{ parent() }}
+    <style type="text/css">
+    .my-custom-control{
+        background: white;
+    }
+    </style>
+{% endblock %}
+{% block content %}
+<!-- BEGIN PAGE HEAD-->
+<div class="page-head">
+    <!-- BEGIN PAGE TITLE -->
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+    <!-- END PAGE TITLE -->
+    <!-- BEGIN OPTIONAL PAGE TOOLBAR -->
+    <div class="page-toolbar">
+        <div id="dashboard-report-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+    <!-- END OPTIONAL PAGE TOOLBAR -->
+</div>
+<!-- END PAGE HEAD-->
+<br>
+{# START PAGE CONTENT #}
+<!-- START PORTLETS -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Connected users</span>
+                    <span class="caption-helper">across the selected time frame</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="charts_container" style="width:100%; height:80px;"></div>
+                <div id="heatmap_container" style="width:100%; height:500px;"></div>
+                <div id="controls_container" style="width:100%; height:30px;">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="vcr_controls">
+                        <div class="btn-group" role="group">
+                            <button id="control_step_backward" type="button" class="btn btn-default vcr_controls" data-toggle="tooltip" data-placement="top" title="Step back"><i class="fa fa-step-backward fa-fw" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button id="control_pause" type="button" class="btn btn-default vcr_controls" data-toggle="tooltip" data-placement="top" title="Pause"><i class="fa fa-pause fa-fw" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button id="control_play" type="button" class="btn btn-default vcr_controls" data-toggle="tooltip" data-placement="top" title="Play forward"><i class="fa fa-play fa-fw" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button id="control_play_double" type="button" class="btn btn-default vcr_controls" data-toggle="tooltip" data-placement="top" title="Play forward 2x"><i class="fa fa-play" aria-hidden="true"></i><i class="fa fa-play" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button id="control_step_forward" type="button" class="btn btn-default vcr_controls" data-toggle="tooltip" data-placement="top" title="Step forward"><i class="fa fa-step-forward fa-fw" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END PORTLETS -->
+{# END PAGE CONTENT #}
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+/**
+ * some global vars/objects/arrays which we will require later on
+ */
+var visitor_heatmap;
+var playing;
+var heatmap_sensitivity = 15;
+var bucketsize = 3599;
+var maxY = -9999;
+var minY = 9999;
+var previous_stats = {};
+var next_stats = {};
+var originalRangeStart = {};
+var rangeStart = {};
+var rangeEnd = {};
+var rightNow = {};
+var popup_options = {};
+var marker_options = {};
+var markers = [];
+var bounds = [];
+var all_heatmap_stats = [];
+var intermediate_metrics = [];
+var zones = [];
+var popups_array = [];
+var popups_layer_active = false;
+var start;
+var end;
+var playing_double;
+var smooth_looping;
+var ms_for_iteration = 10;
+
+/**
+ * toggle the labels on the heatmap
+ */
+$('#toggleLabels').click(function(e) {
+    e.preventDefault();
+
+    /**
+     * if playing, we pause
+     */
+    if (playing) {
+        stopVCR();
+        $('#control_pause').addClass('active');
+    }
+
+    if (popups_layer_active) {
+        remove_popup_layer();
+    } else {
+        show_popup_layer();
+    }
+});
+
+function remove_popup_layer() {
+    popuplayer.remove();
+    popups_layer_active = false;
+    $('#toggleLabels i').removeClass('fa fa-toggle-off').addClass('fa fa-toggle-on');
+}
+
+function show_popup_layer() {
+    popuplayer = L.layerGroup(popups_array).addTo(visitor_heatmap);
+    popups_layer_active = true;
+    $('#toggleLabels i').removeClass('fa fa-toggle-on').addClass('fa fa-toggle-off');
+}
+
+$(document).ready(function() {
+
+    /**
+     * disable the VCR controls first
+     */
+    $('#control_step_backward').prop('disabled', true);
+    $('#control_pause').prop('disabled', true);
+    $('#control_play').prop('disabled', true);
+    $('#control_play_double').prop('disabled', true);
+    $('#control_step_forward').prop('disabled', true);
+
+    /***************************************************************
+     * start of the chart to be drawn just above the heatmap
+     * container: charts_container
+     * - first we define the options for this chart
+     ***************************************************************/
+    var chart_1_1_Options = {
+        chart: {
+            renderTo: 'charts_container',
+            backgroundColor: '#FFFFFF',
+            type: 'line',
+            alignTicks: false,
+            marginTop: 0
+        },
+        title: {
+            text: false
+        },
+        xAxis: {
+            type: 'datetime',
+            tickWidth: 1,
+            tickLength: 10,
+            gridLineWidth: 0,
+            labels: {
+                align: 'left',
+                x: 5,
+                y: 13
+            },
+            plotBands: weekendsDaily,
+            plotLines: [],
+            events: {
+                afterSetExtremes: function(event){
+                    /**
+                     * catch when event.min or event.max is undefined, else set the sequence vars to the new values
+                     */
+                    if (event.min && event.max) {
+                        /**
+                         * whatever we wish to do when the chart extremes have been newly set
+                         */
+                    } else {
+                        /**
+                         * what we do when the received data array for the chart is empty
+                         */
+                        chart_1_1.showLoading('No data to display');
+                    }
+                }
+            }
+        },
+        yAxis: {
+            gridLineWidth: 0,
+            labels: {
+                enabled: false
+            }
+        },
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                /**
+                 * here we format the tooltip
+                 */
+                var tooltipcontent = '<b>' + moment(this.x).format("HH:mm-") + moment(this.x + 3600000).format("HH:mm dddd, D MMMM YYYY") + '</b>';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    /**
+                     * we assume values over 100K to be bytes and not users...
+                     */
+                    if (this.y > 100000) {
+                        tooltipcontent += '<br/>' + this.series.name + ': ' + humanFileSize(this.y);
+                    } else {
+                        tooltipcontent += '<br/>' + this.series.name + ': ' + this.y.toLocaleString();
+                    }
+                });
+
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            enabled: false
+        }
+    };
+
+    /**
+     * weekend bands for the chart
+     */
+    chart_1_1_Options.xAxis.plotBands = weekends;
+
+    /**
+     * initialise the chart and show "loading" message
+     */
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+
+    /**
+     * callback function to process collected user stats for chart 1.1
+     */
+    function onChart_1_1_DataReceived(full_data) {
+        console.log(full_data);
+        originalRangeStart = rangeStart.clone();
+
+        /**
+         * stop play function and clear the VCR control buttons state
+         */
+        clearInterval(playing);
+        $('.vcr_controls').removeClass('active');
+
+        /**
+         * index 0 of full_data contains the data for the chart
+         * index 1 of full_data contains the array for the heatmap
+         */
+        all_heatmap_stats = full_data[1].data;
+
+        console.log(all_heatmap_stats);
+
+        /**
+         * filter the stats on the start date of the selected daterange
+         */
+        var first_metrics = _.filter(all_heatmap_stats, function(o) {
+            return o.timestamp == rangeStart;
+        });
+
+        /**
+         * determine total counts for this timestamp so that we can calculate the average value
+         */
+        var count_total = 0;
+        _.forEach(first_metrics, function(value, key) {
+            count_total += value.count;
+        });
+
+        /**
+         * max shouldn't have a value below 42 (define as an option in database for a site maybe?)
+         */
+        var max = Math.max(count_total/first_metrics.length, heatmap_sensitivity);
+
+        var initial_stats = {
+            min: 0,
+            max: max,
+            data: first_metrics
+        }
+
+        /**
+         * create markers for all zones that are provided in full_data[2]
+         * - the key to reference a zone's marker later on, is it's id
+         * - initial count is 0
+         * - add lat/lon for each zone to bounds for centering the map
+         */
+        zones = full_data[2];
+        _.forEach(zones, function(value, key) {
+            markers[value.id] = L.marker([value.lat, value.lon], marker_options)
+                .addTo(visitor_heatmap);
+
+            markers[value.id].bindPopup('<b>' + value.name + '</b><br>Unique visitors: 0', popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                this.closePopup();
+            });
+
+            bounds.push([value.lat, value.lon]);
+        });
+
+        /**
+         * use the bounds array to center the map with the correct amount of padding
+         */
+        visitor_heatmap.fitBounds(bounds, {padding: [50, 50]});
+
+        if (first_metrics.length > 0) {
+            /**
+             * here we generate the markers and popups for each zone, if we have data
+             * - process the initially received visitors data and for step by step view
+             * - determine the bounds so we can initially center the map around the markers
+             */
+            popups_array = [];
+
+            _.forEach(initial_stats.data, function(value, key) {
+                markers[value.zone_id].bindPopup('<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count, popup_options)
+                    .on('mouseover', function (e) {
+                        this.openPopup();
+                    })
+                    .on('mouseout', function (e) {
+                    this.closePopup();
+                    });
+
+                /**
+                 * create an array containing all popups
+                 */
+                var popup_location = new L.LatLng(value.lat, value.lon);
+                var popup_content = '<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count;
+
+                popup = new L.Popup(popup_layer_options);
+                popup.setLatLng(popup_location);
+                popup.setContent(popup_content);
+                popups_array.push(popup);
+            });
+
+            /**
+             * for each object here we also need to plot the heatmap data
+             */
+            heatmapLayer.setData(initial_stats);
+
+            /**
+             * display the initial timestamp
+             */
+            var endOfHour = rangeStart.clone();
+            $('.my-custom-control').html('<div class="dateTimeBox"><span class="dateTimeText"><b>' + rangeStart.format('HH:mm') + '-' + endOfHour.add(1, 'hour').format('HH:mm dddd, D MMMM YYYY') + '</b></span></div>');
+        }
+
+        /**
+         * preparations for the chart from here
+         *
+         * first clean up data: empty hostnames etc
+         */
+        var num_sta = full_data[0];
+
+        console.log(num_sta);
+
+        if (full_data[0].length > 1) {
+            /**
+             * define the series options
+             */
+            var seriesoptions = [
+                {
+                    type: 'line',
+                    lineWidth: 2,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineWidth: 2
+                        }
+                    },
+                    color: '#ff8214',
+                    name: 'Total unique visitors'
+                }
+            ];
+
+            chart_1_1_Options.series = seriesoptions;
+
+            /**
+             * push the data into the chart
+             * - first remove the gaps and passing 3600 as the bucketsize to the noGapsDataArray() function
+             */
+            chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+            chart_1_1.series[0].setData(num_sta, 3600);
+
+            /**
+             * draw a vertical plotline on the chart to keep track of where we are
+             */
+            chart_1_1.xAxis[0].update({
+                plotLines: [{
+                    id: 'limit-max',
+                    color: '#00458f',
+                    dashStyle: 'solid',
+                    width: 2,
+                    value: rangeStart,
+                    zIndex: 100
+                }]
+            });
+
+            /**
+             * enable the VCR control buttons again
+             */
+            $('#control_step_backward').prop('disabled', false);
+            $('#control_pause').prop('disabled', false);
+            $('#control_play').prop('disabled', false);
+            $('#control_step_forward').prop('disabled', false);
+        } else {
+            /**
+             * define the series options
+             */
+            var seriesoptions = [{}];
+
+            chart_1_1_Options.series = seriesoptions;
+            chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+            chart_1_1.series[0].setData([]);
+            chart_1_1.hideLoading();
+        }
+    }
+    /**************************************************************
+     * end of chart 1.1
+     **************************************************************/
+
+    /**
+     * define the initial timeframe for the heatmap to get the latest AP stats
+     */
+    rangeStart   = moment().subtract(1, 'hour').startOf('hour');
+    rangeEnd     = moment().startOf('hour');
+    var rightNow = moment();
+
+    page_daterange(rangeStart, rangeEnd);
+
+    /***************************************************************
+     * daterangepicker and ajax loading of the data from here
+     ***************************************************************/
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     */
+    $('#dashboard-report-range').daterangepicker({
+        showISOWeekNumbers:  true,
+        timePicker:          true,
+        timePickerIncrement: 60,
+        timePicker24Hour:    true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        ranges: {
+            'Last Hour':        [moment().subtract(1, 'hours').startOf('hour'), moment().startOf('hour').subtract(1, 'seconds')],
+            'Today':            [moment().startOf('day'), rightNow],
+            'Yesterday':        [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'seconds')],
+            'Current week':     [moment().startOf('week'), rightNow],
+            'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
+            'Past 7 days':      [moment().subtract(7, 'days').startOf('day'), rightNow],
+            'Current month':    [moment().startOf('month'), moment().endOf('month')],
+            'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
+            'Current year':     [moment().startOf('year'), rightNow]
+        },
+        startDate:   rangeStart,
+        endDate:     rangeEnd,
+        minDate:     '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:     moment().endOf('day'),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        chart_1_1.showLoading();
+
+        /**
+         * stop the animation in case it is playing
+         */
+        stopVCR();
+
+        rangeStart = moment(start);
+        rangeEnd   = moment(end);
+
+        /**
+         * in case start and end are equal we set the timeframe length to the bucketsize value
+         */
+        if (start.diff(end) === 0) {
+            end.add(bucketsize, 'seconds');
+        }
+
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('HH:mm dddd, D MMMM YYYY') + ' - ' + end.format('HH:mm dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('HH:mm D MMM YYYY') + ' - ' + end.format('HH:mm D MMM YYYY'));
+
+        /**
+         * here we call our ajax source with the selected start/end
+         * NOTE: all params in seconds/epoch time
+         */
+        $.ajax({
+            url:        "{{site.uri.public}}" + '/geo-sense/api/stats/venue/heat_map/visitors/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            error:      flashToasts,
+            success:    function(data) {
+                onChart_1_1_DataReceived(data);
+            }
+        });
+    }
+    /***************************************************************
+     * end of daterangepicker and ajax data loading
+     ***************************************************************/
+
+    /**
+     * heatmap starts here
+     */
+    var visitor_data = {
+        min: 1,
+        max: 0,
+        data:[]
+    };
+
+    /**
+     * define the default icon
+     */
+    var HeatmapIcon = L.AwesomeMarkers.icon({
+        icon:           'street-view',
+        prefix:         'fa',
+        markerColor:    'blue'
+    });
+
+    /**
+     * configuration options for Heatmap.js
+     */
+    var cfg = {
+        /**
+         * radius should be small ONLY if scaleRadius is true (or small radius is intended)
+         */
+        radius: {{current_user.primaryVenue.heatmap_radius}},
+        maxOpacity: .8,
+
+        /**
+         * scales the radius based on map zoom
+         */
+        scaleRadius: false,
+
+        /**
+         * if set to false the heatmap uses the global maximum for colorization
+         * if activated: uses the data maximum within the current map boundaries
+         * (there will always be a red spot with useLocalExtremas true)
+         */
+        useLocalExtrema: false,
+
+        /**
+         * mapping the data fields
+         */
+        latField:   'lat',
+        lngField:   'lon',
+        valueField: 'count'
+    };
+
+    popup_options       = {closeButton: false, keepInView: true};
+    popup_layer_options = {closeButton: true, offset: L.point(0,-24), closeOnClick: false, autoClose: false};
+    marker_options      = {icon: HeatmapIcon};
+
+    /**
+     * initialise the heatmap layer
+     */
+    var heatmapLayer    = new HeatmapOverlay(cfg);
+
+    /**
+     * then bring the layers together (heatmap layer and MapQuest layer)
+     */
+    var visitor_heatmap = new L.Map('heatmap_container', {
+        center: new L.LatLng('{{current_user.primaryVenue.lat}}', '{{current_user.primaryVenue.lon}}'),
+        zoom: '{{current_user.primaryVenue.heatmap_init_zoom}}',
+        layers: [ MQ.mapLayer(), heatmapLayer]
+    });
+
+    /**
+     * draw the heatmap layer with "empty" markers
+     */
+    heatmapLayer.setData(visitor_data);
+
+    var MyControl = L.Control.extend({
+        options: {
+            position: 'topright'
+        },
+
+        onAdd: function (map) {
+            /**
+             * create the control container with our custom class name
+             */
+            return L.DomUtil.create('div', 'my-custom-control');
+        }
+    });
+
+    visitor_heatmap.addControl(new MyControl());
+
+    /**
+     * VCR controls from here
+     */
+
+    /**
+     * step backward button action
+     */
+    $('#control_step_backward').on('click', function(event) {
+        event.preventDefault();
+        stopVCR();
+        $(this).addClass('active');
+        stepBack();
+        $(this).removeClass('active');
+        $('#control_pause').prop('disabled', false);
+        $('#control_play').prop('disabled', false);
+        $('#control_play_double').prop('disabled', false);
+        $('#control_step_forward').prop('disabled', false);
+    });
+
+    /**
+     * pause button action
+     */
+    $('#control_pause').on('click', function(event) {
+        event.preventDefault();
+        stopVCR();
+        $(this).addClass('active');
+    });
+
+    /**
+     * play button action
+     */
+    $('#control_play').on('click', function(event) {
+        event.preventDefault();
+        stopVCR();
+        $(this).addClass('active');
+
+        smoothing_iterations = 80;
+        playing = setInterval(function() {
+            stepForwardSmoothed();
+        }, 1500);
+    });
+
+    /**
+     * play at double speed button action
+     */
+    $('#control_play_double').on('click', function(event) {
+        event.preventDefault();
+        stopVCR();
+        $(this).addClass('active');
+
+        smoothing_iterations = 40;
+        playing_double = setInterval(function() {
+            stepForwardSmoothed();
+        }, 500);
+    });
+
+    /**
+     * step forward button action
+     */
+    $('#control_step_forward').on('click', function(event) {
+        event.preventDefault();
+        stopVCR();
+        $(this).addClass('active');
+        stepForward();
+        $(this).removeClass('active');
+    });
+
+    /**
+     * function to stop animation
+     */
+    function stopVCR() {
+        clearInterval(playing);
+        clearInterval(playing_double);
+        clearInterval(smooth_looping);
+        $('.vcr_controls').removeClass('active');
+    }
+
+    function stepForward() {
+        /**
+         * call the data for the next step forward
+         * start by incrementing the rangeStart variable with an hour
+         * TODO: fade from old value to new value
+         */
+        rangeStart.add(1, 'hours')
+
+        previous_stats = next_stats;
+
+        /**
+         * if we are at the end of the range, stop the loop and disable play/forward buttons
+         */
+        if (rangeStart >= rangeEnd) {
+            stopVCR();
+            $('#control_pause').prop('disabled', true);
+            $('#control_play').prop('disabled', true);
+            $('#control_play_double').prop('disabled', true);
+            $('#control_step_forward').prop('disabled', true);
+            $('.vcr_controls').removeClass('active');
+        }
+
+        /**
+         * create markers for all zones that are provided in full_data[2]
+         * - the key to reference a zone's marker later on, is it's id
+         * - initial count is 0
+         * - add lat/lon for each zone to bounds for centering the map
+         */
+        popups_array = [];
+
+        _.forEach(zones, function(value, key) {
+            markers[value.id].bindPopup('<b>' + value.name + '</b><br>Unique visitors: 0', popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                    this.closePopup();
+                });
+
+                /**
+                 * create an array containing all popups
+                 */
+                var popup_location = new L.LatLng(value.lat, value.lon);
+                var popup_content = '<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count;
+
+                popup = new L.Popup(popup_layer_options);
+                popup.setLatLng(popup_location);
+                popup.setContent(popup_content);
+                popups_array.push(popup);
+        });
+
+        /**
+         * filter the stats on the start date of the selected daterange
+         */
+        var next_metrics = _.filter(all_heatmap_stats, function(o) {
+            return o.timestamp == rangeStart;
+        });
+
+        /**
+         * determine total counts for this timestamp so that we can calculate the average value
+         */
+        var count_total = 0;
+        _.forEach(next_metrics, function(value, key) {
+            count_total += value.count;
+        });
+
+        /**
+         * max should not have a value below heatmap_sensitivity (define as an option in database for each site maybe?)
+         */
+        var max = count_total/next_metrics.length;
+        if (max < heatmap_sensitivity) {
+            max = heatmap_sensitivity;
+        }
+
+        next_stats = {
+            min: 0,
+            max: max,
+            data: next_metrics
+        }
+
+        /**
+         * process the next set of visitors data and for step by step view
+         */
+        popups_array = [];
+
+        _.forEach(next_stats.data, function(value, key) {
+            markers[value.zone_id].bindPopup('<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count, popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                    this.closePopup();
+                });
+
+                /**
+                 * create an array containing all popups
+                 */
+                var popup_location = new L.LatLng(value.lat, value.lon);
+                var popup_content = '<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count;
+
+                popup = new L.Popup(popup_layer_options);
+                popup.setLatLng(popup_location);
+                popup.setContent(popup_content);
+                popups_array.push(popup);
+        });
+
+        /**
+         * for each object here we also need to plot the heatmap data
+         */
+        heatmapLayer.setData(next_stats);
+
+        /**
+         * and update the current time
+         */
+         /**
+         * and update the current time
+         */
+        var endOfHour = rangeStart.clone();
+        $('.my-custom-control').html('<div class="box-shadow--4dp"><b style="padding: 8px 8px 8px 8px;">' + rangeStart.format('dddd, D MMMM YYYY HH:mm') + '</b></div>');
+
+        /**
+         * draw a vertical plotline on the chart to keep track of where we are
+         */
+        chart_1_1.xAxis[0].update({
+            plotLines: [{
+                id: 'limit-max',
+                color: '#00458f',
+                dashStyle: 'solid',
+                width: 2,
+                value: rangeStart,
+                zIndex: 100
+            }]
+        });
+    }
+
+    function stepForwardSmoothed() {
+        /**
+         * call the data for the next step forward
+         * start by incrementing the rangeStart variable with an hour
+         * TODO: fade from old value to new value
+         */
+        rangeStart.add(1, 'hours')
+
+        previous_stats = next_stats;
+
+        /**
+         * hide the popups layer when active
+         */
+        if (popups_layer_active) {
+            remove_popup_layer();
+        }
+
+        /**
+         * if we are at the end of the range, stop the loop and disable play/forward buttons
+         */
+        if (rangeEnd.diff(rangeStart, 'hours') <= 0) {
+            stopVCR();
+            $('#control_pause').prop('disabled', true);
+            $('#control_play').prop('disabled', true);
+            $('#control_play_double').prop('disabled', true);
+            $('#control_step_forward').prop('disabled', true);
+        }
+
+        /**
+         * create markers for all zones that are provided in full_data[2]
+         * - the key to reference a zone's marker later on, is it's id
+         * - initial count is 0
+         * - add lat/lon for each zone to bounds for centering the map
+         */
+        popups_array = [];
+
+        _.forEach(zones, function(value, key) {
+            markers[value.id].bindPopup('<b>' + value.name + '</b><br>Unique visitors: 0', popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                    this.closePopup();
+                });
+
+                /**
+                 * create an array containing all popups
+                 */
+                var popup_location = new L.LatLng(value.lat, value.lon);
+                var popup_content = '<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count;
+
+                popup = new L.Popup(popup_layer_options);
+                popup.setLatLng(popup_location);
+                popup.setContent(popup_content);
+                popups_array.push(popup);
+        });
+
+        /**
+         * filter the stats on the start date of the selected daterange
+         */
+        var next_metrics = _.filter(all_heatmap_stats, function(o) {
+            return o.timestamp == rangeStart;
+        });
+
+        /**
+         * determine total counts for this timestamp so that we can calculate the average value
+         */
+        var count_total = 0;
+        _.forEach(next_metrics, function(value, key) {
+            count_total += value.count;
+        });
+
+        /**
+         * max should not have a value below heatmap_sensitivity (define as an option in database for each site maybe?)
+         */
+        var max = count_total/next_metrics.length;
+        if (max < heatmap_sensitivity) {
+            max = heatmap_sensitivity;
+        }
+
+        next_stats = {
+            min: 0,
+            max: max,
+            data: next_metrics
+        }
+
+        /**
+         * using this function we build a 10-step loop that gradually moves the counts from previous stats
+         * to next stats value and with each step we draw an intermediate versionj of the heatmap
+         */
+        function smooth_loop(i) {
+            intermediate_stats = {
+                data: [],
+                max_prev: previous_stats.max,
+                max:      (previous_stats.max + (((next_stats.max - previous_stats.max)/smoothing_iterations)*i)),
+                max_next: next_stats.max,
+                min_prev: previous_stats.max,
+                min:      (previous_stats.min + (((next_stats.min - previous_stats.min)/smoothing_iterations)*i)),
+                min_next: next_stats.max,
+            };
+
+            _.forEach(previous_stats.data, function(value, key) {
+                var current_zone = {
+                    zone_id: value.zone_id,
+                    zone_name: value.zone_name,
+                    from: value.count,
+                    lat: value.lat,
+                    lon: value.lon
+                };
+
+                _.forEach(next_stats.data, function(value, key) {
+                    if (value.zone_id == current_zone.zone_id) {
+                        current_zone.to = value.count;
+                        current_zone.count = (current_zone.from + (((current_zone.to - current_zone.from)/smoothing_iterations)*i));
+                    }
+                });
+
+                intermediate_stats.data.push(current_zone);
+            });
+
+            /**
+             * for each object here we also need to plot the heatmap data
+             */
+            heatmapLayer.setData(intermediate_stats);
+        }
+
+        var counter = 0;
+        var smooth_looping = setInterval(function(){
+            counter++;
+            smooth_loop(counter);
+
+            if(counter === smoothing_iterations) {
+                clearInterval(smooth_looping);
+
+                /**
+                 * once we're done with our iterations we process the next set of visitors data
+                 */
+                popups_array = [];
+
+                _.forEach(next_stats.data, function(value, key) {
+                    markers[value.zone_id].bindPopup('<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count, popup_options)
+                        .on('mouseover', function (e) {
+                            this.openPopup();
+                        })
+                        .on('mouseout', function (e) {
+                            this.closePopup();
+                        });
+
+                    /**
+                     * create an array containing all popups
+                     */
+                    var popup_location = new L.LatLng(value.lat, value.lon);
+                    var popup_content = '<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count;
+
+                    popup = new L.Popup(popup_layer_options);
+                    popup.setLatLng(popup_location);
+                    popup.setContent(popup_content);
+                    popups_array.push(popup);
+                });
+
+                /**
+                 * and update the current time
+                 */
+                var endOfHour = rangeStart.clone();
+                $('.my-custom-control').html('<div class="dateTimeBox"><span class="dateTimeText"><b>' + rangeStart.format('HH:mm') + '-' + endOfHour.add(1, 'hour').format('HH:mm dddd, D MMMM YYYY') + '</b></span></div>');
+
+                /**
+                 * draw a vertical plotline on the chart to keep track of where we are
+                 */
+                chart_1_1.xAxis[0].update({
+                    plotLines: [{
+                        id: 'limit-max',
+                        color: '#00458f',
+                        dashStyle: 'solid',
+                        width: 2,
+                        value: rangeStart,
+                        zIndex: 1
+                    }]
+                });
+            }
+        }, smoothing_iterations/ms_for_iteration);
+    }
+
+    function stepBack() {
+        /**
+         * call the data for the next step forward
+         * start by incrementing the rangeStart variable with an hour
+         */
+        rangeStart.subtract(1, 'hours');
+
+        /**
+         * filter the stats on the start date of the selected daterange
+         */
+        var next_metrics = _.filter(all_heatmap_stats, function(o) {
+            return o.timestamp == rangeStart;
+        });
+
+        /**
+         * determine total counts for this timestamp so that we can calculate the average value
+         */
+        var count_total = 0;
+        _.forEach(next_metrics, function(value, key) {
+            count_total += value.count;
+        });
+
+        /**
+         * max should not have a value below 42 (define as an option in database for a site maybe?)
+         */
+        var max = count_total/next_metrics.length;
+        if (max < heatmap_sensitivity) {
+            max = heatmap_sensitivity;
+        }
+
+        var next_stats = {
+            min: 0,
+            max: max,
+            data: next_metrics
+        }
+
+        /**
+         * here we generate the markers and popups for each access point
+         */
+
+        /**
+         * process the next set of visitors data and for step by step view
+         */
+         _.forEach(next_stats.data, function(value, key) {
+            markers[value.zone_id].bindPopup('<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count, popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                    this.closePopup();
+                });
+
+                /**
+                 * create an array containing all popups
+                 */
+                var popup_location = new L.LatLng(value.lat, value.lon);
+                var popup_content = '<b>' + value.zone_name + '</b><br>Unique visitors: ' + value.count;
+
+                popup = new L.Popup(popup_layer_options);
+                popup.setLatLng(popup_location);
+                popup.setContent(popup_content);
+                popups_array.push(popup);
+        });
+
+        /**
+         * we also need to plot the heatmap data
+         */
+        heatmapLayer.setData(next_stats);
+
+        /**
+         * and update the current time
+         */
+        $('.my-custom-control').html('<div class="box-shadow--4dp"><b style="padding: 8px 8px 8px 8px;">' + rangeStart.format('dddd, D MMMM YYYY HH:mm') + '</b></div>');
+
+        /**
+         * draw a vertical plotline on the chart to keep track of where we are
+         */
+        chart_1_1.xAxis[0].update({
+            plotLines: [{
+                id: 'limit-max',
+                color: '#00458f',
+                dashStyle: 'solid',
+                width: 2,
+                value: rangeStart,
+                zIndex: 100
+            }]
+        });
+    }
+    /**
+     * end of VCR controls
+     */
+});
+</script>
+{% endblock %}

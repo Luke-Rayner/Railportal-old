@@ -1,0 +1,231 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Tags overview",
+        "description" : "Page which displays all tags."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">All tags</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="tags" class="table table-sorting table-striped table-hover datatable" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tag name</th>
+                        </tr>
+                    </thead>
+                </table>
+                <button type="button" class="btn btn-success" id="addNewTag">
+                    <i class="fa fa-plus-square"></i> Add new Tag
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addNewTagModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-tags fa-fw fa-lg"></i> Add a new Tag</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-alerts-page"></div>
+
+                <form class="form-horizontal" id="addTag" action="{{site.uri.public}}/admin/tags" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="Tag_name" class="col-sm-offset-2 col-sm-3 control-label">Tag name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="Tag_name" name="name" placeholder="Tag name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="TagSubmit" name="TagSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateTagModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-tags fa-fw fa-lg"></i> Edit Tag</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateTag" action="{{site.uri.public}}/admin/tag/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="Tag_name" class="col-sm-offset-2 col-sm-3 control-label">Tag name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_Tag_name" name="name" placeholder="Tag name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="TagSubmit" name="TagSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_Tag_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+/**
+ * Load the validator rules for the form in the modal
+ */
+var validators = {{validators | raw}};
+
+$(document).ready(function() {
+
+    var tags_table = $('#tags').DataTable({
+        responsive: true,
+        scrollX:    true,
+        autoWidth:  true,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/api/tags/all",
+            dataSrc: function(json) {
+                console.log(json);
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name'}
+        ],
+    });
+
+
+    $('#addTag').ufForm({
+        validator: validators,
+        msgTarget: $("#create-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    $('#updateTag').ufForm({
+        validator: validators,
+        msgTarget: $("#update-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    /**
+     * open the addNewTagModal upon click on the button
+     */
+    $('#addNewTag').click(function(e) {
+        e.preventDefault();
+
+        /*
+        show the modal with default time zone
+        */
+        $('#addNewTagModal').modal('show');
+    });
+    /**
+     * end of addNewTagModal
+     */
+
+    /**
+     * open the updateTagModal upon tap/click on a row in the tags table
+     */
+    $('body').on('click touchstart', '#tags tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this Tag
+         */
+        var thisTag = tags_table.row( this ).data();
+        //console.log(thisTag);
+        $('#update_Tag_name').val(thisTag.name);
+        $('#update_Tag_id').val(thisTag.id);
+
+        /**
+         * show the modal
+         */
+        $('#updateTagModal').modal('show');
+    });
+    /**
+     * end of updateTagModal
+     */
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $(".modal").on('shown', function() {
+        //
+    });
+
+    /**
+     * table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(tags_table.draw, 100);
+    });
+
+});
+
+</script>
+{% endblock %}

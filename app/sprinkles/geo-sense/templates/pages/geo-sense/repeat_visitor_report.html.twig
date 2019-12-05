@@ -1,0 +1,857 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Repeat Visitor Report",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="row text-center" style="display: none" id="pdf_title">
+        <img src="{{site.uri.public}}/images/WiFi-Logo-Image-Blue.png" height="50px" width="50px" style="margin-top: 5px"/>
+        <u><h1 class="bold">INTELLI-SENSE</h1></u>
+    </div>
+
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="dashboard-report-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" id="print_button" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Total / New Visitors</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Less than 7 days <br> <span id="date_less_than_7_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" style="background-color: #324068" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Between 7 and 14 days ago <br> <span id="date_between_7_and_14_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" style="background-color: #526088" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc"> Between 14 and 30 days ago <br> <span id="date_between_14_and_30_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_5" class="dashboard-stat dashboard-stat-v2 blue-soft" style="background-color: #7280a8" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc" style="color: #324068"> Between 30 and 90 days ago <br> <span id="date_between_30_and_90_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_6" class="dashboard-stat dashboard-stat-v2 blue-soft" style="background-color: #92a0c8" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc" style="color: #324068"> Between 90 and 180 days ago <br> <span id="date_between_90_and_180_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_7" class="dashboard-stat dashboard-stat-v2 blue-soft" style="background-color: #b2c0e8" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_7"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc" style="color: #324068"> Between 180 and 365 days ago <br> <span id="date_between_180_and_365_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_8" class="dashboard-stat dashboard-stat-v2 blue-soft" style="background-color: #d2e0ff" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_8"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc" style="color: #324068"> Longer than 365 days ago <br> <span id="date_longer_than_365_days" style="font-size: 16px;"></span></div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold"> Repeat Visitor Breakdown</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row text-center" style="display: none" id="pdf_url">
+    website address: <a>www.elephantwifi.co.uk</a>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+/**
+ * define default start and end for the page
+ */
+var rangeStart = moment().subtract(7, "days").startOf('day');
+var rangeEnd = moment().startOf('day');
+
+function genPDF() {
+    var pdf_title = document.getElementById("pdf_title");
+    if (pdf_title.style.display === "none") {
+        pdf_title.style.display = "block";
+    }
+
+    var pdf_url = document.getElementById("pdf_url");
+    if (pdf_url.style.display === "none") {
+        pdf_url.style.display = "block";
+    }
+
+    var element = document.getElementsByClassName("page-content")[0];
+    var opt = {
+        margin:       1,
+        filename:     'repeat_visitor_report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 1 },
+        jsPDF:        { unit: 'pt', format: [1280, 720], orientation: 'l' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+
+    // Hide the element after 2 seconds allowing the screenshot to be taken while the element is shown
+    window.setTimeout(hidePdfElements, 2000);
+}
+
+function hidePdfElements() {
+    var pdf_title = document.getElementById("pdf_title");
+    pdf_title.style.display = "none";
+
+    var pdf_url = document.getElementById("pdf_url");
+    pdf_url.style.display = "none";
+}
+
+/**
+ * We use bootstrap tour for the helper info on each chart
+ * Populate an array with all the information
+ */
+var chart_container_content = [];
+chart_container_content['chart_container_1_1_title'] = 'Repeat Visitor breakdown.';
+chart_container_content['chart_container_1_1_body']  = 'This chart shows the number of visitors seen at the venue during the days shown. Hover over the day for a full breakdown of number of visitors per range of days.<br><br>If you would like the pop ups to stay on screen ( useful for when the report is printed ) simply click on the popup once the mouse icon changes to a pointed finger. To remove the popup, hover over the chart, wait for the pointed finger icon and click the mouse button.';
+
+// Start the tour
+$('#tour_btn').click(function(e) {
+    // Instance the tour
+    var tour = new Tour({
+        backdropPadding: 3,
+        backdrop: true,
+        steps: [{
+            element: ".page-title",
+            title: "Description.",
+            content: "The Repeat Visitor report is designed to show you how often visitors return to the venue, be it every week or once a year.<br><br>To begin the page tour please click Next. At any time you wish to finish the page tour click on End Tour. If in the future you need information on a single widget please click on the ?, top right of the widget in question.",
+            placement: "bottom"
+        }, {
+            element: "#print_button",
+            title: "Print Report.",
+            content: "This button will automatically PDF this report and make it available for printing. <b>PLEASE NOTE</b>: the printed report will only display what is on the screen. For a more in depth and properly formatted report please use the “Print report” feature.",
+            placement: "bottom"
+        }, {
+            element: "#csv_button",
+            title: "Excel Report.",
+            content: "This button will export all data being used to create the report into a downloadable CSV file. CSV files can be opened in either Excel or Google Sheets.",
+            placement: "bottom"
+        }, {
+            element: ".page-toolbar",
+            title: "Date selector.",
+            content: "This allows you to choose a date range for the report. Dates ranges on the Repeat Visit report are only available in full 24 hour periods. There are a number of pre-set ranges such as Yesterday, Past 7 days etc, alternatively you can choose your own date range using the Custom Range option. The Custom range requires a start date and end date to be set although these can be the same day if a single 24 hour period is required.",
+            placement: "bottom"
+        }, {
+            element: "#donut_container_1",
+            title: "Total / New Visitors.",
+            content: "This shows the total number of visitors ( in white text ) and total number of new visitors ( in orange ) for the date range selected.",
+            placement: "right"
+        }, {
+            element: "#donut_container_2",
+            title: "Less than 7 days.",
+            content: "This shows the total number of repeat visitors that have visited the venue during the dates shown on the widget ( 7 days prior to the date range selected ). This widget will be blank if the date range selected is less than 7 days.",
+            placement: "right"
+        }, {
+            element: "#donut_container_3",
+            title: "Between 7 and 14 days ago.",
+            content: "This shows the total number of repeat visitors that have not been seen in 7 days prior to the date range selected but did visit the venue during the dates shown. Please note:- This widget will be blank if the date range selected is less than 7 days.",
+            placement: "right"
+        }, {
+            element: "#donut_container_4",
+            title: "Between 14 and 30 days ago.",
+            content: "This shows the total number of repeat visitors that have not been seen in 14 days prior to the date range selected but did visit the venue during the dates shown. Please note:- This widget will be blank if the date range selected is less than 14 days.",
+            placement: "left"
+        }, {
+            element: "#donut_container_5",
+            title: "Between 30 and 90 days ago.",
+            content: "This shows the total number of repeat visitors that have not been seen prior in 1 month prior to the date range selected but did visit the venue during the dates shown. This widget will be blank if the date range selected is less than 30 days.",
+            placement: "right"
+        }, {
+            element: "#donut_container_6",
+            title: "Between 90 and 180 days ago.",
+            content: "This shows the total number of repeat visitors that have not been seen in 3 months prior to the date range selected but did visit the venue during the dates shown.",
+            placement: "right"
+        }, {
+            element: "#donut_container_7",
+            title: "Between 180 and 365 days ago.",
+            content: "This shows the total number of repeat visitors that have not been seen in 6 months of the date range selected but did visit the venue during the dates shown.",
+            placement: "right"
+        }, {
+            element: "#donut_container_8",
+            title: "Longer than 365 days ago.",
+            content: "This shows the total number of repeat visitors that have not been seen in a 12 months before the date range selected but did visit the venue during the dates shown.",
+            placement: "left"
+        }, {
+            element: "#chart_container_1_1",
+            title: chart_container_content['chart_container_1_1_title'],
+            content: chart_container_content['chart_container_1_1_body'],
+            placement: "top"
+        }
+    ]});
+
+    // Initialize the tour
+    tour.init();
+    tour.restart();
+});
+
+// When info icon is clicked display chart helper
+$('.info-icon').click(function(e) {
+    var element = $(this).parent().parent().parent().attr('id');
+
+    // Instance the tour
+    var tour = new Tour({
+        template: "<div class='popover tour'><div class='arrow'></div><h3 class='popover-title'></h3><div class='popover-content'></div><div class='popover-navigation'><button class='btn btn-sm btn-default' data-role='end'>Close</button></div></div>",
+        backdropPadding: 3,
+        backdrop: true,
+        steps: [{
+            element: '#' + element,
+            title: chart_container_content[element + '_title'],
+            content: chart_container_content[element + '_body'],
+            placement: "top"
+        }
+    ]});
+
+    // Initialize the tour
+    tour.init();
+    tour.restart();
+});
+
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * file name and report title for CSV download
+ */
+var csv_filename = 'Repeat_Visitor_Report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title = '';
+var venue_name = '{{user.venue_name}}';
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    /**
+     * update export title to reflect selected range
+     */
+    var csv_title = 'GEO-Sense: Repeat Visitor Report ({{user.venue_name}} - selected range: ' + $('#page_daterange_selected').text().replace(/,/g , '') + ')';
+
+    /**
+     * get the data from the charts
+     */
+    csv_data.push({
+        heading: 'Overall metrics',
+        process: true,
+        data: [['DateTime', 'Total / New Visitors', 'Less than 7 days', 'Between 7 and 14 days ago', 'Between 14 and 30 days ago', 'Between 30 and 90 days ago', 'Between 90 and 180 days ago', 'Between 180 and 365 days ago', 'Longer than 365 days ago'],
+               [
+                    moment().format("DD MMMM YYYY HH:mm"),
+                    $('#donut_1').text().replace(/,/g , ''),
+                    $('#donut_2').text().replace(/,/g , ''),
+                    $('#donut_3').text().replace(/,/g , ''),
+                    $('#donut_4').text().replace(/,/g , ''),
+                    $('#donut_5').text().replace(/,/g , ''),
+                    $('#donut_6').text().replace(/,/g , ''),
+                    $('#donut_7').text().replace(/,/g , ''),
+                    $('#donut_8').text().replace(/,/g , ''),
+               ]]
+               // when process is true there must be at least two arrays (lines) of content: headers and data
+    });
+
+    csv_data.push({
+        heading: 'Repeat Visitor Breakdown',
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+});
+
+/**
+ * function to generate shades of blue for the returning visitors breakdown
+ */
+var barColors = (function () {
+    var colors = [],
+        base = '#1c2746',
+        i;
+
+    for (i = 0; i < 7; i += 1) {
+        // Start out with a darkened base color (negative brighten), and end
+        // up with a much brighter color
+        colors.push(Highcharts.Color(base).brighten(i / 8).get());
+    }
+    return colors;
+}());
+
+$(document).ready(function() {
+
+    /***************************************************************
+     * start of visitor stats chart
+     * container: chart_1_1
+     ***************************************************************/
+    chart_1_1_cloneToolTip = null;
+    chart_1_1_checkx = [];
+    chart_1_1_cloneFrame = [];
+    chart_1_1_cloneText = [];
+    var chart_1_1_Options = {
+        chart: {
+            renderTo: 'chart_1_1',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            },
+            series: {
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        mouseOver: function (event) {
+                            if (jQuery.inArray(event.target.category, chart_1_1_checkx) != -1) {
+                                this.series.chart.tooltip.label.hide();
+                            }
+                        },
+                        mouseOut: function (event) {
+                            if (jQuery.inArray(event.target.category, chart_1_1_checkx) === -1) {
+                                this.series.chart.tooltip.label.show();
+                            }
+                        },
+                        click: function (event) {
+                            //check if point was already clicked
+                            var x = chart_1_1_checkx.indexOf(event.point.x);
+                            if ( x >= 0 ) {
+                                //remove tooltip
+                                $(chart_1_1_cloneFrame[x]).remove();
+                                $(chart_1_1_cloneText[x]).remove();
+
+                                //remove x coordinate and clone from array --> tooltip can be displayed again
+                                chart_1_1_cloneText.splice(x, 1);
+                                chart_1_1_cloneFrame.splice(x, 1);
+                                chart_1_1_checkx.splice(x, 1);
+                            } else {
+                                var chart_1_1_cloneDiv = this.series.chart.tooltip.label.div.cloneNode(true),
+                                chart_1_1_cloneToolTip = this.series.chart.tooltip.label.element.cloneNode(true);
+                                chart_1_1.container.appendChild(chart_1_1_cloneDiv); 
+                                chart_1_1.container.firstChild.appendChild(chart_1_1_cloneToolTip);
+                                //save coordinates and tooltip object
+                                chart_1_1_checkx.push(event.point.x);
+                                chart_1_1_cloneFrame.push(chart_1_1_cloneToolTip);
+                                chart_1_1_cloneText.push(chart_1_1_cloneDiv);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.showLoading();
+
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onChart_1_1_DataReceived(data) {
+        console.log(data);
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[0],
+                name: 'less than 7 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[1],
+                name: 'between 7 and 14 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[2],
+                name: 'between 14 and 30 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[3],
+                name: 'between 30 and 90 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[4],
+                name: 'between 90 and 180 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[5],
+                name: 'between 180 and 365 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[6],
+                name: 'longer than 365 days ago',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * when date range is longer than 6 weeks we switch to area chart instead of column
+         */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_1_1_Options.yAxis = {
+            stackLabels: {
+                useHTML: true,
+                enabled: true,
+                align: 'center',
+                verticalAlign: 'top',
+                formatter: function () {
+                    var day_epoch  = this.x;
+                    var event = '';
+                    var event_categories = [];
+                    $.each(data.event, function(key, value) {
+                        if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                            if (event_categories.length == 0) {
+                                event = `<span padding-top: 20px;><i style="background-color:` + value['color'] + `" class="circle-icon fa fa-calendar"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+
+                            if ($.inArray(value['category_id'], event_categories) == -1) {
+                                event += `<br><span><i style="background-color:` + value['color'] + `" class="circle-icon fa fa-calendar fa-sm"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+                        }
+                    });
+                    return event;
+                }
+            }
+        }
+
+        chart_1_1_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                var day_epoch  = this.x;
+                $.each(data.event, function(key, value) {
+                    if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                        tooltipcontent += '<p><b>Event: </b>' + value['name'] + '</p>';
+                    }
+                });
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        }
+
+        chart_1_1_Options.series = seriesoptions;
+        chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+        chart_1_1.series[0].setData(noGapsDataArray(data.new, 86400));
+        //chart_1_1.series[1].setData(noGapsDataArray(data.repeat, 86400));
+
+        chart_1_1.series[1].setData(noGapsDataArray(data.rv_level_1, 86400));
+        chart_1_1.series[2].setData(noGapsDataArray(data.rv_level_2, 86400));
+        chart_1_1.series[3].setData(noGapsDataArray(data.rv_level_3, 86400));
+        chart_1_1.series[4].setData(noGapsDataArray(data.rv_level_4, 86400));
+        chart_1_1.series[5].setData(noGapsDataArray(data.rv_level_5, 86400));
+        chart_1_1.series[6].setData(noGapsDataArray(data.rv_level_6, 86400));
+        chart_1_1.series[7].setData(noGapsDataArray(data.rv_level_7, 86400));
+
+        chart_1_1.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var total_count = 0;
+
+        var new_count = 0;
+        $.each(data.new, function (key, value) {
+            new_count += value[1];
+        });
+
+        var rv_level_1_count = 0;
+        $.each(data.rv_level_1, function (key, value) {
+            rv_level_1_count += value[1];
+        });
+        var rv_level_1_html = 'N/A';
+        if (rangeEnd - rangeStart < 604800000) {
+            rv_level_1_html = rv_level_1_count;
+        }
+
+        var rv_level_2_count = 0;
+        $.each(data.rv_level_2, function (key, value) {
+            rv_level_2_count += value[1];
+        });
+        var rv_level_2_html = 'N/A';
+        if (rangeEnd - rangeStart < 1209600000) {
+            rv_level_2_html = rv_level_2_count;
+        }
+
+        var rv_level_3_count = 0;
+        $.each(data.rv_level_3, function (key, value) {
+            rv_level_3_count += value[1];
+        });
+        var rv_level_3_html = 'N/A';
+        if (rangeEnd - rangeStart < 2592000000) {
+            rv_level_3_html = rv_level_3_count;
+        }
+
+        var rv_level_4_count = 0;
+        $.each(data.rv_level_4, function (key, value) {
+            rv_level_4_count += value[1];
+        });
+        var rv_level_4_html = 'N/A';
+        if (rangeEnd - rangeStart < 7776000000) {
+            rv_level_4_html = rv_level_4_count;
+        }
+
+        var rv_level_5_count = 0;
+        $.each(data.rv_level_5, function (key, value) {
+            rv_level_5_count += value[1];
+        });
+        var rv_level_5_html = 'N/A';
+        if (rangeEnd - rangeStart < 15552000000) {
+            rv_level_5_html = rv_level_5_count;
+        }
+
+        var rv_level_6_count = 0;
+        $.each(data.rv_level_6, function (key, value) {
+            rv_level_6_count += value[1];
+        });
+        var rv_level_6_html = 'N/A';
+        if (rangeEnd - rangeStart < 31536000000) {
+            rv_level_6_html = rv_level_6_count;
+        }
+
+        var rv_level_7_count = 0;
+        $.each(data.rv_level_7, function (key, value) {
+            rv_level_7_count += value[1];
+        });
+        var rv_level_7_html = rv_level_7_count;
+
+        var total_count = new_count + rv_level_1_count + rv_level_2_count + rv_level_3_count + rv_level_4_count + rv_level_5_count + rv_level_6_count + rv_level_7_count;
+
+        $('#donut_1').html(total_count.toLocaleString() + ' / <span style="color: #e15910">' + new_count.toLocaleString() + '</span>');
+        $('#donut_2').html(rv_level_1_html.toLocaleString());
+        $('#donut_3').html(rv_level_2_html.toLocaleString());
+        $('#donut_4').html(rv_level_3_html.toLocaleString());
+        $('#donut_5').html('<span style="color: #324068">' + rv_level_4_html.toLocaleString() + '</span>');
+        $('#donut_6').html('<span style="color: #324068">' + rv_level_5_html.toLocaleString() + '</span>');
+        $('#donut_7').html('<span style="color: #324068">' + rv_level_6_html.toLocaleString() + '</span>');
+        $('#donut_8').html('<span style="color: #324068">' + rv_level_7_html.toLocaleString() + '</span>');
+    }
+
+    /***************************************************************
+    * daterangepicker and ajax loading of all the data from here
+    ****************************************************************/    
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /*
+    functions to display the "active" custom date range and the picker for current page
+    */
+    $('#dashboard-report-range').daterangepicker({
+        showISOWeekNumbers:     true,
+        locale: {
+            format: "DD/MM/YYYY"
+        },
+        ranges: {
+           'Current Day':               [moment().startOf('day'), moment()],
+           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+           'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+           'Past 7 Days':               [rangeStart, rangeEnd], //default value for the page
+           'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
+           'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+           'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+           'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
+           'All Time':                  ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    moment(1554073200000),
+        maxDate:    moment(),
+        opens:      'left'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        rangeStart = start;
+        rangeEnd   = end;
+
+        /**
+         * Populate all the dates in the donuts
+         */
+        $('#date_less_than_7_days').html("(" + moment(rangeStart).subtract(7, 'days').format('DD/MM/YYYY') + " - " + moment(rangeStart).format('DD/MM/YYYY') + ")");
+
+        $('#date_between_7_and_14_days').html("(" + moment(rangeStart).subtract(14, 'days').format('DD/MM/YYYY') + " - " + moment(rangeStart).subtract(7, 'days').format('DD/MM/YYYY') + ")");
+
+        $('#date_between_14_and_30_days').html("(" + moment(rangeStart).subtract(30, 'days').format('DD/MM/YYYY') + " - " + moment(rangeStart).subtract(14, 'days').format('DD/MM/YYYY') + ")");
+
+        $('#date_between_30_and_90_days').html("(" + moment(rangeStart).subtract(90, 'days').format('DD/MM/YYYY') + " - " + moment(rangeStart).subtract(30, 'days').format('DD/MM/YYYY') + ")");
+
+        $('#date_between_90_and_180_days').html("(" + moment(rangeStart).subtract(180, 'days').format('DD/MM/YYYY') + " - " + moment(rangeStart).subtract(90, 'days').format('DD/MM/YYYY') + ")");
+
+        $('#date_between_180_and_365_days').html("(" + moment(rangeStart).subtract(365, 'days').format('DD/MM/YYYY') + " - " + moment(rangeStart).subtract(180, 'days').format('DD/MM/YYYY') + ")");
+
+        $('#date_longer_than_365_days').html("(before " + moment(rangeStart).subtract(365, 'days').format('DD/MM/YYYY') + ")");
+
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        if (end.diff(start) === 0) {
+            console.log('we have difference between start and end of zero: we will add 1 hour to end');
+            end.add(1, 'hour');
+        }
+
+        console.log(start + ':' + end);
+
+        /**
+         * update the weekend plotbands
+         */
+        weekends = weekendAreasDaily(start, end);
+
+        /**
+         * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+         */
+        var chart_1_1 = $("#chart_1_1").highcharts();
+        chart_1_1.showLoading();
+
+        /**
+         * from here we call all ajax sources with the newly selected start/end:
+         */
+
+        /**
+         * get the data for chart 1.1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/repeat_visitor_report/repeat_visitors/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_1_DataReceived
+        });
+    }
+
+    /***************************************************************
+     * end of daterangepicker and ajax data loading
+     ***************************************************************/
+});
+
+</script>
+{% endblock %}

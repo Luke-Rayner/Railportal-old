@@ -1,0 +1,848 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "WiFi Users",
+        "description" : "current and historical"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="dashboard-report-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Connected Users</span>
+                    <span class="caption-helper">across the selected time frame</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-6 col-sm-6 col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Average Connected Users</span>
+                    <span class="caption-helper">per hour of day</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-sm-6 col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Average Connected Users</span>
+                    <span class="caption-helper">per day of the week</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="users_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">User Details</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="reload_users"> </a>
+                </div>
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#user_portlet_tab1" data-toggle="tab"> WiFi Users currently connected </a>
+                    </li>
+                    <li>
+                        <a href="#user_portlet_tab2" data-toggle="tab"> All WiFi Users </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="portlet-body" id="users_portlet_body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="user_portlet_tab1">
+                        <table id="clients-online" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Activity</th>
+                                    <th>Signal</th>
+                                    <th>Download</th>
+                                    <th>Upload</th>
+                                    <th>Time online</th>
+                                    <th>SSID</th>
+                                    <th class="hidden">User ID</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="tab-pane" id="user_portlet_tab2">
+                        <table id="clients" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Download</th>
+                                    <th>Upload</th>
+                                    <th>Time online</th>
+                                    <th>First seen</th>
+                                    <th>Last seen</th>
+                                    <th class="hidden">User ID</th>
+                                    <th class="hidden">Blocked</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+$(document).ready(function() {
+    /***************************************************************
+     * start preparations for the individual charts from here
+     ***************************************************************/
+
+    /***************************************************************
+     * start of users chart
+     * container: chart_1_1
+     * - first we define the options for this chart
+     ***************************************************************/
+    var chart_1_1_Options = {
+        chart: {
+            renderTo: 'chart_1_1',
+            type: 'line',
+            alignTicks: false,
+            zoomType: 'x'
+        },
+        title: {
+            text: false
+        },
+        xAxis: {
+            type: 'datetime',
+            tickWidth: 1,
+            tickLength: 10,
+            gridLineWidth: 0,
+            labels: {
+                align: 'left',
+                x: 5,
+                y: 13
+            },
+            plotBands: weekendsDaily
+        },
+        yAxis: [
+            {
+                gridLineWidth: 0,
+                labels: {
+                    step: 2,
+                    formatter: function () {
+                        return humanFileSize(this.value);
+                    }
+                }
+            },
+            {
+                allowDecimals: false,
+                floor: 0,
+                title: {
+                    text: false
+                }
+            }
+        ],
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                /**
+                 * here we switch the header of the tooltip depending on the length of the selected range (thus also the resolution)
+                 */
+                if ((rangeEnd - rangeStart) < 3600*24*32*1000) {
+                    var tooltipcontent = '<b>' + moment(this.x).format("dddd D MMMM YYYY, HH:mm") + '</b>';
+                } else {
+                    var tooltipcontent = '<b>' + moment(this.x).format("dddd D MMMM YYYY") + '</b>';
+                }
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' + this.y.toLocaleString();
+                });
+
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            shared: true,
+            align: 'left',
+            layout: 'horizontal',
+            verticalAlign: 'top',
+            x: 25,
+            y: -5,
+            floating: true,
+            itemStyle: {
+                fontSize: '12px',
+                color: '#000000',
+                fontWeight: 'normal'
+            }
+        }
+    };
+
+    /**
+     * initialise the chart and show "loading" message
+     */
+    chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.showLoading();
+
+    /**
+     * callback function to process collected user stats for chart 1.1
+     */
+    function onChart_1_1_DataReceived(data, bucketsize) {
+        /**
+         * first clean up data: empty hostnames etc
+         */
+        //console.log('bucket size: ' + bucketsize);
+        var total_bytes = 0;
+        _.forEach(data, function(value, key) {
+            _.defaults(value, {'wlan-num_sta': 0}, {'wlan_bytes': 0});
+            if (bucketsize == 86400) {
+                value.time = value.time + 43200000;
+            }
+
+            total_bytes += value['wlan_bytes'];
+        });
+
+        /**
+         * pick the attributes we need for each series and sort
+         */
+        var users = _.map(data, function(obj) {
+            return _.pick(obj, 'time', 'wlan-num_sta');
+        });
+
+        var num_sta = _.map(_.sortBy(users, ['time', 'wlan-num_sta'], ['asc', 'asc']), _.values);
+
+        /**
+         * define series options
+         */
+        var seriesoptions = [
+            {
+                type: 'line',
+                yAxis: 1,
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#1A4B80',
+                name: 'connected users'
+            }
+        ];
+
+        chart_1_1_Options.series = seriesoptions;
+
+        /**
+         * push the data into the chart
+         */
+        chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+        chart_1_1.series[0].setData(noGapsDataArray(num_sta, bucketsize));
+    }
+    /***************************************************************
+     * end of chart 1.1
+     ***************************************************************/
+
+    /***************************************************************
+     * start of average users per hour of day chart
+     * container: chart_2_1
+     * - first we define the options for this chart
+     ***************************************************************/
+    var chart_2_1_Options = {
+        chart: {
+            renderTo: 'chart_2_1',
+            type: 'area',
+            alignTicks: false
+        },
+        title: {
+            text: false
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                var tooltipcontent = '<b>Between ' + this.x + ':00 and ' + (this.x+1) + ':00</b>';
+                // we have to loop here as we don't yet know how many series we will have
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' +
+                        this.y.toLocaleString();
+                });
+
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            shared: true,
+            align: 'left',
+            layout: 'horizontal',
+            verticalAlign: 'top',
+            x: 25,
+            y: -5,
+            floating: true,
+            itemStyle: {
+                fontSize: '12px',
+                color: '#000000',
+                fontWeight: 'normal'
+            }
+        }
+    };
+
+    /**
+     * initialise the chart and show "loading" message
+     */
+    chart_2_1 = new Highcharts.Chart(chart_2_1_Options);
+    chart_2_1.showLoading();
+
+    /**
+     * callback function when data for this chart has been collected
+     */
+    function onChart_2_1_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'area',
+                color: '#ff8214',
+                name: 'average connected users'
+            }
+        ];
+
+        chart_2_1_Options.series = seriesoptions;
+        chart_2_1 = new Highcharts.Chart(chart_2_1_Options);
+        chart_2_1.series[0].setData(data);
+    }
+    /***************************************************************
+     * end of chart 2.1
+     ***************************************************************/
+
+    /***************************************************************
+     * start of average users per day of the week chart
+     * container: chart_2_2
+     * - first we define the options for this chart
+     ***************************************************************/
+    var chart_2_2_Options = {
+        chart: {
+            renderTo: 'chart_2_2',
+            type: 'column',
+            alignTicks: false
+        },
+        title: {
+            text: false
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.points[0].key +  '</b>';
+                // we have to loop here as we don't yet know how many series we will have
+                $.each(this.points, function () {
+                    tooltipcontent += '<br/>' + this.series.name + ': ' +
+                        this.y.toLocaleString();
+                });
+
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            shared: true,
+            align: 'left',
+            layout: 'horizontal',
+            verticalAlign: 'top',
+            x: 25,
+            y: -5,
+            floating: true,
+            itemStyle: {
+                fontSize: '12px',
+                color: '#000000',
+                fontWeight: 'normal'
+            }
+        }
+    };
+
+    /**
+     * initialise the chart and show "loading" message
+     */
+    chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+    chart_2_2.showLoading();
+
+    /**
+     * callback function when data for this chart has been collected
+     */
+    function onChart_2_2_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column',
+                color: '#003166',
+                name: 'average connected users'
+            }
+        ];
+
+        chart_2_2_Options.series = seriesoptions;
+        chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+        chart_2_2.series[0].setData(data);
+    }
+    /***************************************************************
+     * end of chart 2.2
+     ***************************************************************/
+
+    /**
+     * populate the online clients/users table
+     * TODO:
+     * add modal with
+     * - details for users/guests
+     * - if guest: device/session/registration/qos details
+     * - option to block/un-auth device
+     */
+    var clientsonlinetable = $('#clients-online').on('error.dt', flashToasts).DataTable({
+        order: [
+            [3, 'desc']
+        ],
+        processing: true,
+        scrollX: true,
+        ajax: {
+            url: '{{site.uri.public}}/elephantwifi/api/controller_users/online',
+            dataSrc: function(json) {
+                /**
+                 * filter on "is_wired": false to get wlan users online only
+                 */
+                var wlan_users = _.filter(json, {'is_wired': false});
+
+                /**
+                 * assign default values to "unreliable" attributes
+                 */
+                _.forEach(wlan_users, function(value, key) {
+                    _.defaults(value, {'tx_bytes': 0}, {'rx_bytes': 0}, {'tx_bytes-r': 0});
+                });
+
+                return wlan_users;
+            }
+        },
+        columns: [
+            {data: 'hostname',
+                render: hostnameRenderFunction
+            },
+            {data: 'is_guest',
+                render: is_guestRenderFunction
+            },
+            {data: 'tx_bytes-r',
+                render: function(data, type, full, meta) {
+                    if (type === 'display') {
+                        // draw the progress-bar with correct width
+                        var barperc = 4;
+                        if (5000 < data && data < 250000) {
+                            barperc = 25;
+                        }
+                        if (250000 < data && data < 500000) {
+                            barperc = 50;
+                        }
+                        if (500000 < data && data < 1000000) {
+                            barperc = 75;
+                        }
+                        if (data > 1000000) {
+                            barperc = 100;
+                        }
+                        progressString = '<progress class="clients" max="100" value="' + barperc + '">' + barperc + '%</progress>';
+                        return progressString;
+                    }
+                    return data;
+                }
+            },
+            {data: 'signal',
+                render: function(data, type, full, meta) {
+                    // http://stackoverflow.com/questions/15797920/how-to-convert-wifi-signal-strength-from-quality-percent-to-rssi-dbm
+                    if (typeof data === 'undefined' || !data) {
+                        return '&lt;unknown&gt;';
+                    };
+                    if (type === 'display') {
+                        if (data <= -100) {
+                            barperc = 4;
+                        } else if (data >= -50) {
+                            barperc = 100;
+                        } else {
+                            barperc = 2 * (data + 100);
+                        }
+                        progressString = '<progress class="clients" max="100" value="' + barperc + '">' + barperc + '%</progress>';
+                        return progressString;
+                    }
+                    return data;
+                }
+            },
+            {data: 'tx_bytes',
+                render: tx_bytesRenderFunction
+            },
+            {data: 'rx_bytes',
+                render: rx_bytesRenderFunction
+            },
+            {data: 'assoc_time',
+                render: assoc_timeRenderFunction
+            },
+            {data: 'essid'},
+            {data: 'user_id'},
+            {data: 'mac'}
+        ],
+        columnDefs: [
+            {
+                targets: [ 8, 9 ],
+                visible: false,
+                searchable: true
+            }
+        ],
+        fnDrawCallback: function(oSettings) {
+            $('#datatables_refresh').prop('disabled', false);
+            $('#datatables_refresh').find('i').removeClass().addClass('fa fa-refresh fa-fw fa-lg');
+        }
+    });
+
+    /**
+     * populate the "all" clients/users table
+     * TODO:
+     * add modal with
+     * - details for users/guests
+     * - if guest: device/session/registration/qos details
+     * - option to block/un-auth device
+     */
+    var clientstable = $('#clients').on('error.dt', flashToasts).DataTable({
+        order: [
+            [2, 'desc']
+        ],
+        processing: true,
+        scrollX: true,
+        ajax: {
+            url: '{{site.uri.public}}/elephantwifi/api/controller_users/all',
+            dataSrc: function(json) {
+                /**
+                 * filter on "is_wired": false, to get wlan users only
+                 */
+                var wlan_users = _.filter(json['clients'], {'is_wired': false});
+                var wlan_guests = json['guests'];
+
+                /**
+                 * assign default values to "unreliable" attributes
+                 */
+                _.forEach(wlan_users, function(value, key) {
+                    _.defaults(value, {'tx_bytes': 0}, {'rx_bytes': 0});
+                });
+
+                return wlan_users;
+            }
+        },
+        columnDefs: [
+            {
+                type: 'file-size',
+                targets: [3, 4]
+            },
+            {
+                targets: [ 7, 8, 9 ],
+                visible: false,
+                searchable: true
+            }
+        ],
+        columns: [
+            {data: 'hostname',
+                render: hostnameRenderFunction
+            },
+            {data: 'is_guest',
+                render: is_guestRenderFunction
+            },
+            {data: 'tx_bytes',
+                render: tx_bytesRenderFunction
+            },
+            {data: 'rx_bytes',
+                render: rx_bytesRenderFunction
+            },
+            {data: 'duration',
+                render: durationRenderFunction
+            },
+            {data: 'first_seen',
+                render: first_seenRenderFunction
+            },
+            {data: 'last_seen',
+                render: last_seenRenderFunction
+            },
+            {data: '_id'},
+            {data: 'blocked',
+                render: function(data, type, full, meta) {
+                    if (typeof data !== 'undefined') {
+                        if (type === "display" || type === 'filter') {
+                            return "blocked";
+                        }
+                        return data;
+                    }
+                    return "unknown";
+                }
+            },
+            {data: 'mac'}
+        ],
+        fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            if (aData.blocked === true) {
+                $('td:eq(1)', nRow).html('<div class="badge badge-danger">blocked</div>');
+            }
+
+            $('#datatables_refresh').prop('disabled', false);
+            $('#datatables_refresh').find('i').removeClass().addClass('fa fa-refresh fa-fw fa-lg');
+        }
+    });
+
+    /***************************************************************
+     * daterangepicker from here
+     ***************************************************************/
+    /**
+     * define $start and $end for most of the charts
+     * and determine how far back do we go back to get clients stats
+     * TODO:
+     */
+    var rangeEnd       = moment();
+    var rangeStart     = moment().subtract(1, 'weeks').startOf('day');
+    var rightNow       = moment();
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     * - assuming start of data collection is January 1st, 2015
+     * TODO: consider a venue setting that holds the start date
+     */
+    $('#dashboard-report-range').daterangepicker({
+        showISOWeekNumbers:     true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        ranges: {
+           'Current week':     [moment().startOf('week'), rightNow],
+           'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
+           'Past 7 days':      [rangeStart, rangeEnd],
+           'Current month':    [moment().startOf('month'), moment().endOf('month')],
+           'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
+           'Past 31 days':     [moment().startOf('day').subtract(31, 'days'), rightNow],
+           'Current year':     [moment().startOf('year'), rightNow],
+           'Past 365 days':    [moment().startOf('day').subtract(1, 'years'), rightNow]
+        },
+        startDate:   rangeStart,
+        endDate:     rangeEnd,
+        minDate:     moment().startOf('day').subtract(1, 'years'),
+        maxDate:     moment(),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        console.log(start + ':' + end);
+
+        /**
+         * update these variables for the daterangepicker and for the ajax calls
+         */
+        rangeStart = start;
+        rangeEnd = end;
+        now = moment().valueOf();
+
+        /**
+         * historyhours is used to get stats for the users
+         */
+        var historyHours = Math.round((now - start)/(3600*1000));
+
+        /**
+         * enable spinners on the charts, <span>s and <div>s which will be updated
+         */
+        var chart_1_1 = $('#chart_1_1').highcharts();
+        var chart_2_1 = $('#chart_2_1').highcharts();
+        var chart_2_2 = $('#chart_2_2').highcharts();
+        chart_1_1.showLoading();
+        chart_2_1.showLoading();
+        chart_2_2.showLoading();
+
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        /**
+         * ajax function to get venue stats
+         * - we switch to higher resolution stats (hourly) when range is shorter than 32 days (because we have more screen real-estate)
+         * - we also need to switch the weekend plotbands!
+         */
+        if ((end - start) < 3600*24*32*1000) {
+            /**
+             * we fetch hourly stats
+             */
+            chart_1_1_Options.xAxis.plotBands = weekends;
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/stats/venue/hourly/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                error: flashToasts,
+                success: function(data) {
+                    onChart_1_1_DataReceived(data, 3600);
+                }
+            });
+        } else {
+            /**
+             * we fetch daily stats
+             */
+            chart_1_1_Options.xAxis.plotBands = weekendsDaily;
+
+            $.ajax({
+                url: '{site.uri.public}}/elephantwifi/api/stats/venue/daily/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                error: flashToasts,
+                success: function(data) {
+                    onChart_1_1_DataReceived(data, 3600*24);
+                }
+            });
+        }
+
+        /**
+         * get the timeOfDay average data with ajax
+         */
+        $.ajax({
+            url: '{{site.uri.public}}/elephantwifi/api/connected_users/average/timeofday/' + start + '/' + end,
+            type: 'GET',
+            dataType: 'json',
+            error: flashToasts,
+            success: onChart_2_1_DataReceived
+        });
+
+        /**
+         * get the weekDay average data with ajax
+         */
+        $.ajax({
+            url: '{{site.uri.public}}/elephantwifi/api/connected_users/average/weekday/' + start + '/' + end,
+            type: 'GET',
+            dataType: 'json',
+            error: flashToasts,
+            success: onChart_2_2_DataReceived
+        });
+    }
+    /***************************************************************
+     * end of daterangepicker
+     ***************************************************************/
+
+    /**
+     * fix to reflow the chart(s) when a table has finished drawing
+     */
+    $.fn.dataTable.tables( { visible: true, api: true } ).on( 'draw.dt', function () {
+        chart_1_1.reflow();
+        chart_2_1.reflow();
+        chart_2_2.reflow();
+    });
+
+    /**
+     * fix to redraw the tables in hidden divs with scrollx enabled upon tab being opened
+     */
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .columns.adjust();
+
+        chart_1_1.reflow();
+        chart_2_1.reflow();
+        chart_2_2.reflow();
+    });
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $('.modal').on('shown', function() {
+        //
+    });
+
+    /**
+     * this is the handler for the reload/refresh button on the Users portlet
+     */
+    $('body').on('click', '#reload_users', function(e) {
+        e.preventDefault();
+
+        /**
+         * Reload the datatables data using ajax
+         */
+        clientsonlinetable.ajax.reload();
+        clientstable.ajax.reload();
+    });
+});
+</script>
+{% endblock %}

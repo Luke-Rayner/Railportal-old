@@ -1,0 +1,67 @@
+---
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 5
+      max: 50
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+capture_start:
+  validators:
+    required:
+      label: "&CAPTURE_START"
+      message: VALIDATE.REQUIRED
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+category_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&CATEGORY_ID"
+      message: VALIDATE.REQUIRED
+lat:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LAT"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+lon:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LON"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+tracking_zone:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&TRACKING_ZONE"
+      max: 1
+      message: "VALIDATE.LENGTH_RANGE"
+wifi_zone:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&WIFI_ZONE"
+      max: 1
+      message: "VALIDATE.LENGTH_RANGE"

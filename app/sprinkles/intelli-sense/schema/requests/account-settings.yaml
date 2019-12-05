@@ -1,0 +1,47 @@
+---
+email:
+  validators:
+    required:
+      label: "&EMAIL"
+      message: "Please provide an email address."
+    length:
+      label: "&EMAIL"
+      min: 1
+      max: 150
+      message: "Your email address must be between {{min}} and {{max}} characters."
+    email:
+      message: "Please provide a valid email address."
+password:
+  validators:
+    length:
+      label: "&PASSWORD"
+      min: 8
+      max: 50
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&PASSWORD"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&PASSWORD"
+      message: VALIDATE.NO_TRAIL_WS
+passwordc:
+  validators:
+    matches:
+      field: password
+      message: "The value of this field does not match the value of the 'password' field."
+    length:
+      label: "&PASSWORD"
+      min: 8
+      max: 50
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&PASSWORD"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&PASSWORD"
+      message: VALIDATE.NO_TRAIL_WS
+passwordcheck:
+  validators:
+    required:
+      label: "&CURRENT_PASSWORD"
+      message: "Please confirm your current password."

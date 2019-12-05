@@ -1,0 +1,304 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "List Types",
+        "description" : "Page which displays all list types you can choose from when creating a list"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">List Types</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="marketingListTypeTable" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Text</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn orange" id="addNewType">
+                          <i class="fa fa-plus-square"></i> Add Type
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addNewMarketingListTypeModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> Add a new List Type</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="addMarketingListType" action="{{site.uri.public}}/admin/elephantwifi/marketing/list_type" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('form-alerts')}}"></div>
+                    <div class="form-group">
+                        <label for="list_type_name" class="col-sm-offset-2 col-sm-3 control-label">Name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="list_type_name" name="list_type_name" placeholder="Name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="list_type_text" class="col-sm-offset-2 col-sm-3 control-label">Text</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="255" id="list_type_text" name="list_type_text" placeholder="Text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="listTypeSubmit" name="listTypeSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="venue_id" name="venue_id" value="{{current_user.primary_venue_id}}">
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateMarketingListTypeModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> Update List Type</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="updateMarketingListType" action="{{site.uri.public}}/admin/elephantwifi/marketing/list_type/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('update_list_type_form-alerts')}}"></div>
+                    <div class="form-group">
+                        <label for="update_list_type_name" class="col-sm-offset-2 col-sm-3 control-label">Name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="update_list_type_name" name="list_type_name" placeholder="Name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_list_type_text" class="col-sm-offset-2 col-sm-3 control-label">Text</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="255" id="update_list_type_text" name="list_type_text" placeholder="Text">
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_id" name="id">
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type='button' id="listTypeDelete" name="listTypeDelete" onclick="deleteListType();" class="btn btn-danger btn-sm"><i class="fa fa-cloud-upload"></i> Delete</button>
+                            <button type='submit' id="listTypeSubmit" name="listTypeSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Update</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+	var marketingListTypeTable;
+    var marketing_list_types = {{marketing_list_types | raw}};
+    var validators = {{validators | raw}};
+
+    function deleteListType(d) {
+        /**
+         * populate the form with the values for this company
+         */
+        list_type_id = $('#update_id').val();
+
+        $.ajax({
+            type:       'GET',
+            url:        site.uri.public + '/admin/elephantwifi/marketing/list_type/delete/' + list_type_id,
+            success:    onDeleteSuccess,
+            error:      onDeleteError
+        });
+
+        // temp!
+        setTimeout(function(){
+            window.location.reload(true);
+        }, 500);
+
+        /**
+         * on error/success close the modal and reload the page
+         */
+        function onDeleteSuccess(d) {
+            /**
+             * delete success
+             */
+            console.log('delete success');
+
+            setTimeout(function(){
+                window.location.reload(true);
+            }, 500);
+        }
+
+        function onDeleteError(d) {
+            /**
+             * delete failed
+             */
+            console.log('delete failed');
+
+            setTimeout(function(){
+                window.location.reload(true);
+            }, 500);
+        }
+    }
+
+    $(document).ready(function() {
+        marketingListTypeTable = $('#marketingListTypeTable').DataTable({
+            autoWidth: false,
+            language: {
+                "loadingRecords": "<br><br><h4>Loading...</h4>"
+            },
+            deferRender: true,
+            data: marketing_list_types,
+            columns: [
+                {data: 'name'},
+                {data: 'text'}
+            ],
+        });
+
+        /**
+         * fix to get Bootstrap tooltips to work within Datatables (use the ID of the table container)
+         * also add data-container: 'body' to the element triggering the tooltip to get it on top of other elements
+         */
+        $('#marketingListTypeTable').on('draw.dt', function () {
+            $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+        });
+
+        /**
+         * what we want to do when a modal gets hidden
+         */
+        $('.modal').on('hidden.bs.modal', function(e) {
+	        $('#form-alerts').empty();
+	        $('#update_form-alerts').empty();
+        });
+
+        /**
+         * whatever we want to do when a modal gets shown
+         */
+        $(".modal").on('shown', function() {
+            //
+        });
+
+        /**
+         * table redraw on resize of window and collapse of sidebar
+         */
+        $(window).resize(function(){
+            setTimeout(marketingListTypeTable.draw, 100);
+        });
+
+        /**
+         * open the addNewMarketingListTypeModal upon click on the button
+         */
+        $('#addNewType').click(function(e) {
+            e.preventDefault();
+
+            /**
+             * show the modal
+             */
+            $('#addNewMarketingListTypeModal').modal('show');
+        });
+
+        /**
+         * open the updateMarketingListTypeModal upon tap/click on a row in the types table
+         */
+        $('body').on('click', '#marketingListTypeTable tbody tr', function(e) {
+            e.preventDefault();
+
+            /**
+             * populate the form with the values for this zone
+             */
+            var thisListType = marketingListTypeTable.row( this ).data();
+            $('#update_list_type_name').val(thisListType.name);
+            $('#update_list_type_text').val(thisListType.text);
+            $('#update_id').val(thisListType.id);
+
+            if(thisListType.id == 1 || thisListType.id == 2) {
+                $('#listTypeDelete').addClass('hidden');
+            } else {
+                $('#listTypeDelete').removeClass('hidden');
+            }
+
+            /**
+             * show the modal
+             */
+            $('#updateMarketingListTypeModal').modal('show');
+        });
+
+        /**
+         * we need to use the function ufFormSubmit to submit the data:
+         * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+         * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+         */
+        $('#addMarketingListType').ufForm({
+            validator: validators,
+            msgTarget: $("#form-alerts")
+        }).on("submitSuccess.ufForm", function() {
+            /**
+             * Reload the page on success
+             */
+            window.location.reload(true);
+        });
+
+        $('#updateMarketingListType').ufForm({
+            validator: validators,
+            msgTarget: $("#update_list_type_form-alerts")
+        }).on("submitSuccess.ufForm", function() {
+            /**
+             * Reload the page on success
+             */
+            window.location.reload(true);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,780 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "General Settings",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">General configuration of the captive portal</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form" id="form_portlet_body">
+                <div class="row">
+                    <div class="col-md-12 col-lg-7">
+                        <br>
+                        <form class="form-horizontal" enctype="multipart/form-data" id="update_captive_portal_settings" action="{{site.uri.public}}/admin/elephantwifi/captive_portal/settings/u" method="post">
+                            {% include "forms/csrf.html.twig" %}
+                            <div id="{{alerts_id | default('update_captive_portal_form-alerts')}}"></div>
+                            <div class="form-group">
+                                <label for="update_captive_portal_mode" class="col-sm-4 control-label">Captive portal mode
+                                </label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                title="Enable/disable the captive portal and set mode"></i>
+                                        </span>
+                                        <select class="form-control select2" id="update_captive_portal_mode" name="captive_portal">
+                                            <option value="free" {% if unifi_venue.venue_wifi.captive_portal == "free" %} selected="selected"{% endif %}>Free access (registration and/or social authentication)</option>
+                                            <option value="paid" {% if unifi_venue.venue_wifi.captive_portal == "paid" %} selected="selected"{% endif %}>Paid access (to be implemented)</option>
+                                            <option value="off" {% if unifi_venue.venue_wifi.captive_portal == "off" %} selected="selected"{% endif %}>Disabled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true" style="display:none;">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingOne">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                <span class="caption-subject font-blue-sharp bold">General:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_primary_method" class="col-sm-4 control-label">Primary method
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Select the primary registration method for the captive portal"></i>
+                                                        </span>
+                                                        <select class="form-control select2" id="update_captive_portal_primary_method" name="primary_method" placeholder="Primary method for captive portal"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.primary_method}}">
+                                                            <option value="basic" {% if unifi_venue.venue_wifi.free_access_settings.primary_method == "basic" %} selected="selected"{% endif %}>Basic</option>
+                                                            <option value="registration_form" {% if unifi_venue.venue_wifi.free_access_settings.primary_method == "registration_form" %} selected="selected"{% endif %}>Registration form</option>
+                                                            <option value="social_auth" {% if unifi_venue.venue_wifi.free_access_settings.primary_method == "social_auth" %} selected="selected"{% endif %}>Social media authentication</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_redirect_url" class="col-sm-4 control-label">Landing page
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Page/URL to redirect devices to after successfull registration and re-authorisation"></i>
+                                                        </span>
+                                                        <input type="url" class="form-control" maxlength="256" id="update_captive_portal_redirect_url" name="redirect_url" placeholder="Redirect URL"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.redirect_url}}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_auth_duration" class="col-sm-4 control-label">Authorisation duration
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The time a device will be authorised after a successful registration, before the re-connect splash page is displayed"></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="8" id="update_captive_portal_auth_duration" name="auth_duration" placeholder="Authorisation duration in minutes"
+                                                            {% if (unifi_venue.venue_wifi.free_access_settings.auth_duration != null) %}
+                                                                value="{{unifi_venue.venue_wifi.free_access_settings.auth_duration}}" 
+                                                            {% else %}
+                                                                value="480" 
+                                                            {% endif %}>
+                                                        <span class="input-group-addon">minutes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_registration_duration" class="col-sm-4 control-label">Registration duration
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The time a device will be registered after a successful registration, before registration splash page is displayed again. Usually this would be set to the same
+                                                                value as the Authorisation duration, but when configuring this to a higher value, users will be presented a splash page when their authorisation expires, without the requirement of re-registration."></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="8" id="update_captive_portal_registration_duration" name="registration_duration" placeholder="Registration duration in minutes"
+                                                            {% if (unifi_venue.venue_wifi.free_access_settings.registration_duration != null) %}
+                                                                value="{{unifi_venue.venue_wifi.free_access_settings.registration_duration}}" 
+                                                            {% else %}
+                                                                value="1576800" 
+                                                            {% endif %}>
+                                                        <span class="input-group-addon">minutes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_redirect_timeout" class="col-sm-4 control-label">Redirect timeout
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Timeout to display the redirect page before actually sending the device to the landing page. The recommended value is between 1000 and 3000 microseconds."></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="6" id="update_captive_portal_redirect_timeout" name="redirect_timeout" placeholder="Redirect timeout in microseconds (4000=default)"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.redirect_timeout}}">
+                                                        <span class="input-group-addon">microseconds</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_speed_limit_down" class="col-sm-4 control-label">Download speed limit
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The maximum download speed an authorised device will be allowed in Kilobits per second. Optional"></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="6" id="update_captive_portal_speed_limit_down" name="speed_limit_down" placeholder="Download speed limit in Kbps"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.speed_limit_down}}">
+                                                        <span class="input-group-addon">Kbps</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_speed_limit_up" class="col-sm-4 control-label">Upload speed limit
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The maximum upload speed an authorised device will be allowed in Kilobits per second. Optional"></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="6" id="update_captive_portal_speed_limit_up" name="speed_limit_up" placeholder="Upload speed limit in Kbps"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.speed_limit_up}}">
+                                                        <span class="input-group-addon">Kbps</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_data_transfer_limit" class="col-sm-4 control-label">Data transfer limit
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The maximum data volume an authorised device is allowed to transfer before re-auth is required. Optional"></i>
+                                                       </span>
+                                                        <input type="number" class="form-control" maxlength="8" id="update_captive_portal_data_transfer_limit" name="data_transfer_limit" placeholder="Data transfer limit in MBytes"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.data_transfer_limit}}">
+                                                        <span class="input-group-addon">MBytes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default registration_form_section social_media_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingTwo">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                <span class="caption-subject font-blue-sharp bold">Registration form:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                        <div class="panel-body">
+                                            <div class="row" style="padding-bottom: 1%">
+                                                <div class="col-sm-5"></div>
+                                                <div class="col-sm-2">Display</div>
+                                                <div class="col-sm-5">Required</div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_form_firstname" class="col-sm-4 control-label">First name
+                                                </label>
+                                                <label for="update_captive_portal_form_firstname" class="col-sm-1 control-label">
+                                                    <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Capture first name in registration form"></i>
+                                                </label>
+                                                <div class="col-sm-2" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_form_firstname" type="checkbox" name="form_firstname" value="{{unifi_venue.venue_wifi.free_access_settings.form_firstname}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.form_firstname == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_firstname" type="checkbox" name="required_firstname" value="{{unifi_venue.venue_wifi.free_access_settings.required_firstname}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_firstname == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_form_lastname" class="col-sm-4 control-label">Last name
+                                                </label>
+                                                <label for="update_captive_portal_form_lastname" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Capture last name in registration form"></i>
+                                                </label>
+                                                <div class="col-sm-2" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_form_lastname" type="checkbox" name="form_lastname" value="{{unifi_venue.venue_wifi.free_access_settings.form_lastname}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.form_lastname == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_lastname" type="checkbox" name="required_lastname" value="{{unifi_venue.venue_wifi.free_access_settings.required_lastname}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_lastname == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_form_email" class="col-sm-4 control-label">E-mail address
+                                                </label>
+                                                <label for="update_captive_portal_form_email" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Capture e-mail address in registration form"></i>
+                                                </label>
+                                                <div class="col-sm-2" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_form_email" type="checkbox" name="form_email" value="{{unifi_venue.venue_wifi.free_access_settings.form_email}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.form_email == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_email" type="checkbox" name="required_email" value="{{unifi_venue.venue_wifi.free_access_settings.required_email}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_email == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_form_gender" class="col-sm-4 control-label">Gender
+                                                </label>
+                                                <label for="update_captive_portal_form_gender" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Capture gender in registration form"></i>
+                                                </label>
+                                                <div class="col-sm-2" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_form_gender" type="checkbox" name="form_gender" value="{{unifi_venue.venue_wifi.free_access_settings.form_gender}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.form_gender == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_gender" type="checkbox" name="required_gender" value="{{unifi_venue.venue_wifi.free_access_settings.required_gender}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_gender == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_form_birth_date" class="col-sm-4 control-label">Date of birth
+                                                </label>
+                                                <label for="update_captive_portal_form_birth_date" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Capture gender in registration form"></i>
+                                                </label>
+                                                <div class="col-sm-2" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_form_birth_date" type="checkbox" name="form_birth_date" value="{{unifi_venue.venue_wifi.free_access_settings.form_birth_date}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.form_birth_date == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_birth_date" type="checkbox" name="required_birth_date" value="{{unifi_venue.venue_wifi.free_access_settings.required_birth_date}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_birth_date == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_form_postcode" class="col-sm-4 control-label">Postcode
+                                                </label>
+                                                <label for="update_captive_portal_form_postcode" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Capture gender in registration form"></i>
+                                                </label>
+                                                <div class="col-sm-2" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_form_postcode" type="checkbox" name="form_postcode" value="{{unifi_venue.venue_wifi.free_access_settings.form_postcode}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.form_postcode == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-5" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_postcode" type="checkbox" name="required_postcode" value="{{unifi_venue.venue_wifi.free_access_settings.required_postcode}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_postcode == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default social_media_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingThree">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                <span class="caption-subject font-blue-sharp bold">Social media authentication:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_social_auth_enable_facebook" class="col-sm-4 control-label">Facebook
+                                                </label>
+                                                <label for="update_captive_portal_social_auth_enable_facebook" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Enable Facebook login: Facebook must be enabled with your OAuth provider."></i>
+                                                </label>
+                                                <div class="col-sm-7" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_social_auth_enable_facebook" type="checkbox" name="social_auth_enable_facebook" value="{{unifi_venue.venue_wifi.free_access_settings.social_auth_enable_facebook}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.social_auth_enable_facebook == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_social_auth_enable_twitter" class="col-sm-4 control-label">Twitter
+                                                </label>
+                                                <label for="update_captive_portal_social_auth_enable_twitter" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Enable Twitter login: Twitter must be enabled with your OAuth provider."></i>
+                                                </label>
+                                                <div class="col-sm-7" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_social_auth_enable_twitter" type="checkbox" name="social_auth_enable_twitter" value="{{unifi_venue.venue_wifi.free_access_settings.social_auth_enable_twitter}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.social_auth_enable_twitter == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_social_auth_enable_registration_fallback" class="col-sm-4 control-label">Registration as fallback
+                                                </label>
+                                                <label for="update_captive_portal_social_auth_enable_registration_fallback" class="col-sm-1 control-label"><i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                   title="Enable the registration form as fallback for devices that are unable to use the social auth function"></i>
+                                                </label>
+                                                <div class="col-sm-7" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_social_auth_enable_registration_fallback" type="checkbox" name="social_auth_enable_registration_fallback" value="{{unifi_venue.venue_wifi.free_access_settings.social_auth_enable_registration_fallback}}"
+                                                        data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.social_auth_enable_registration_fallback == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_social_auth_temp_auth_duration" class="col-sm-4 control-label">Temporary auth duration
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="The time a device will be authorised temporarily to enable social login with the providers. 2 minutes is the recommended value."></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="2" id="update_captive_portal_social_auth_temp_auth_duration" name="social_auth_temp_auth_duration" placeholder="Temporary authorisation duration in minutes"
+                                                            value="{{unifi_venue.venue_wifi.free_access_settings.social_auth_temp_auth_duration}}">
+                                                        <span class="input-group-addon">minutes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default registration_form_section social_media_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingFive">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                                <span class="caption-subject font-blue-sharp bold">GDPR text:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                        <div id="collapseSix" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_data_consent_text" class="col-sm-4 control-label">Data consent text
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Test"></i>
+                                                       </span>
+                                                        <textarea type="text" class="form-control" style="resize: vertical;" id="update_captive_portal_data_consent_text" name="data_consent_text" placeholder="Please enter the text you wish to display for the data consent">{{unifi_venue.venue_wifi.free_access_settings.data_consent_text}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_marketing_consent_text" class="col-sm-4 control-label">Marketing consent text
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Test"></i>
+                                                       </span>
+                                                        <textarea type="text" class="form-control" style="resize: vertical;" id="update_captive_portal_marketing_consent_text" name="marketing_consent_text" placeholder="Please enter the text you wish to display for the marketing consent">{{unifi_venue.venue_wifi.free_access_settings.marketing_consent_text}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% if unifi_venue.tracking_venue == 1 %}
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_location_consent_text" class="col-sm-4 control-label">Location consent text
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Test"></i>
+                                                       </span>
+                                                        <textarea type="text" class="form-control" style="resize: vertical;" id="update_captive_portal_location_consent_text" name="location_consent_text" placeholder="Please enter the text you wish to display for the location consent">{{unifi_venue.venue_wifi.free_access_settings.location_consent_text}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_required_location_consent" class="col-sm-4 control-label">Location Text
+                                                </label>
+                                                <div class="col-sm-7" style="margin-top:4px;">
+                                                    <div class="input-group">
+                                                        <input id="update_captive_portal_required_location_consent" type="checkbox" name="required_location_consent" value="" data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.free_access_settings.required_location_consent == 1 %} checked="checked"{% endif %}>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {% endif %}
+                                            <div style="float: right;">
+                                                <a class="btn red" id="reshowTermsButton">Reshow T&C's</a>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default registration_form_section social_media_form_section" style="display:none;">
+                                    <div class="panel-heading" role="tab" id="headingSix">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                                <span class="caption-subject font-blue-sharp bold">Upload files:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                        <div id="collapseSeven" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSix">
+                                        <div class="panel-body">
+                                            <div class="note note-info">
+                                                <h4>PDF files must be:</h4>
+                                                <ul>
+                                                    <li>PDF format</li>
+                                                    <li>maximum size is {{(pdf_upload_size_limit/1000) | raw | number_format}}KBytes</li>
+                                                </ul>
+                                            </div>
+                                            <h4>End user license agreement upload:</h4>
+                                            <div id="fineuploader-license-agreement-container"></div>
+                                            <h4>End user privacy policy upload:</h4>
+                                            <div id="fineuploader-privacy-policy-container"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button type='submit' id="captive_portal_submit" name="captive_portal_submit" class="btn blue pull-right"><i class="fas fa-cloud-upload-alt fa-lg"></i> Update settings</button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="update_venue_id" name="venue_id" value="{{unifi_venue.id}}">
+                            <input type="hidden" id="update_venue_free_access_settings_id" name="free_access_settings_id" value="{{unifi_venue.venue_wifi.free_access_settings.id}}">
+                        </form>
+                    </div>
+                    {# here we conditionally display the preview when the captive portal has been enabled. when we add more captive portal versions adapt this section #}
+                    {% if unifi_venue.venue_wifi.captive_portal == 'free' %}
+                    <div class="col-md-6 col-lg-5">
+                        <br>
+                        <span class="caption-subject font-blue-sharp bold">Mobile device preview:</span>
+                        <span id="open_preview" class="clickable">
+                            &nbsp;<i class="fas fa-external-link-alt" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Or open the splash page preview in a new browser window. You will need to refresh the new window after applying any changes here."></i>
+                        </span>
+                        <br><br>
+                        <div class="iframe-wrapper">
+                            <iframe src="{{site.uri.public}}/admin/elephantwifi/captive_portal/preview/splash" height="548" width="100%" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END PORTLETS -->
+
+<div id='confirmReshowTermsModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fas fa-globe-europe fa-fw fa-lg"></i> Reshow T&C's</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Are you sure you need to reshow the T&C's?
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                                <i class="fas fa-times-circle"></i> No
+                            </button>
+                            <button type='submit' id="confirmReshowTermsModalSubmit" name="confirmReshowTermsModalSubmit" class="btn blue">
+                                <i class="fas fa-cloud-upload-alt fa-fw"></i> Yes
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+/**
+ * Load the validator rules for the form in the modal
+ */
+var validators = {{validators | raw}};
+
+/**
+ * Assign values to the variables we will need later on
+ */
+var existing_license_agreement_files = {{existing_license_agreement_files_json | raw}};
+var existing_privacy_policy_files = {{existing_privacy_policy_files_json | raw}};
+var pdf_upload_size_limit = {{pdf_upload_size_limit | raw}};
+
+console.log(existing_license_agreement_files);
+
+$(document).ready(function(){"free"===$("#update_captive_portal_settings").find('select[name="captive_portal"]').val()&&$("#accordion").show();$("#update_captive_portal_mode").on("change",function(){"free"===this.value&&$("#accordion").show();"off"===this.value&&$("#accordion").hide();"paid"===this.value&&$("#accordion").hide()});var b=$("#update_captive_portal_settings").find('select[name="primary_method"]').val();"social_auth"===b&&$(".social_media_form_section").show();"registration_form"===b&&
+($(".social_media_form_section").hide(),$(".registration_form_section").show());$("#update_captive_portal_primary_method").on("change",function(){"social_auth"===this.value&&($(".social_media_form_section").show(),$(".registration_form_section").show());"registration_form"===this.value&&($(".social_media_form_section").hide(),$(".registration_form_section").show());"basic"===this.value&&($(".social_media_form_section").hide(),$(".registration_form_section").hide())});"mailchimp"===$("#update_captive_portal_mailing_list").val()&&
+$(".mailchimp_field").show();$("#update_captive_portal_mailing_list").on("change",function(){"mailchimp"===this.value?($(".mailchimp_field").show(),$("#update_captive_portal_mailchimp_api_key").rules("add",{required:!0,messages:{required:"Please enter a valid MailChimp API key"}}),$("#update_captive_portal_mailchimp_list_id").rules("add",{required:!0,messages:{required:"Please select a MailChimp list"}})):$(".mailchimp_field").hide()});""!=$("#update_captive_portal_mailchimp_api_key").val()&&""!=
+$("#update_captive_portal_mailchimp_list_id").val()||$("#update_captive_portal_mailchimp_list_id").html('<option value="">First enter API key</option>');$("#update_captive_portal_mailchimp_api_key").on("change",function(){""!=this.value&&$("#update_captive_portal_mailchimp_list_id").html('<option value="">Press refresh button</option>')});$("#lists_refresh").click(function(a){a.preventDefault();a=$('meta[name="csrf_token"]').attr("content");var b=$("#update_captive_portal_mailchimp_api_key").val();
+$("#lists_refresh_spinner").removeClass().addClass("fas fa-sync fa-fw fa-lg fa-spin");$("#lists_refresh").removeClass("clickable");$("#update_captive_portal_mailchimp_list_id").html('<option value="">Refreshing lists...</option>');$("#captive_portal_submit").prop("disabled",!0);$.ajax({type:"POST",url:site.uri.public+"/api/captive_portal/refresh_mailchimp_venues",data:{csrf_token:a,mailchimp_api_key:b}}).done(function(a){a=_.orderBy(a,"name","asc");$("#update_captive_portal_mailchimp_list_id").html("");
+_.forEach(a,function(a,b){$("#update_captive_portal_mailchimp_list_id").append($("<option>",{value:a.id,text:a.name}))});$("#lists_refresh_spinner").removeClass().addClass("fas fa-sync fa-fw fa-lg");$("#lists_refresh").addClass("clickable");$("#captive_portal_submit").prop("disabled",!1)}).fail(function(a){"undefined"!==typeof toastr&&toastr.error("Oops, an error occurred when loading your MailChimp mailing lists! Please double check your MailChimp API key.");$("#update_captive_portal_mailchimp_list_id").html('<option value="">Update API key, then refresh</option>');
+$("#lists_refresh_spinner").removeClass().addClass("fas fa-sync fa-fw fa-lg");$("#lists_refresh").addClass("clickable")})});$("#update_captive_portal_form_firstname").bootstrapSwitch();$("#update_captive_portal_form_lastname").bootstrapSwitch();$("#update_captive_portal_form_email").bootstrapSwitch();$('#update_captive_portal_form_gender').bootstrapSwitch();$('#update_captive_portal_form_birth_date').bootstrapSwitch();$('#update_captive_portal_form_postcode').bootstrapSwitch();$('#update_captive_portal_required_firstname').bootstrapSwitch();$('#update_captive_portal_required_lastname').bootstrapSwitch();$('#update_captive_portal_required_email').bootstrapSwitch();$('#update_captive_portal_required_gender').bootstrapSwitch();$('#update_captive_portal_required_birth_date').bootstrapSwitch();$('#update_captive_portal_required_postcode').bootstrapSwitch();$("#update_captive_portal_social_auth_enable_facebook").bootstrapSwitch();$("#update_captive_portal_social_auth_enable_twitter").bootstrapSwitch();$("#update_captive_portal_social_auth_enable_linkedin").bootstrapSwitch();
+$("#update_captive_portal_social_auth_enable_googleplus").bootstrapSwitch();$("#update_captive_portal_social_auth_enable_registration_fallback").bootstrapSwitch();$("#update_captive_portal_mailchimp_double_opt_in").bootstrapSwitch();$("#update_captive_portal_form_firstname").bootstrapSwitch("setSizeClass","switch-mini");$("#update_captive_portal_form_lastname").bootstrapSwitch("setSizeClass","switch-mini");$("#update_captive_portal_form_email").bootstrapSwitch("setSizeClass","switch-mini");$('#update_captive_portal_form_gender').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_form_birth_date').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_form_postcode').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_required_firstname').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_required_lastname').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_required_email').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_required_gender').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_required_birth_date').bootstrapSwitch('setSizeClass', 'switch-mini');$('#update_captive_portal_required_postcode').bootstrapSwitch('setSizeClass', 'switch-mini');$("#update_captive_portal_social_auth_enable_facebook").bootstrapSwitch("setSizeClass",
+"switch-mini");$("#update_captive_portal_social_auth_enable_twitter").bootstrapSwitch("setSizeClass","switch-mini");$("#update_captive_portal_social_auth_enable_linkedin").bootstrapSwitch("setSizeClass","switch-mini");$("#update_captive_portal_social_auth_enable_googleplus").bootstrapSwitch("setSizeClass","switch-mini");$("#update_captive_portal_social_auth_enable_registration_fallback").bootstrapSwitch("setSizeClass","switch-mini");$("#update_captive_portal_mailchimp_double_opt_in").bootstrapSwitch("setSizeClass",
+"switch-mini");$("#open_preview").click(function(a){a.preventDefault();window.open(site.uri.public+"/admin/elephantwifi/captive_portal/preview/splash");return!1});$(".select2").select2("destroy");$(".select2").select2({selectOnClose:!0})
+
+    $('#update_captive_portal_settings').ufForm({
+        validator: validators,
+        msgTarget: $("#update_captive_portal_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+});
+
+var params = {};
+
+params[site.csrf.keys.name] = site.csrf.name;
+params[site.csrf.keys.value] = site.csrf.value;
+
+var licenseAgreementUploader = new qq.FineUploader({
+    element:  document.getElementById('fineuploader-license-agreement-container'),
+    template: 'qq-simple-thumbnails-template-pdf',
+    multiple: false,
+    request: {
+        endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/post/license_agreement/{{unifi_venue.id}}',
+        params: params
+    },
+    deleteFile: {
+        enabled:  true,
+        method:   'POST', // IMPORTANT: allows us to submit the CSRF token as required by Slim framework
+        endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/delete/license_agreement/{{unifi_venue.id}}',
+        params: params
+    },
+    chunking: {
+        enabled: false
+    },
+    resume: {
+        enabled: false
+    },
+    retry: {
+        enableAuto: false,
+        showButton: true
+    },
+    callbacks: {
+        onError: function(id, name, errorReason, xhrOrXdr) {
+            $('#pdf_upload_feedback_message').html('Upload failed: ' + errorReason);
+        },
+        onComplete: function(id, name, responseJSON, xhr) {
+            if (responseJSON.success) {
+                $('#pdf_upload_feedback_message').html('Upload successful');
+                $('#pdf_dropzone_div').hide();
+                $('#pdf_upload_button_div').hide();
+            }
+        },
+        onDeleteComplete: function(id, xhr, isError) {
+            if (isError == false) {
+                $('#pdf_dropzone_div').show();
+                $('#pdf_upload_button_div').show();
+                existing_terms_pdf_files = [];
+                licenseAgreementUploader.addInitialFiles(existing_license_agreement_files);
+            }
+
+            window.location.reload(true);
+        }
+    },
+    validation: {
+        allowedExtensions: ['pdf'],
+        // sizeLimit:         {{logo_upload_size_limit | raw}},
+        sizeLimit:         pdf_upload_size_limit,
+        itemLimit:         1
+    },
+});
+
+var privacyPolicyUploader = new qq.FineUploader({
+    element:  document.getElementById('fineuploader-privacy-policy-container'),
+    template: 'qq-simple-thumbnails-template-pdf',
+    multiple: false,
+    request: {
+        endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/post/privacy_policy/{{unifi_venue.id}}',
+        params: params
+    },
+    deleteFile: {
+        enabled:  true,
+        method:   'POST', // IMPORTANT: allows us to submit the CSRF token as required by Slim framework
+        endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/delete/privacy_policy/{{unifi_venue.id}}',
+        params: params
+    },
+    chunking: {
+        enabled: false
+    },
+    resume: {
+        enabled: false
+    },
+    retry: {
+        enableAuto: false,
+        showButton: true
+    },
+    callbacks: {
+        onError: function(id, name, errorReason, xhrOrXdr) {
+            $('#pdf_upload_feedback_message').html('Upload failed: ' + errorReason);
+        },
+        onComplete: function(id, name, responseJSON, xhr) {
+            if (responseJSON.success) {
+                $('#pdf_upload_feedback_message').html('Upload successful');
+                $('#pdf_dropzone_div').hide();
+                $('#pdf_upload_button_div').hide();
+            }
+        },
+        onDeleteComplete: function(id, xhr, isError) {
+            if (isError == false) {
+                $('#pdf_dropzone_div').show();
+                $('#pdf_upload_button_div').show();
+                existing_marketing_pdf_files = [];
+                privacyPolicyUploader.addInitialFiles(existing_privacy_policy_files);
+            }
+
+            window.location.reload(true);
+        }
+    },
+    validation: {
+        allowedExtensions: ['pdf'],
+        // sizeLimit:         {{logo_upload_size_limit | raw}},
+        sizeLimit:         pdf_upload_size_limit,
+        itemLimit:         1
+    },
+});
+
+if (existing_license_agreement_files.length > 0) {
+    $('#pdf_dropzone_div').hide();
+    $('#pdf_upload_button_div').hide();
+}
+
+/**
+ * inform the uploader instance of any existing files we might wish to display
+ */
+licenseAgreementUploader.addInitialFiles(existing_license_agreement_files);
+
+if (existing_privacy_policy_files.length > 0) {
+    $('#pdf_dropzone_div').hide();
+    $('#pdf_upload_button_div').hide();
+}
+
+/**
+ * inform the uploader instance of any existing files we might wish to display
+ */
+privacyPolicyUploader.addInitialFiles(existing_privacy_policy_files);
+
+$('#reshowTermsButton').click(function() {
+    $('#confirmReshowTermsModal').modal('show');
+})
+
+/**
+ * process venue delete request from the confirmation modal
+ */
+$('#confirmReshowTermsModalSubmit').click(function(){
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site.uri.public + '/venues/reshow_terms',
+        success:    onSuccess,
+        error:      onError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('success');
+
+        setTimeout(function(){
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onError(d) {
+        /**
+         * delete failed
+         */
+        console.log('failed');
+
+        setTimeout(function(){
+            window.location.reload(true);
+        }, 500);
+    }
+});
+
+$('#update_captive_portal_required_location_consent').bootstrapSwitch();
+$('#update_captive_portal_required_location_consent').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+</script>
+{% endblock %}

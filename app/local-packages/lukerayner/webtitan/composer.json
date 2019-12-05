@@ -1,0 +1,20 @@
+{
+    "name": "lukerayner/webtitan",
+    "description": "My first composer project",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Luke Rayner",
+            "email": "luke@roonies.co.uk"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "minimum-stability" : "dev",
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    }
+}

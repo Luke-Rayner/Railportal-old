@@ -1,0 +1,379 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Enviro Sensors",
+        "description" : "manage enviro sensors"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Enviro Sensor Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="enviro_sensors" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Venue</th>
+                            <th>Name</th>
+                            <th>Serial ID</th>
+                            <th>Status</th>
+                            <th>Life Indicator</th>
+                            <th>Latest Capture</th>
+                            <th>Connection Type</th>
+                            <th>Software Version</th>
+                            <th>Hardware Version</th>
+                        </tr>
+                    </thead>
+                </table>
+                <button type="button" class="btn btn-success" id="addNewEnviroSensor">
+                    <i class="fa fa-plus-square"></i> Add new Enviro Sensor
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='createEnviroSensorModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fas fa-globe-europe fa-fw fa-lg"></i> Create Enviro Sensor</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-enviro_sensor-alerts-page"></div>
+
+                <form class="form-horizontal" id="createEnviroSensor" action="{{site.uri.public}}/admin/enviro-sense/enviro_sensor" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="enviro_sensor_name" class="col-sm-offset-2 col-sm-3 control-label">Name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="enviro_sensor_name" name="name" placeholder="Enviro sensor name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="enviro_sensor_serial_id" class="col-sm-offset-2 col-sm-3 control-label">Serial ID</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="enviro_sensor_serial_id" name="serial_id" placeholder="Enviro sensor serial ID">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="venue_id" class="col-sm-offset-2 col-sm-3 control-label">Venue</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <select id="venue_id" name="venue_id" class="form-control">
+                                    {% for venue in venues %}
+                                        <option value="{{ venue.id }}">{{ venue.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="connection_type" class="col-sm-offset-2 col-sm-3 control-label">Connection</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <select id="connection_type" name="connection_type" class="form-control">
+                                    <option value="WiFi">WiFi</option>
+                                    <option value="4G">4G</option>
+                                    <option value="LoRaWan">LoRaWan</option>
+                                    <option value="Ethernet">Ethernet</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="enviro_sensor_lat" class="col-sm-offset-2 col-sm-3 control-label">Lat position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="enviro_sensor_lat" name="lat" placeholder="Lat position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="enviro_sensor_lon" class="col-sm-offset-2 col-sm-3 control-label">Long position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="enviro_sensor_lon" name="lon" placeholder="Long position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="enviroSensorSubmit" name="enviroSensorSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateEnviroSensorModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fas fa-globe-europe fa-fw fa-lg"></i> Update Enviro Sensor</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-enviro_sensor-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateEnviroSensor" action="{{site.uri.public}}/admin/enviro-sense/enviro_sensor/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_enviro_sensor_name" class="col-sm-offset-2 col-sm-3 control-label">Name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_enviro_sensor_name" name="name" placeholder="Enviro sensor name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_enviro_sensor_serial_id" class="col-sm-offset-2 col-sm-3 control-label">Serial ID</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_enviro_sensor_serial_id" name="serial_id" placeholder="Enviro sensor serial ID">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_enviro_sensor_venue_id" class="col-sm-offset-2 col-sm-3 control-label">Venue</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <select id="update_enviro_sensor_venue_id" name="venue_id" class="form-control">
+                                    {% for venue in venues %}
+                                        <option value="{{ venue.id }}">{{ venue.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_connection_type" class="col-sm-offset-2 col-sm-3 control-label">Venue</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <select id="update_connection_type" name="connection_type" class="form-control">
+                                    <option value="WiFi">WiFi</option>
+                                    <option value="4G">4G</option>
+                                    <option value="LoRaWan">LoRaWan</option>
+                                    <option value="Ethernet">Ethernet</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_enviro_sensor_lat" class="col-sm-offset-2 col-sm-3 control-label">Lat position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="update_enviro_sensor_lat" name="lat" placeholder="Lat position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_enviro_sensor_lon" class="col-sm-offset-2 col-sm-3 control-label">Long position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="update_enviro_sensor_lon" name="lon" placeholder="Long position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="enviroSensorSubmit" name="enviroSensorSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Update Enviro Sensor</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="enviro_sensor_id" name="id">
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+/**
+ * Load the validator rules for the form in the modal
+ */
+var validators = {{validators | raw}};
+
+$(document).ready(function() {
+    var enviro_sensor_table = $('#enviro_sensors').on('error.dt', flashToasts).DataTable({
+        order: [
+            [0, 'asc']
+        ],
+        processing: true,
+        scrollX: true,
+        ajax: {
+            url: site.uri.public + '/enviro-sense/api/list/enviro_sensors',
+            dataSrc: function(json) {
+                console.log(json);
+                return json.rows;
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'venue',
+                render: function(data, type, full, meta) {
+                    if (full.venue != null) {
+                        venue_name = full.venue.name;
+                    } else {
+                        venue_name = '<span class="label label-danger">UNASSIGNED</span>';
+                    }
+
+                    return venue_name;
+                }
+            },
+            {data: 'name'},
+            {data: 'serial_id'},
+            {data: 'status',
+                render: function(data, type, full, meta) {
+                    if (data == 1) {
+                        return '<span class="label label-success">Online</span>'
+                    }
+                    else {
+                        return '<span class="label label-danger">Offline</span>'
+                    }
+                }
+            },
+            {data: 'life_indicator',
+                render: function(data, type, full, meta) {
+                    var life = moment(data*1000).diff(moment(), 'months', true)
+
+                    if (life > 3) {
+                        return '<span class="label label-success">' + Math.round(life) + ' Months</span>'
+                    }
+                    else {
+                        return '<span class="label label-danger">' + Math.round(life) + ' Months</span>'
+                    }
+                }
+            },
+            {data: 'last_activity.timestamp',
+                render: function(data, type, full, meta) {
+                    console.log(full);
+                    if (full.last_activity.timestamp != undefined) {
+                        return moment.unix(full.last_activity.timestamp).format("DD/MM/YYYY HH:mm");
+                    }
+                    else {
+                        return '<span class="label label-danger">NO DATA</span>';
+                    }
+                }
+            },
+            {data: 'connection_type'},
+            {data: 'versionsw'},
+            {data: 'versionhw'}
+        ],
+        fnDrawCallback: function(row, data, displayIndex) {
+            $('#datatables_refresh').prop('disabled', false);
+            $('#datatables_refresh').find('i').removeClass().addClass('fa fa-refresh fa-fw fa-lg');
+        }
+    });
+
+    /**
+     * function for refreshing datatables contents
+     */
+    $('body').on('click', '#datatables_refresh', function(e) {
+        e.preventDefault();
+
+        /**
+         * Reload the datatables data using ajax
+         */
+        enviro_sensor_table.ajax.reload();
+    });
+
+    /**
+     * open the Modal to update the venue upon tap/click on a row in the venues table
+     */
+    $('body').on('click touchstart', '#enviro_sensors tbody tr', function(e) {
+        e.preventDefault();
+        var thisEnviroSensor = enviro_sensor_table.row(this).data();
+        $('#enviro_sensor_id').val(thisEnviroSensor.id);
+
+        $('#update_enviro_sensor_name').val(thisEnviroSensor.name);
+        $('#update_enviro_sensor_serial_id').val(thisEnviroSensor.serial_id);
+        $('#update_enviro_sensor_venue_id').val(thisEnviroSensor.venue_id);
+        $('#update_enviro_sensor_lat').val(thisEnviroSensor.lat);
+        $('#update_enviro_sensor_lon').val(thisEnviroSensor.lon);
+        $('#update_connection_type').val(thisEnviroSensor.connection_type);
+
+        if (thisEnviroSensor.venue_id != null) {
+            $('#venue_id').val(thisEnviroSensor.venue_id);
+        }
+
+        $('#updateEnviroSensorModal').modal('show');
+    });
+
+    $('#updateEnviroSensor').ufForm({
+        validator: validators,
+        msgTarget: $("#update-enviro_sensor-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    $('#addNewEnviroSensor').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        $('#createEnviroSensorModal').modal('show');
+    });
+
+    $('#createEnviroSensor').ufForm({
+        validator: validators,
+        msgTarget: $("#create-enviro_sensor-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+});
+</script>
+{% endblock %}

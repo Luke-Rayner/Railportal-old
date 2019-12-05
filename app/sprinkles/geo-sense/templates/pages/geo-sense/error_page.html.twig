@@ -1,0 +1,16 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Error message",
+        "description" : "An important error message"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <h3>{{main_error}}</h3>
+    <div class="alert alert-danger" role="alert">
+        {{error_explanation}}
+    </div>
+{% endblock %}

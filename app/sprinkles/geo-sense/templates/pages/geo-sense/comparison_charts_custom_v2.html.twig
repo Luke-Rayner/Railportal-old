@@ -1,0 +1,1614 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Comparison Charts - custom dates v2 (using device_uuid summaries)",
+        "description" : "Report page with Comparison Charts based on custom date ranges."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <!-- <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="window.print();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_1_1_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_1_1_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     
+
+                     <i id="chart_1_1_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_1_2_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_1_2_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_1_2_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_1_2_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_1_2_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_3" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_1_3_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_1_3_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_1_3_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_1_3_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_1_3_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_3" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_2_1_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_2_1_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_2_1_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_2_1_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_2_1_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_2_2_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_2_2_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_2_2_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_2_2_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_2_2_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_2_3" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_2_3_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_2_3_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_2_3_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_2_3_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_2_3_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_3" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_3_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_3_1_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_3_1_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_3_1_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_3_1_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_3_1_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_3_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_3_2_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_3_2_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_3_2_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_3_2_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_3_2_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_3_3" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span id="chart_3_3_daterange_selected_large" class="visible-sm-inline visible-lg-inline caption-subject font-blue-sharp bold">&nbsp;</span><span id="chart_3_3_daterange_selected_small" class="visible-xs-inline visible-md-inline caption-subject font-blue-sharp bold">&nbsp;</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                     <span id="chart_3_3_daterange_selected_large" class="visible-sm-inline visible-lg-inline">&nbsp;</span><span id="chart_3_3_daterange_selected_small" class="visible-xs-inline visible-md-inline">&nbsp;</span>
+
+                     <i id="chart_3_3_daterange" class="fa fa-calendar fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a date range, a custom date range and time can be selected via the Custom Range option."></i>
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_3" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * file name and report title for CSV download
+ */
+var csv_filename = 'Comparison_Charts_custom_dates-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title = 'GEO-Sense: Comparison Charts - custom dates ({{current_user.venue_name}})';
+var venue_name = '{{current_user.venue_name}}';
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    csv_data.push({
+        heading: $('#chart_1_1_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_1_2_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_1_3_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_1_3').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_2_1_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_2_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_2_2_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_2_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_2_3_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_2_3').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_3_1_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_3_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_3_2_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_3_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: $('#chart_3_3_daterange_selected_large').html().replace(/,/g , ' -'),
+        process: false,
+        data: $('#chart_3_3').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+});
+
+    $(document).ready(function() {
+        /**
+         * Set the global timezone and "startofweek day" for this session for use in moment.js
+         */
+        moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+        moment.locale( 'en', {
+            week : {
+                dow : 1,
+            }
+        });
+
+        /***************************************************************
+         * general options for all Highcharts-based charts on this page
+         ***************************************************************/
+        var highchartsOptions = Highcharts.setOptions({
+            global: {
+                getTimezoneOffset: function (timestamp) {
+                    timezoneOffset = -moment.tz(timestamp, timezone).utcOffset();
+                    return timezoneOffset;
+                }
+            },
+            lang: {
+                loading: '<i class="fa fa-spinner fa-spin fa-2x"></i>'
+            },
+            plotOptions: {
+                //plotBackgroundColor: null,
+                //plotBorderWidth: null,
+                plotShadow: false,
+                column: {
+                    stacking: 'normal'
+                },
+                series: {
+                    stacking: 'normal',
+                    animation: {
+                        duration: 500,
+                        easing: 'easeInOutQuart'
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function() {
+                            if (this.y != 0) {
+                              return Number(this.y).toLocaleString();
+                            } else {
+                              return null;
+                            }
+                        },
+                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                        style: {
+                            textShadow: '0 0 3px black'
+                        }
+                    }
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            colors: ["#e25826", "#132149", "#3E9C1A", "#232323", "#707676", "#f211b5", "#DD686E"],
+            title: false,
+            subtitle: false,
+            chart: {
+                backgroundColor: '#F9F9F9',
+                reflow: true,
+                spacingTop: 7,
+                spacingBottom: 2,
+                spacingLeft: 0,
+                spacingRight: 0
+            },
+            xAxis: {
+                tickWidth:0,
+                gridLineColor: '#FAFAFA',
+                gridLineWidth: 0
+            },
+            yAxis: {
+                floor: 0,
+                min: 0,
+                title: {
+                    text: false
+                },
+                stackLabels: {
+                    enabled: true,
+                    formatter: function() {
+                        if (this.total != 0) {
+                          return Number(this.total).toLocaleString();
+                        } else {
+                          return null;
+                        }
+                    },
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
+                }
+            },
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                borderWidth: 0,
+                backgroundColor: "rgba(255,255,255,0)",
+                shadow: false,
+                formatter: function () {
+                    symbol = '■';
+                    var tooltipcontent = '<b>' + this.x + '</b>';
+                    tooltipcontent += '<table style="width:100%">';
+                    tooltipcontent += '<tr><td><span style="color:' + this.points[0].color + '">' + symbol + '</span> ' + this.points[0].series.name + '</td>';
+                    tooltipcontent += '<td style="text-align: right;">' + this.points[0].y.toLocaleString() + '</td>';
+
+                    /**
+                     * if the total equals 0 we don't display a percentage
+                     */
+                    if (this.points[0].total !==0) {
+                        tooltipcontent += '<td>&nbsp;(' + Math.round((this.points[0].y/this.points[0].total)*1000)/10 + '%)</td></tr>';
+                    } else {
+                        tooltipcontent += '<td></td></tr>';
+                    }
+
+                    tooltipcontent += '<tr><td><span style="color:' + this.points[1].color + '">' + symbol + '</span> ' + this.points[1].series.name + '</td>';
+                    tooltipcontent += '<td style="text-align: right;">' + this.points[1].y.toLocaleString() + '</td>';
+
+                    /**
+                     * if the total equals 0 we don't display a percentage
+                     */
+                    if (this.points[0].total !==0) {
+                        tooltipcontent += '<td>&nbsp;(' + Math.round((this.points[1].y/this.points[0].total)*1000)/10 + '%)</td></tr>';
+                    } else {
+                        tooltipcontent += '<td></td></tr>';
+                    }
+
+                    tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + this.points[0].total.toLocaleString() + '</b><td><td></td></tr>';
+                    tooltipcontent += '</table>';
+                    return tooltipcontent;
+                }
+            },
+            legend: {
+                enabled: true,
+                itemStyle: {
+                    fontSize: '12px',
+                    color: '#000000',
+                    fontWeight: 'normal'
+                }
+            }
+        });
+        /**
+         * end of general options for Highcharts-based charts
+         */
+
+        /***************************************************************
+         * start preparations for the individual charts from here
+         * NOTE: keep chart and daterangepicker "together" for better
+         *     visibility
+         ***************************************************************/
+
+        /***************************************************************
+         * start chart 1.1
+         * container: chart_1_1
+         * url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+         * TODO:
+         ****************************************************************/
+        /**
+         * initialize chart_1_1 and set options specific to this chart
+         */
+        var chart_1_1_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_1_1'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_1_1 = new Highcharts.Chart(chart_1_1_options);
+        chart_1_1.showLoading();
+
+        /**
+         * define start and end
+         */
+        var rangeStart_1_1  = moment().startOf('day');
+        var rangeEnd_1_1    = moment();
+
+        function on_1_1_DataReceived(data) {
+            /**
+             * do something with the data, first prepare the arrays
+             */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_1_1").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_1_1_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_1_1_daterange(rangeStart_1_1, rangeEnd_1_1, 'Current Day');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_1_1
+        */
+        $('#chart_1_1_daterange').daterangepicker({
+            timePicker:             true,
+            timePicker24Hour:       true,
+            timePickerIncrement:    15,
+            showISOWeekNumbers:     true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            ranges: {
+               'Current Day':               [rangeStart_1_1, rangeEnd_1_1], //default value for this chart
+               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+               'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+               'This Week to-date':         [moment().startOf('week'), moment()],
+               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+               'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')]
+            },
+            startDate:  rangeStart_1_1,
+            endDate:    rangeEnd_1_1,
+            minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:    moment(),
+            opens:      'right'
+        }, chart_1_1_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_1_1_daterange(start_1_1, end_1_1, label) {
+            $('#chart_1_1_daterange_selected_large').html(label);
+            $('#chart_1_1_daterange_selected_small').html(label);
+            console.log(start_1_1 + ':' + end_1_1 + ':' + label);
+            if (label) {
+                chart_1_1_options.xAxis.categories[0] = start_1_1.format('H:mm ddd, D MMM YYYY') + ' - ' + end_1_1.format('H:mm ddd, D MMM YYYY');
+            }
+
+            var chart_1_1 = $("#chart_1_1").highcharts();
+            chart_1_1.showLoading();
+
+            /*
+            get the data for chart 1.1 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/" + start_1_1 + "/" + end_1_1,
+                type: 'GET',
+                dataType: 'json',
+                success: on_1_1_DataReceived
+            });
+        }
+
+        /***************************************************************
+        start chart 1.2
+        container: chart_1_2
+        url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+        ****************************************************************/
+        /*
+        initialize chart_1_2 and set options specific to this chart
+        */
+        var chart_1_2_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_1_2'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_1_2 = new Highcharts.Chart(chart_1_2_options);
+        chart_1_2.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_1_2  = moment().subtract(1, 'days').startOf('day');
+        var rangeEnd_1_2    = moment().subtract(1, 'days').endOf('day');
+
+        function on_1_2_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_1_2").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_1_2_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_1_2_daterange(rangeStart_1_2, rangeEnd_1_2, 'Yesterday');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_1_2
+        */
+        $('#chart_1_2_daterange').daterangepicker({
+            timePicker:             true,
+            timePicker24Hour:       true,
+            timePickerIncrement:    15,
+            showISOWeekNumbers:     true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            ranges: {
+               'Current Day':               [moment().startOf('day'), moment()],
+               'Yesterday':                 [rangeStart_1_2, rangeEnd_1_2], //default value for this chart
+               'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+               'This Week to-date':         [moment().startOf('week'), moment()],
+               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+               'Same Week 4 Weeks ago':      [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')]
+            },
+            startDate:    rangeStart_1_2,
+            endDate:      rangeEnd_1_2,
+            minDate:      '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:      moment(),
+            opens:        'left'
+        }, chart_1_2_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_1_2_daterange(start, end, label) {
+            $('#chart_1_2_daterange_selected_large').html(label);
+            $('#chart_1_2_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            if (label) {
+                chart_1_2_options.xAxis.categories[0] = start.format('H:mm ddd, D MMM YYYY') + ' - ' + end.format('H:mm ddd, D MMM YYYY');
+            }
+
+            var chart_1_2 = $('#chart_1_2').highcharts();
+            chart_1_2.showLoading();
+
+            /**
+             * get the data for chart 1.2 with ajax based upon selected date range (start/end)
+             */
+            $.ajax({
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                success: on_1_2_DataReceived
+            });
+        }
+
+        /***************************************************************
+         * start chart 1.3
+         * container: chart_1_3
+         * url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+         ****************************************************************/
+        /**
+         * initialize chart_1_3 and set options specific to this chart
+         */
+        var chart_1_3_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_1_3'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_1_3 = new Highcharts.Chart(chart_1_3_options);
+        chart_1_3.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_1_3  = moment().startOf('day').subtract(1, 'weeks');
+        var rangeEnd_1_3    = moment().endOf('day').subtract(1, 'weeks');
+
+        function on_1_3_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_1_3").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_1_3_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_1_3_daterange(rangeStart_1_3, rangeEnd_1_3, 'Current Day Last Week');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_1_3
+        */
+        $('#chart_1_3_daterange').daterangepicker({
+            timePicker:             true,
+            timePicker24Hour:       true,
+            timePickerIncrement:    15,
+            showISOWeekNumbers:     true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            ranges: {
+               'Current Day':               [moment().startOf('day'), moment()],
+               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+               'Current Day Last Week':     [rangeStart_1_3, rangeEnd_1_3], //default value for this chart
+               'This Week to-date':         [moment().startOf('week'), moment()],
+               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+               'Same Week 4 Weeks ago':      [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')]
+            },
+            startDate:    rangeStart_1_3,
+            endDate:      rangeEnd_1_3,
+            minDate:      "{% for venue in current_user.getVenues() %}{% if current_user.primary_venue_id == venue.id %}{{venue.capture_start | date("d/m/Y", "Europe/London")}}{% endif %}{% endfor %}",
+            maxDate:      moment(),
+            opens:        'left'
+        }, chart_1_3_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_1_3_daterange(start, end, label) {
+            $('#chart_1_3_daterange_selected_large').html(label);
+            $('#chart_1_3_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            if (label) {
+                chart_1_3_options.xAxis.categories[0] = start.format('H:mm ddd, D MMM YYYY') + ' - ' + end.format('H:mm ddd, D MMM YYYY');
+            }
+
+            var chart_1_3 = $("#chart_1_3").highcharts();
+            chart_1_3.showLoading();
+
+            /**
+             * get the data for chart 1.2 with ajax based upon selected date range (start/end)
+             */
+            $.ajax({
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                success: on_1_3_DataReceived
+            });
+        }
+
+        /***************************************************************
+         * start chart 2.1
+         * container: chart_2_1
+         * url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+         * TODO:
+         * - check addition of hourly stats to fill the full range for previous week and previous year
+         ****************************************************************/
+        /**
+         * initialize chart_2_1 and set options specific to this chart
+         */
+        var chart_2_1_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_2_1'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_2_1 = new Highcharts.Chart(chart_2_1_options);
+        chart_2_1.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_2_1  = moment().startOf('week');
+        var rangeEnd_2_1    = moment();
+
+        function on_2_1_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_2_1").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_2_1_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_2_1_daterange(rangeStart_2_1, rangeEnd_2_1, 'This Week to-date');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_2_1
+        */
+        $('#chart_2_1_daterange').daterangepicker({
+            timePicker:             true,
+            timePicker24Hour:       true,
+            timePickerIncrement:    15,
+            showISOWeekNumbers:     true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            ranges: {
+               'Current Day':               [moment().startOf('day'), moment()],
+               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+               'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+               'This Week to-date':         [rangeStart_2_1, rangeEnd_2_1], //default value for this chart
+               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+               'Same Week 4 Weeks ago':      [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')]
+            },
+            startDate:  rangeStart_2_1,
+            endDate:    rangeEnd_2_1,
+            minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:    moment(),
+            opens:      'right'
+        }, chart_2_1_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_2_1_daterange(start_2_1, end_2_1, label) {
+            $('#chart_2_1_daterange_selected_large').html(label);
+            $('#chart_2_1_daterange_selected_small').html(label);
+            console.log(start_2_1 + ':' + end_2_1 + ':' + label);
+            if (label) {
+                chart_2_1_options.xAxis.categories[0] = start_2_1.format('H:mm ddd, D MMM YYYY') + ' - ' + end_2_1.format('H:mm ddd, D MMM YYYY');
+            }
+
+            var chart_2_1 = $("#chart_2_1").highcharts();
+            chart_2_1.showLoading();
+
+            /*
+            get the data for chart 1.1 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                /*
+                url:
+                "/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+                */
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start_2_1 + '/' + end_2_1,
+                type: 'GET',
+                dataType: 'json',
+                success: on_2_1_DataReceived
+            });
+        }
+
+        /***************************************************************
+        start chart 2.2
+        container: chart_2_2
+        url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+        ****************************************************************/
+        /*
+        initialize chart_2_2 and set options specific to this chart
+        */
+        var chart_2_2_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_2_2'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_2_2 = new Highcharts.Chart(chart_2_2_options);
+        chart_2_2.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_2_2  = moment().startOf('week').subtract(1, 'weeks');
+        var rangeEnd_2_2    = moment().subtract(1, 'weeks');
+
+        function on_2_2_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_2_2").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_2_2_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_2_2_daterange(rangeStart_2_2, rangeEnd_2_2, 'Previous Week same range');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_2_2
+        */
+        $('#chart_2_2_daterange').daterangepicker({
+            timePicker:             true,
+            timePicker24Hour:       true,
+            timePickerIncrement:    15,
+            showISOWeekNumbers:     true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            ranges: {
+               'Current Day':               [moment().startOf('day'), moment()],
+               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+               'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+               'This Week to-date':         [moment().startOf('week'), moment()],
+               'Previous Week same range':  [rangeStart_2_2, rangeEnd_2_2], //default value for this chart
+               'Same Week 4 Weeks ago':      [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')]
+            },
+            startDate:    rangeStart_2_2,
+            endDate:      rangeEnd_2_2,
+            minDate:      '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:      moment(),
+            opens:        'left'
+        }, chart_2_2_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_2_2_daterange(start, end, label) {
+            $('#chart_2_2_daterange_selected_large').html(label);
+            $('#chart_2_2_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            if (label) {
+                chart_2_2_options.xAxis.categories[0] = start.format('H:mm ddd, D MMM YYYY') + ' - ' + end.format('H:mm ddd, D MMM YYYY');
+            }
+
+            var chart_2_2 = $('#chart_2_2').highcharts();
+            chart_2_2.showLoading();
+
+            /*
+            get the data for chart 1.2 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                /*
+                url:
+                "/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+                */
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                success: on_2_2_DataReceived
+            });
+        }
+
+        /***************************************************************
+        start chart 2.3
+        container: chart_2_3
+        url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+        ****************************************************************/
+        /*
+        initialize chart_2_3 and set options specific to this chart
+        */
+        var chart_2_3_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_2_3'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_2_3 = new Highcharts.Chart(chart_2_3_options);
+        chart_2_3.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_2_3  = moment().startOf('week').subtract(4, 'weeks');
+        var rangeEnd_2_3    = moment().subtract(4, 'weeks');
+
+        function on_2_3_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_2_3").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_2_3_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_2_3_daterange(rangeStart_2_3, rangeEnd_2_3, 'Same Week 4 Weeks ago');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_2_3
+        */
+        $('#chart_2_3_daterange').daterangepicker({
+            timePicker:             true,
+            timePicker24Hour:       true,
+            timePickerIncrement:    15,
+            showISOWeekNumbers:     true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            ranges: {
+               'Current Day':               [moment().startOf('day'), moment()],
+               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+               'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+               'This Week to-date':         [moment().startOf('week'), moment()],
+               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+               'Same Week 4 Weeks ago':      [rangeStart_2_3, rangeEnd_2_3], //default value for this chart
+               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')]
+            },
+            startDate:    rangeStart_2_3,
+            endDate:      rangeEnd_2_3,
+            minDate:      '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:      moment(),
+            opens:        'left'
+        }, chart_2_3_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_2_3_daterange(start, end, label) {
+            $('#chart_2_3_daterange_selected_large').html(label);
+            $('#chart_2_3_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            if (label) {
+                chart_2_3_options.xAxis.categories[0] = start.format('H:mm ddd, D MMM YYYY') + ' - ' + end.format('H:mm ddd, D MMM YYYY');
+            }
+
+            var chart_2_3 = $('#chart_2_3').highcharts();
+            chart_2_3.showLoading();
+
+            /*
+            get the data for chart 1.2 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                /*
+                url:
+                "/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+                */
+                url:        '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success:    on_2_3_DataReceived
+            });
+        }
+
+        /***************************************************************
+        start chart 3.1
+        container: chart_3_1
+        url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+        ****************************************************************/
+        /*
+        initialize chart_3_1 and set options specific to this chart
+        */
+        var chart_3_1_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_3_1'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_3_1 = new Highcharts.Chart(chart_3_1_options);
+        chart_3_1.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_3_1  = moment().startOf('day').subtract(1, 'days');
+        var rangeEnd_3_1    = moment().startOf('day').subtract(1, 'days').endOf('day');
+
+        function on_3_1_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_3_1").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_3_1_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_3_1_daterange(rangeStart_3_1, rangeEnd_3_1, 'Yesterday (single day)');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_3_1
+        */
+        $('#chart_3_1_daterange').daterangepicker({
+            singleDatePicker:   true,
+            showISOWeekNumbers: true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            startDate:          rangeStart_3_1,
+            endDate:            rangeEnd_3_1,
+            minDate:            '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:            moment(),
+            opens:              'right'
+        }, chart_3_1_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_3_1_daterange(start, end, label) {
+            if (!label) {
+                var label = start.format('dddd, D MMMM YYYY');
+            }
+            $('#chart_3_1_daterange_selected_large').html(label);
+            $('#chart_3_1_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            chart_3_1_options.xAxis.categories[0] = start.format('dddd, D MMMM YYYY');
+
+            var chart_3_1 = $('#chart_3_1').highcharts();
+            chart_3_1.showLoading();
+
+            /*
+            get the data for chart 1.2 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                /*
+                url:
+                "/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+                */
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                success: on_3_1_DataReceived
+            });
+        }
+
+        /***************************************************************
+        start chart 3.2
+        container: chart_3_2
+        url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+        ****************************************************************/
+        /*
+        initialize chart_3_2 and set options specific to this chart
+        */
+        var chart_3_2_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_3_2'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_3_2 = new Highcharts.Chart(chart_3_2_options);
+        chart_3_2.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_3_2  = moment().startOf('day').subtract(7, 'days');
+        var rangeEnd_3_2    = moment().startOf('day').subtract(7, 'days').endOf('day');
+
+        function on_3_2_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_3_2").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_3_2_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_3_2_daterange(rangeStart_3_2, rangeEnd_3_2, 'Today, Previous Week (single day)');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_3_2
+        */
+        $('#chart_3_2_daterange').daterangepicker({
+            singleDatePicker:   true,
+            showISOWeekNumbers: true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            startDate:          rangeStart_3_2,
+            endDate:            rangeEnd_3_2,
+            minDate:            '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:            moment(),
+            opens:              'left'
+        }, chart_3_2_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_3_2_daterange(start, end, label) {
+            if (!label) {
+                var label = start.format('dddd, D MMMM YYYY');
+            }
+            $('#chart_3_2_daterange_selected_large').html(label);
+            $('#chart_3_2_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            chart_3_2_options.xAxis.categories[0] = start.format('dddd, D MMMM YYYY');
+
+            var chart_3_2 = $('#chart_3_2').highcharts();
+            chart_3_2.showLoading();
+
+            /*
+            get the data for chart 1.2 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                /*
+                url:
+                "/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+                */
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                success: on_3_2_DataReceived
+            });
+        }
+
+        /***************************************************************
+        start chart 3.3
+        container: chart_3_3
+        url: "{{site.uri.public}}/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+        ****************************************************************/
+        /*
+        initialize chart_3_3 and set options specific to this chart
+        */
+        var chart_3_3_options = {
+            chart: {
+                backgroundColor: '#FFFFFF',
+                type: 'column',
+                renderTo: 'chart_3_3'
+            },
+            xAxis: {
+                type: 'category',
+                categories: []
+            }
+        };
+        var chart_3_3 = new Highcharts.Chart(chart_3_3_options);
+        chart_3_3.showLoading();
+
+        /*
+        define start and end
+        */
+        var rangeStart_3_3  = moment().startOf('day').subtract(4, 'weeks');
+        var rangeEnd_3_3    = moment().startOf('day').subtract(4, 'weeks').endOf('day');
+
+        function on_3_3_DataReceived(data) {
+            /*
+            do something with the data, first prepare the arrays
+            */
+            var newVisitors =[];
+            newVisitors = data['new'];
+            var repeatVisitors =[];
+            repeatVisitors = data['repeat'];
+
+            /*
+            find the chart
+            */
+            var chart = $("#chart_3_3").highcharts();
+            chart.hideLoading();
+
+            /*
+            if series alreadys exists we destroy them
+            */
+            if (chart.series[0] && chart.series[1]) {
+                chart.destroy();
+                chart = new Highcharts.Chart(chart_3_3_options);
+            }
+
+            /*
+            set the options for the series while we load the data
+            */
+            chart.addSeries({
+                name: 'new visitors',
+                data: [newVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.addSeries({
+                name: 'repeat visitors',
+                data: [repeatVisitors],
+                stack: 'visitors'
+            }, false);
+
+            chart.redraw();
+        }
+
+        /*
+        initiate the daterangepicker with initial start/end and Label
+        */
+        chart_3_3_daterange(rangeStart_3_3, rangeEnd_3_3, 'Today, 4 Weeks ago (single day)');
+
+        /*
+        functions to display the "active" custom date range and the picker for chart_3_3
+        */
+        $('#chart_3_3_daterange').daterangepicker({
+            singleDatePicker:   true,
+            showISOWeekNumbers: true,
+            locale: {
+                format: "DD/MM/YYYY",
+                firstDay: 1
+            },
+            startDate:          rangeStart_3_3,
+            endDate:            rangeEnd_3_3,
+            minDate:            '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            maxDate:            moment(),
+            opens:              'left'
+        }, chart_3_3_daterange);
+
+        /*
+        callback function to execute upon selected date range
+        */
+        function chart_3_3_daterange(start, end, label) {
+            if (!label) {
+                var label = start.format('dddd, D MMMM YYYY');
+            }
+            $('#chart_3_3_daterange_selected_large').html(label);
+            $('#chart_3_3_daterange_selected_small').html(label);
+            console.log(start + ':' + end + ':' + label);
+            chart_3_3_options.xAxis.categories[0] = start.format('dddd, D MMMM YYYY');
+
+            var chart_3_3 = $('#chart_3_3').highcharts();
+            chart_3_3.showLoading();
+
+            /*
+            get the data for chart 1.2 with ajax based upon selected date range (start/end)
+            */
+            $.ajax({
+                /*
+                url:
+                "/api/stats/venue/unique_visitors/comparison_charts_custom_v2/" + rangeStart + "/" + rangeEnd,
+                */
+                url: '{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/comparison_charts_custom/' + start + '/' + end,
+                type: 'GET',
+                dataType: 'json',
+                success: on_3_3_DataReceived
+            });
+        }
+
+        /***************************************************************
+        * other shared functions from here
+        ****************************************************************/
+
+        /*
+        what we wish to do on resize of window and collapse of sidebar
+        */
+        $(window).resize(function(){
+            //setTimeout(redrawSomething, 200);
+        });
+
+        function redrawSomething() {
+            // whatever needs to be done upon resizing/collapse
+
+        }
+
+        /*
+        force a resize event after page load
+        */
+        window.dispatchEvent(new Event('resize'));
+
+    })
+</script>
+{% endblock %}

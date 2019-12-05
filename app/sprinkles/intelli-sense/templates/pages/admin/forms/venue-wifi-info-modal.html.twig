@@ -1,0 +1,326 @@
+<div id='{{box_id}}' class='modal fade' tabindex="-1" role="basic" aria-hidden="true" data-width="1000">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class='modal-title'><i class="icon-globe"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+                
+                <div class="form-alerts" id="alerts-page"></div>
+                
+                <form class="form-horizontal" id="venueForm" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                        
+                    <div class="form-group">
+                        <label for="capture_start" class="col-sm-offset-1 col-sm-4 control-label">Data capture start date</label>
+                        <div class="col-sm-6">
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar fa-fw fa-lg"></i></span>
+                                <div class="capture_start_wrapper"></div>
+                            </div>
+                            <p>If capture start isn't loading correct date click <a><span onclick="reloadVenueInfo('{{target_venue.id}}');">refresh</span></a></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_id" class="col-sm-offset-1 col-sm-4 control-label">UniFi controller</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-cogs fa-fw fa-lg"></i></span>
+                                <select id="form_controller_id" name="controller_id" class="form-control select2">
+                                    {# cycle through shared controllers here and only append current controller to list if it is not a shared controller #}
+                                    {% if (target_venue.venue_wifi.controller.shared == false) %}
+                                    <option value="{{target_venue.venue_wifi.controller.id}}" selected>{{target_venue.venue_wifi.controller.name}}</option>
+                                    {% endif %}
+                                    {% for shared_controller in shared_controllers %}
+                                    <option value="{{shared_controller.id}}" {% if (shared_controller.id == target_venue.venue_wifi.controller.id) %}selected{% endif %}>{{shared_controller.name}}</option>
+                                    {% endfor %}
+                                    <option value="0">None, set up on next access</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_venue_id" class="col-sm-offset-1 col-sm-4 control-label">UniFi controller venue id</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg" data-toggle="tooltip" data-placement="top" title="When selecting a shared controller, a value MUST be entered here!"></i></span>
+                                <input type="text" class="form-control" maxlength="10" id="form_controller_venue_id" name="controller_venue_id" value="{{target_venue.venue_wifi.controller_venue_id}}" placeholder="UniFi controller venue id">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_local_venue_id" class="col-sm-offset-1 col-sm-4 control-label">Local venue id</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top" title="This value should be different in case the UniFi controller venue id has a value of default, will be corrected automatically if necessary when saving the venue."></i></span>
+                                <input type="text" class="form-control" maxlength="10" id="form_local_venue_id" name="local_venue_id" value="{{target_venue.venue_wifi.local_venue_id}}" placeholder="Local venue id" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_captive_portal" class="col-sm-offset-1 col-sm-4 control-label">Captive portal</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-sign-in fa-fw fa-lg"></i></span>
+                                <select id="form_captive_portal" name="captive_portal" class="form-control select2">
+                                    <option value="free" {% if (target_venue.venue_wifi.captive_portal == 'free') %}selected{% endif %}>Free</option>
+                                    <option value="paid" {% if (target_venue.venue_wifi.captive_portal == 'paid') %}selected{% endif %}>Paid</option>
+                                    <option value="off"  {% if (target_venue.venue_wifi.captive_portal == 'off') %}selected{% endif %}>Disabled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_drone_active" class="col-sm-offset-1 col-sm-4 control-label">Sponsored</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-money fa-fw fa-lg"></i></span>
+                                <select id="active" name="is_sponsored" class="form-control select2">
+                                    <option value="1" {% if (target_venue.venue_wifi.is_sponsored == 1) %}selected{% endif %}>yes</option>
+                                    <option value="0" {% if (target_venue.venue_wifi.is_sponsored == 0) %}selected{% endif %}>no</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="web_titan_id" class="col-sm-offset-1 col-sm-4 control-label">Web Titan User</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                <select id="web_titan_id" name="web_titan_id" class="form-control">
+                                    <option value="" disabled selected>Select your option</option>
+                                    {% for webTitan in webTitan_ids %}
+                                        <option value="{{ webTitan.id }}" {% if webTitan.id ==  target_venue.venue_wifi.web_titan_id %}selected{% endif %}>{{ webTitan.account_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="old_venue" class="col-sm-5 control-label">Old Venue</label>
+                        <div class="col-sm-2" style="margin-top:4px;">
+                             <div class="input-group">
+                                 <input id="old_venue" type="checkbox" name="old_venue" value="{{target_venue.venue_wifi.old_venue}}" data-on-text="yes" data-off-text="no" data-on="success" data-off="primary"{% if target_venue.venue_wifi.old_venue == 1 %} checked="checked"{% endif %}>
+                             </div>
+                         </div>
+                    </div>
+                    {% if (modal_mode == "edit") %}
+                    <div class="form-group">
+                        <div class="col-sm-6 col-sm-offset-5">
+                            <button type="button" class="btn red" onclick="showUpdateIpsModal(this);" data-venue_id="{{target_venue.id}}">Update Venue IPs</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        {% if current_venue.id == target_venue.id %}
+                        <div class="alert alert-info col-xs-offset-1 col-xs-10">
+                            Active venue cannot be deleted
+                        </div>
+                        {% endif %}
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn blue" data-dismiss="modal"><i class="fa fa-times-circle fa-fw"></i> Cancel</button>
+                            <button type='submit' id="venueSubmit" name="venueSubmit" class="btn orange"><i class="fas fa-pencil-alt fa-fw"></i> {{submit_button}}</button>
+                        </div>
+                        <div class="col-sm-offset-5 col-sm-7" style="padding-top: 1%">
+                            {% if (modal_mode == "edit") and current_venue.id != target_venue.id %}
+                            <button id="deleteVenueButton" type="button" class="btn red" onclick="showConfirmModal(this);" data-venue_id="{{target_venue.id}}"><i class="fa fa-trash fa-fw"></i> Delete</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if (modal_mode == "edit") %}
+<!-- start confirmation modal -->
+<div id="updateIpsModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" name="updateIpModalHeader" id="updateIpModalHeader"><i class="fa fa-question-circle fa-lg fa-fw"></i>Update Venue IPs</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Remember to Delete all the existing IPs before updating
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn red" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> Cancel
+                            </button>
+                            <button type='submit' id="updateIpModalSubmit" name="updateIpModalSubmit" class="btn blue">
+                                <i class="fa fa-cloud-upload fa-fw"></i> Update
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end confirmation modal -->
+{% endif %}
+
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+
+function reloadVenueInfo(target_venue) {
+    window.location.href = '{{site.uri.public}}/venues#' + target_venue;
+    window.location.reload();
+}
+
+/**
+ * When we load the modal delete any existance of capture_start and then recreate it.
+ * - Prevents the inout from display invalid date
+ */
+$('#capture_start').remove();
+$('.capture_start_wrapper').append('<input type="text" id="capture_start" name="capture_start" value="{{target_venue.venue_wifi.capture_start}}" class="form-control">');
+
+/**
+ * display the timestamp in human-readable format
+ * TODO:
+ * - fix this not working after switching between edit/create usage of this form on the same page
+ */
+$('#capture_start').daterangepicker({
+        locale: {
+          format: 'DD-MM-YYYY'
+        },
+        singleDatePicker:   true,
+        startDate:          moment.unix($('#capture_start').val()).format('DD-MM-YYYY'),
+        minDate:            moment('01-01-2015'),
+        maxDate:            moment()
+    }, function(start, end, label) {
+        // we are done here
+});
+
+/**
+ * function to open the confirmation modal in edit mode
+ */
+function showUpdateIpsModal(d) {
+    selected_venue = d.getAttribute("data-venue_id");
+    /**
+     * close calling modal and open confirmation modal
+     */
+    // $('#{{box_id}}').modal('hide');
+    $('#updateIpsModal').modal('show');
+}
+
+/**
+ * process venue delete request from the confirmation modal
+ */
+$('#updateIpModalSubmit').click(function(){
+    $('#updateIpModalSubmit').prop('disabled', true);
+    $('#updateIpModalSubmit').find('i').removeClass().addClass('fa fa-spinner fa-fw fa-spin');
+
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site['uri']['public'] + '/venues/update_ips/' + selected_venue,
+        success:    onUpdateSuccess,
+        error:      onUpdateError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onUpdateSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('upload success');
+
+        setTimeout(function(){
+            $('#updateIpModalSubmit').prop('disabled', false);
+            $('#updateIpModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onUpdateError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            $('#updateIpModalSubmit').prop('disabled', false);
+            $('#updateIpModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+});
+
+/**
+ * enable Bootstrap tooltips on this page
+ */
+$(function () {
+    $("[data-toggle='tooltip']").tooltip();
+});
+
+/**
+ * initialise the select2 class elements and destroy any old ones that might still exist
+ */
+$('#{{box_id}} .select2').select2('destroy');
+$('#{{box_id}} .select2').select2({
+    selectOnClose: true
+});
+
+/**
+ * enable the toggle switches
+ */
+$('#old_venue').bootstrapSwitch();
+$('#mailchimp').bootstrapSwitch();
+$('#sendinblue').bootstrapSwitch();
+
+$('#old_venue').bootstrapSwitch('setSizeClass', 'switch-mini');
+$('#mailchimp').bootstrapSwitch('setSizeClass', 'switch-mini');
+$('#sendinblue').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+/**
+ * Show marketing api fields
+ */
+$('#mailchimp').change(function() {
+    if (this.checked) {
+        $('#sendinblue').attr('checked', false).trigger('change');
+        $('#marketing_public_key_container').show();
+    }
+    else {
+        $('#marketing_public_key_container').hide();
+        $('#marketing_private_key_container').hide();
+        $('#marketing_public_key').val('');
+        $('#marketing_private_key').val('');
+    }
+});
+
+$('#sendinblue').change(function() {
+    if (this.checked) {
+        $('#mailchimp').attr('checked', false).trigger('change');
+        $('#marketing_public_key_container').show();
+        $('#marketing_private_key_container').show();
+    }
+    else {
+        $('#marketing_public_key_container').hide();
+        $('#marketing_private_key_container').hide();
+        $('#marketing_public_key').val('');
+        $('#marketing_private_key').val('');
+    }
+});
+
+
+</script>

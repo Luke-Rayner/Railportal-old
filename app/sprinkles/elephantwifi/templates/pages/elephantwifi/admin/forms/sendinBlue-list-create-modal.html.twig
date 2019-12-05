@@ -1,0 +1,64 @@
+<div id='{{box_id}}' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="MarketingListForm" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('form-alerts')}}"></div>
+                    <div class="form-group">
+                        <label for="list_name" class="col-sm-offset-1 col-sm-4 control-label">List name</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="50" id="list_name" name="list_name" placeholder="Special Offers" value="{{target_list.list_name}}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="list_type" class="col-sm-offset-1 col-sm-4 control-label">List type</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-folder fa-fw fa-lg"></i></span>
+                                <select id="list_type" name="list_type" class="form-control">
+                                    <option value="" disabled {% if target_list.marketing_list_type_id == null %}selected{% endif %}>Select your option</option>
+                                    {% for list_type in list_types %}
+                                        <option value="{{ list_type.id }}" {% if list_type.id == target_list.marketing_list_type_id %}selected{% endif %}>{{ list_type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            {% if (modal_mode == "edit") %}
+                                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" onclick="deleteList({{target_list.id}});"><i class="fa fa-times-circle"></i> Delete</button>
+                            {% else %}
+                                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            {% endif %}
+                            <button type='submit' id="marketingListSubmit" name="marketingListSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> {{submit_button}}</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+
+/**
+ * enable Bootstrap tooltips on this page
+ */
+$(function () {
+    $("[data-toggle='tooltip']").tooltip();
+});
+
+</script>

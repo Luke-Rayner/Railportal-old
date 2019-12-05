@@ -1,0 +1,306 @@
+<div id='{{box_id}}' class='modal fade' data-width="1000">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-offset-2 col-sm-8">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>
+                                    <b>Name:</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_name"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Serial:</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_serial"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Local IP:</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_local_ip"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Latest capture activity</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_latest_activity"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Model</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_revision_code"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Software Version</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_software_version"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>MAC Address</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_mac_address"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>API Version</b>
+                                </td>
+                                <td>
+                                    <span id="details_drone_api_version"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <i id="page_daterange" class="fa fa-calendar fa-lg fa-fw pull-right clickable" data-toggle="tooltip" data-placement="top" title="Select a custom date."></i>
+                        <span id="page_daterange_selected_large" class="visible-sm-inline visible-md-inline visible-lg-inline pull-right"><b>Past 24 hours</b></span>
+                        <span id="page_daterange_selected_small" class="visible-xs-inline pull-right"><b>Past 24 hours</b></span>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <i class="fa fa-users fa-lg fa-fw"></i> Health stats for drone: <span id="health_panel_heading_drone_name"></span>
+                                <i class="fa fa-question-circle fa-lg pull-right" data-toggle="tooltip" data-placement="top"
+                                   title="Health stats (temperature and average load numbers) for the current drone."></i>
+                            </div>
+                            <div class="panel-content">
+                                <div class="custom-panel_content-wrapper">
+                                    <div id="container_1" style="width:100%; height:260px; margin: 0 auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var target_drone = {{target_drone | raw}};
+var venue = {{venue | raw}};
+
+$(document).ready(function() {
+
+    /**
+     * calculate weekends for plotbands, going back 1 year
+     * may be not very efficient but this works...
+     */
+    var seriesEnd   = moment().startOf('day');
+    var seriesStart = seriesEnd - (3600000*24*365);
+    var weekends    = weekendAreas(seriesStart, seriesEnd);
+
+    /**
+     * start preparations for line charts
+     * the options for the first chart
+     */
+    var chart_1_Options = {
+        chart: {
+            renderTo: 'container_1',
+            type: 'line',
+            zoomType: 'x'
+        },
+        plotOptions: {
+            series: {
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                }
+            }
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        yAxis: [{ // Primary yAxis, right hand side
+            opposite: true,
+            title: {
+                text: 'Load average'
+            }
+
+        }, { // Secondary yAxis, left hand side
+            labels: {
+                format: '{value}°C'
+            },
+            title: {
+                text: 'Temperature'
+            }
+        }],
+        series: [{
+            name: "temperature",
+            yAxis: 1,
+            data: []
+        },
+        {
+            name: "load average 1 min",
+            yAxis: 0,
+            data: []
+        },{
+            name: "load average 5 min",
+            yAxis: 0,
+            data: []
+        },{
+            name: "load average 15 min",
+            yAxis: 0,
+            data: []
+        }],
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("D MMMM YYYY, HH:mm") + '</b>';
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    /**
+                     * for nice formatting of the tooltip with the series markers included
+                     */
+                    var symbol;
+
+                    switch (this.series.symbol) {
+                        case 'circle':
+                            symbol = '●';
+                            break;
+                        case 'diamond':
+                            symbol = '♦';
+                            break;
+                        case 'square':
+                            symbol = '■';
+                            break;
+                        case 'triangle':
+                            symbol = '▲';
+                            break;
+                        case 'triangle-down':
+                            symbol = '▼';
+                            break;
+                    }
+
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ';
+                    tooltipcontent += this.series.name + ':</td><td style="text-align: right;">' + this.y+ '</td></tr>';
+                });
+
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var chart_1 = new Highcharts.Chart(chart_1_Options);
+    chart_1.showLoading();
+
+    /**
+     * define the bucketsize and timeframe for the charts here
+     */
+    var rangeStart = moment().subtract(24, 'hours');
+    var rangeEnd = moment();
+    var minDate = moment.unix(venue.capture_start);
+
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * draw the chart with the data received
+     * eliminate gaps with this function:
+     * noGapsDataArray(data, bucketsize)
+     */
+    function onDataReceived(data) {
+        console.log(data);
+        chart_1_Options.series[0].data = noGapsDataArray(data.temperatures, 300);
+        chart_1_Options.series[1].data = noGapsDataArray(data.load_averages_1, 300);
+        chart_1_Options.series[2].data = noGapsDataArray(data.load_averages_5, 300);
+        chart_1_Options.series[3].data = noGapsDataArray(data.load_averages_15, 300);
+        chart_1 = new Highcharts.Chart(chart_1_Options);
+    }
+
+    /***************************************************************
+     * daterangepicker and ajax loading of all the data from here
+     ***************************************************************/
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     */
+    $('#page_daterange').daterangepicker({
+        showISOWeekNumbers:     true,
+        locale: {
+            format: "DD/MM/YYYY",
+            firstDay: 1
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    minDate, // TODO: change to {{user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}
+        maxDate:    moment(),
+        opens:      'left'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        console.log('start: ' + start + ' end: ' + end);
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected_large').html('<b>' + start.format('H:mm dddd, D MMMM YYYY') + ' - ' + end.format('H:mm dddd, D MMMM YYYY') + '</b>');
+        $('#page_daterange_selected_small').html('<b>' + start.format('ddd, D MMM YYYY') + ' - ' + end.format('ddd, D MMM YYYY') + '</b>');
+        console.log(start + ':' + end);
+
+        /**
+         * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+         */
+        var chart_1 = $("#container_1").highcharts();
+        chart_1.showLoading();
+
+        /**
+         * from here we call all ajax sources with the newly selected start/end:
+         */
+
+        /**
+         * get the data with ajax
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/stats/drone/health/' + target_drone.id + '/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onDataReceived
+        });
+
+    }
+});
+</script>

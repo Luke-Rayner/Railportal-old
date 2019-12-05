@@ -1,0 +1,56 @@
+{% extends "pages/layouts/layout-homepage.html.twig" %}
+
+{% block page %}
+    {# By putting this in a special block, we ensure that it will be set AFTER the default values are set in the parent template,
+    but BEFORE the page itself is rendered. #}
+
+    {% set page = page | merge({
+        "title"       : "Resend Activation",
+        "description" : "Resend the activation email for your new IntelliSense account.",
+        "active_page" : ""
+    }) %}
+
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="form-title font-blue text-center">Account Activation</h2>
+    <h4 class="form-title font-blue text-center">
+        Please enter your username and the email address you were registered with, and the activation email will be resent
+    </h4>
+    
+    <div class="form-alerts" id="alerts-page"></div>
+
+    <form id="resend_activation" role='form' action='{{site.uri.public}}/account/resend-activation' method='post' class='login-form'>
+        {% include "forms/csrf.html.twig" %}
+        <div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-fw fa-envelope"></i></span>
+                <input id="input_email" type="text" class="form-control form-control-solid placeholder-no-fix" placeholder="Email address you were registered with" name="email">
+            </div>
+        </div>
+        <div class="form-actions text-center">
+            <button type="submit" class="btn blue" value='Resend'>Resend activation email</button>
+        </div>
+    </form>
+    <div class="login-options text-center">
+        <a href="{{site.uri.public}}/account/forgot-password">Forgot your password?</a>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+
+$(document).ready(function() {
+    $("#resend_activation").ufForm({
+        validator: validators,
+        msgTarget: $("#alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        // Forward to login page on success
+        window.location.replace(site.uri.public + "/account/login");
+    });
+});
+</script>
+{% endblock %}

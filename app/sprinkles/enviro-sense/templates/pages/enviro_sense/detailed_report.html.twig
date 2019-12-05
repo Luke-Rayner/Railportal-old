@@ -1,0 +1,1048 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Air Quality Detailed Report",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="enviro_report_range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Temperature / Humidity</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Pressure</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Nitrogen Dioxide (NO2)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Sulfur Dioxide (SO2)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Ozone (O3)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Carbon Monoxide (CO)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_4_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Particle Matter 2.5 (PM2.5)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_4_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_4_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Particle Matter (PM10)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_4_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_5_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">VOC</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_5_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_5_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Noise</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_5_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 col-xs-12 col-sm-12">
+        <div id="chart_container_6_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold"> Weather Data</span>
+                    <span class="caption-helper">powered by <a href="https://darksky.net/poweredby/" target="new_window" style="color:white">dark sky</a></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_6_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+/**
+ * define this chart and it's weather icons globally for use in the callback functions
+ */
+var chart_6_1 = {};
+var weather_icons_array = [];
+
+/**
+ * define default start and end for the page
+ */
+var rangeStart  = moment().startOf('day');
+var rangeEnd    = moment();
+
+/**
+ * Initiliase the metric switch variables
+ */
+var metric_mgm3 = 1;
+var metric_ppm  = 0;
+
+/**
+ * Change the chart metrics on button click
+ */
+$('#ppm_metric').click(function() {
+    $('#ppm_metric').css({"background-color": "#26c281", "border-color": "#26c281"});
+    $('#mgm3_metric').css({"background-color": "#e7505a", "border-color": "#e7505a"});
+
+    metric_mgm3 = 0;
+    metric_ppm  = 1;
+
+    page_daterange(rangeStart, rangeEnd)
+});
+
+$('#mgm3_metric').click(function() {
+    $('#mgm3_metric').css({"background-color": "#26c281", "border-color": "#26c281"});
+    $('#ppm_metric').css({"background-color": "#e7505a", "border-color": "#e7505a"});
+
+    metric_mgm3 = 1;
+    metric_ppm  = 0;
+
+    page_daterange(rangeStart, rangeEnd)
+});
+
+/************************************************
+ * create the chart options for the aqi sensors *
+ ***********************************************/
+var chartGeneralOptions = {
+    chart: {
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime',
+        plotBands: weekends
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0,
+            stacking: 'normal'
+        },
+        line: {
+            pointPlacement: 'between',
+            stacking: 'normal',
+        },
+        series: {
+            marker: {
+                enabled: false,
+                symbol: 'circle',
+                radius: 2,
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                }
+            }
+        }
+    },
+    legend: {
+        enabled: true
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var tooltipcontent = '<b>' + moment.unix((this.points[0].key / 1000)).format("DD/MM/YYYY HH:mm"); + '</b>';
+            tooltipcontent += '<table style="width:100%">';
+
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;"> ' + this.y.toLocaleString() + '</td></tr>';
+            });
+
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    }
+};
+
+/**
+ * initialize the chart
+*/
+chartGeneralOptions.chart.renderTo = 'chart_1_1';
+var chart_1_1 = new Highcharts.Chart(chartGeneralOptions);
+chart_1_1.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_1_2';
+var chart_1_2 = new Highcharts.Chart(chartGeneralOptions);
+chart_1_2.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_2_1';
+var chart_2_1 = new Highcharts.Chart(chartGeneralOptions);
+chart_2_1.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_2_2';
+var chart_2_2 = new Highcharts.Chart(chartGeneralOptions);
+chart_2_2.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_3_1';
+var chart_3_1 = new Highcharts.Chart(chartGeneralOptions);
+chart_3_1.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_3_2';
+var chart_3_2 = new Highcharts.Chart(chartGeneralOptions);
+chart_3_2.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_4_1';
+var chart_4_1 = new Highcharts.Chart(chartGeneralOptions);
+chart_4_1.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_4_2';
+var chart_4_2 = new Highcharts.Chart(chartGeneralOptions);
+chart_4_2.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_5_1';
+var chart_5_1 = new Highcharts.Chart(chartGeneralOptions);
+chart_5_1.showLoading();
+
+chartGeneralOptions.chart.renderTo = 'chart_5_2';
+var chart_5_2 = new Highcharts.Chart(chartGeneralOptions);
+chart_5_2.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onStats_DataReceived(data) {
+    console.log(data);
+    /**
+     * define series options
+     */
+    var general_seriesoptions = [];
+
+    $.each(data, function(key, value) {
+        general_seriesoptions.push({
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            connectNulls: false,
+            name: key,
+            stack: 'enviro_sensors'
+        });
+    });
+
+    var temp_pres_seriesoptions = [
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            connectNulls: false,
+            name: 'Temperature',
+            stack: 'temp_pres'
+        },
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            connectNulls: false,
+            name: 'Humidity',
+            stack: 'temp_pres'
+        }
+    ];
+
+    // set series options
+    chartGeneralOptions.series = temp_pres_seriesoptions;
+
+    /**
+     * push the data into the chart
+     */
+    chartGeneralOptions.chart.renderTo = 'chart_1_1';
+    chart_1_1 = new Highcharts.Chart(chartGeneralOptions);
+
+    // reset series options
+    chartGeneralOptions.series = general_seriesoptions;
+
+    chartGeneralOptions.chart.renderTo = 'chart_1_2';
+    chart_1_2 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_2_1';
+    chart_2_1 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_2_2';
+    chart_2_2 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_3_1';
+    chart_3_1 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_3_2';
+    chart_3_2 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_4_1';
+    chart_4_1 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_4_2';
+    chart_4_2 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_5_1';
+    chart_5_1 = new Highcharts.Chart(chartGeneralOptions);
+
+    chartGeneralOptions.chart.renderTo = 'chart_5_2';
+    chart_5_2 = new Highcharts.Chart(chartGeneralOptions);
+
+    var temperature_values = {};
+    var humidity_values = {};
+    $.each(data, function(key1, value1) {
+        temperature_values[key1] = [];
+        humidity_values[key1] = [];
+        $.each(value1['temperature'], function(key2, value2) {
+            temperature_values[key1].push([value2.ts * 1000, value2.value]);
+        });
+
+        $.each(value1['humidity'], function(key2, value2) {
+            humidity_values[key1].push([value2.ts * 1000, value2.value]);
+        });
+    });
+
+    var pressure_values = {};
+    $.each(data, function(key1, value1) {
+        pressure_values[key1] = [];
+        $.each(value1['pressure'], function(key2, value2) {
+            pressure_values[key1].push([value2.ts * 1000, Math.round(value2.value / 100)]);
+        });
+    });
+
+    // var nitrogenDioxide_values_mgm3 = {};
+    var nitrogenDioxide_values_ppm  = {};
+    $.each(data, function(key1, value1) {
+        // nitrogenDioxide_values_mgm3[key1] = [];
+        nitrogenDioxide_values_ppm[key1] = [];
+        $.each(value1['nitrogen_dioxide'], function(key2, value2) {
+            // nitrogenDioxide_values_mgm3[key1].push([value2.ts * 1000, Math.round(value2.value.value_mgm3 * 100) / 100]);
+            nitrogenDioxide_values_ppm[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    // var sulfurDioxide_values_mgm3 = {};
+    var sulfurDioxide_values_ppm  = {};
+    $.each(data, function(key1, value1) {
+        // sulfurDioxide_values_mgm3[key1] = [];
+        sulfurDioxide_values_ppm[key1] = [];
+        $.each(value1['sulfur_dioxide'], function(key2, value2) {
+            // sulfurDioxide_values_mgm3[key1].push([value2.ts * 1000, Math.round(value2.value.value_mgm3 * 100) / 100]);
+            sulfurDioxide_values_ppm[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    // var ozone_values_mgm3 = {};
+    var ozone_values_ppm  = {};
+    $.each(data, function(key1, value1) {
+        // ozone_values_mgm3[key1] = [];
+        ozone_values_ppm[key1] = [];
+        $.each(value1['ozone'], function(key2, value2) {
+            // ozone_values_mgm3[key1].push([value2.ts * 1000, Math.round(value2.value.value_mgm3 * 100) / 100]);
+            ozone_values_ppm[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    var carbonMonoxide_values = {};
+    $.each(data, function(key1, value1) {
+        carbonMonoxide_values[key1] = [];
+        $.each(value1['carbon_monoxide'], function(key2, value2) {
+            carbonMonoxide_values[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    var particleMatter25_values = {};
+    $.each(data, function(key1, value1) {
+        particleMatter25_values[key1] = [];
+        $.each(value1['particle_matter_2_5'], function(key2, value2) {
+            particleMatter25_values[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    var particleMatter10_values = {};
+    $.each(data, function(key1, value1) {
+        particleMatter10_values[key1] = [];
+        $.each(value1['particle_matter_10'], function(key2, value2) {
+            particleMatter10_values[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    var voc_values = {};
+    $.each(data, function(key1, value1) {
+        voc_values[key1] = [];
+        $.each(value1['voc_raw'], function(key2, value2) {
+            voc_values[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    var noise_values = {};
+    $.each(data, function(key1, value1) {
+        noise_values[key1] = [];
+        $.each(value1['noise'], function(key2, value2) {
+            noise_values[key1].push([value2.ts * 1000, Math.round(value2.value * 100) / 100]);
+        });
+    });
+
+    /**
+     * Set the data, name and y-axis title for each chart
+     */
+    $.each(temperature_values, function(key, value) {
+        chart_1_1.series[0].setData(temperature_values[key]);
+    });
+    $.each(temperature_values, function(key, value) {
+        chart_1_1.series[1].setData(humidity_values[key]);
+    });
+    chart_1_1.yAxis[0].update({title: {text: '°C / %'}}, true);
+
+    var count = 0;
+    $.each(pressure_values, function(key, value) {
+        chart_1_2.series[count].setData(pressure_values[key]);
+        count++;
+    });
+    chart_1_2.yAxis[0].update({title: {text: 'hPa'}}, true);
+
+    // // metric switch
+    // if (metric_mgm3 == 1) {
+    //     var count = 0;
+    //     $.each(nitrogenDioxide_values_mgm3, function(key, value) {
+    //         chart_2_1.series[count].setData(nitrogenDioxide_values_mgm3[key]);
+    //         count++;
+    //     });
+    //     chart_2_1.yAxis[0].update({title: {text: 'mg/m³'}}, true);
+
+    //     var count = 0;
+    //     $.each(sulfurDioxide_values_mgm3, function(key, value) {
+    //         chart_2_2.series[count].setData(sulfurDioxide_values_mgm3[key]);
+    //         count++;
+    //     });
+    //     chart_2_2.yAxis[0].update({title: {text: 'mg/m³'}}, true);
+
+    //     var count = 0;
+    //     $.each(ozone_values_mgm3, function(key, value) {
+    //         chart_3_1.series[count].setData(ozone_values_mgm3[key]);
+    //         count++;
+    //     });
+    //     chart_3_1.yAxis[0].update({title: {text: 'mg/m³'}}, true);
+    // }
+    // else {
+        var count = 0;
+        $.each(nitrogenDioxide_values_ppm, function(key, value) {
+            chart_2_1.series[count].setData(nitrogenDioxide_values_ppm[key]);
+            count++;
+        });
+        chart_2_1.yAxis[0].update({title: {text: 'ppm'}}, true);
+
+        var count = 0;
+        $.each(sulfurDioxide_values_ppm, function(key, value) {
+            chart_2_2.series[count].setData(sulfurDioxide_values_ppm[key]);
+            count++;
+        });
+        chart_2_2.yAxis[0].update({title: {text: 'ppm'}}, true);
+
+        var count = 0;
+        $.each(ozone_values_ppm, function(key, value) {
+            chart_3_1.series[count].setData(ozone_values_ppm[key]);
+            count++;
+        });
+        chart_3_1.yAxis[0].update({title: {text: 'ppm'}}, true);
+    // }
+
+    var count = 0;
+    $.each(carbonMonoxide_values, function(key, value) {
+        chart_3_2.series[count].setData(carbonMonoxide_values[key]);
+        count++;
+    });
+    chart_3_2.yAxis[0].update({title: {text: 'ug/m³'}}, true);
+
+    var count = 0;
+    $.each(particleMatter25_values, function(key, value) {
+        chart_4_1.series[count].setData(particleMatter25_values[key]);
+        count++;
+    });
+    chart_4_1.yAxis[0].update({title: {text: 'ug/m³'}}, true);
+
+    var count = 0;
+    $.each(particleMatter10_values, function(key, value) {
+        chart_4_2.series[count].setData(particleMatter10_values[key]);
+        count++;
+    });
+    chart_4_2.yAxis[0].update({title: {text: 'ug/m³'}}, true);
+
+    var count = 0;
+    $.each(voc_values, function(key, value) {
+        chart_5_1.series[count].setData(voc_values[key]);
+        count++;
+    });
+    chart_5_1.yAxis[0].update({title: {text: 'Ohm'}}, true);
+
+    var count = 0;
+    $.each(noise_values, function(key, value) {
+        chart_5_2.series[count].setData(noise_values[key]);
+        count++;
+    });
+    chart_5_2.yAxis[0].update({title: {text: 'dB'}}, true);
+}
+
+/***************************************************************
+ * start of weather stats chart
+ * container: chart_6_1
+ ***************************************************************/
+var chart_6_1_Options = {
+    chart: {
+        renderTo: 'chart_6_1',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x',
+        events: {
+            redraw: function(event) {
+                redrawWeatherIcons(event);
+            }
+        }
+    },
+    xAxis: {
+        type: 'datetime',
+        plotBands: weekends
+    },
+    yAxis: [
+        {
+            floor: null,
+            minPadding: 0.1,
+            maxPadding: 0.2,
+            labels: {
+                format: '{value}°'
+            }
+        },
+        {
+            floor: null,
+            labels: {
+                format: '{value} mm'
+            },
+            opposite: true
+        }
+    ],
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var symbol = '■';
+            var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+            if (this.points[1] && this.points[2] && this.points[0]) {
+                tooltipcontent += '<table style="width:100%">';
+                tooltipcontent += '<tr><td><span style="color:' + this.points[1].point.color + '">' + symbol + '</span> ';
+                tooltipcontent += this.points[1].series.name + ':</td><td style="text-align: right;">' + this.points[1].point.y.toFixed(1).toLocaleString() + ' °C</td></tr>';
+                tooltipcontent += '<tr><td><span style="color:' + this.points[2].point.color + '">' + symbol + '</span> ';
+                tooltipcontent += this.points[2].series.name + ':</td><td style="text-align: right;">' + this.points[2].point.y.toFixed(1).toLocaleString() + ' °C</td></tr>';
+                tooltipcontent += '<tr><td><span style="color:' + this.points[0].point.color + '">' + symbol + '</span> ';
+                tooltipcontent += this.points[0].series.name + ':</td><td style="text-align: right;">' + this.points[0].point.y.toFixed(1).toLocaleString() + ' mm</td></tr>';
+                tooltipcontent += '</table>';
+                tooltipcontent += '<br/><span style="display:block; width:200px; white-space:normal;"><i>' + this.points[1].point.summary + '</i></span>';
+            }
+
+            return tooltipcontent;
+        }
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0//,
+            //pointPlacement: 'between'
+        },
+        line: {
+            pointPlacement: 'between'
+        },
+        series: {
+            marker: {
+                enabled: false,
+                symbol: 'circle',
+                radius: 2,
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                }
+            }
+        }
+    },
+    legend: {
+        enabled: true
+    }
+};
+
+/**
+ * initialize the chart
+ */
+chart_6_1 = new Highcharts.Chart(chart_6_1_Options);
+chart_6_1.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onChart_6_1_DataReceived(data) {
+    /**
+     * define the series and their options
+     */
+    var seriesoptions = [
+        {
+            type: 'column',
+            //pointWidth: 100,
+            states: {
+                hover: {
+                    enabled: false
+                }
+            },
+            color: '#C6D4FC',
+            name: 'precipitation',
+            pointRange: 24 * 3600 * 1000,
+            connectNulls: false,
+            yAxis: 1
+        },
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: '#DD686E',
+            name: 'max temperature',
+            pointRange: 24 * 3600 * 1000,
+            connectNulls: false
+        },
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: '#132149',
+            name: 'min temperature',
+            pointRange: 24 * 3600 * 1000,
+            connectNulls: false
+        }
+    ];
+
+    chart_6_1_Options.series = seriesoptions;
+    chart_6_1 = new Highcharts.Chart(chart_6_1_Options);
+    chart_6_1.series[0].setData(noGapsDataArray(data.precipitation, 24*60*60));
+    chart_6_1.series[2].setData(noGapsDataArray(data.temp_min, 24*60*60));
+    chart_6_1.series[1].setData(noGapsDataArray(data.temp_max, 24*60*60));
+    chart_6_1.xAxis[0].update({
+        plotBands: weekends
+    });
+}
+
+/**
+ * we need to redraw the weather icons when the chart gets redrawn/resized
+ */
+function redrawWeatherIcons(event) {
+    /**
+     * destroy all weather icons that exist inside the chart area before we draw new ones, then empty the array
+     */
+    _.forEach(weather_icons_array, function(point) {
+        if (point) {
+            point.destroy();
+        }
+    });
+
+    weather_icons_array = [];
+
+    /**
+     * cycle through the data points to draw icons for those within the chart
+     * first count the number of points that are actually in the visible part of the chart
+     */
+    var points_count_in_chart = _.countBy(event.target.series[1].points, function(point) {
+        return point.isInside;
+    });
+
+    if (points_count_in_chart.true < 40) {
+        /**
+         * only process points that are inside the new chart area and only draw icon where we have less than
+         * 40 data points. Otherwise the chart would become too crowded
+         */
+        _.forEach(event.target.series[1].points, function(point) {
+            var file_name = '';
+
+            if (point.isInside) {
+                /**
+                 * here we translate the provided icon attribute to the actual file name we want to render
+                 */
+                switch(point.icon) {
+                    case 'clear-day':
+                        file_name = 'f00d(59)_32';
+                        break;
+                    case 'night-clear':
+                        file_name = 'f02e(12)_32';
+                        break;
+                    case 'rain':
+                        file_name = 'f019(41)_32';
+                        break;
+                    case 'snow':
+                        file_name = 'f01b(57)_32';
+                        break;
+                    case 'sleet':
+                        file_name = 'f017(58)_32';
+                        break;
+                    case 'strong-wind':
+                        file_name = 'f050(0)_32';
+                        break;
+                    case 'fog':
+                        file_name = 'f021(29)_32';
+                        break;
+                    case 'cloudy':
+                        file_name = 'f013(36)_32';
+                        break;
+                    case 'partly-cloudy-day':
+                        file_name = 'f002(53)_32';
+                        break;
+                    case 'partly-cloudy-night':
+                        file_name = 'f031(15)_32';
+                        break;
+                    case 'hail':
+                        file_name = 'f015(38)_32';
+                        break;
+                    case 'thunderstorm':
+                        file_name = 'f01e(30)_32';
+                        break;
+                    case 'tornado':
+                        file_name = 'f056(1)_32';
+                        break;
+                    case 'wind':
+                        file_name = 'f085(2)_32';
+                        break;
+                    default:
+                        file_name = 'f00d(59)_32';
+                }
+
+                /**
+                 * render the icon relative to the max temp point it is attached to
+                 * first construct the icon, then render it to the canvas
+                 *
+                 * NOTE:
+                 * we add the icon object to an array for later use (e.g. to remove the icons upon redraw of the chart)
+                 */
+                weather_icons_array[point.index] = chart_3_1.renderer.image(
+                    '{{site.uri.public}}/images/weather_icons_32x32/' + file_name + '.png',
+                    point.plotX+20,
+                    point.plotY-25,
+                    30,
+                    30
+                ).attr({
+                    zIndex: 5
+                });
+
+                weather_icons_array[point.index].add();
+            }
+        });
+    }
+}
+
+/***************************************************************
+ * daterangepicker and ajax loading of all the data from here
+ **************************************************************/
+
+page_daterange(rangeStart, rangeEnd)
+
+/**
+ * functions to display the "active" custom date range and the picker for current page
+ */
+$('#enviro_report_range').daterangepicker({
+    timePicker:             true,
+    timePicker24Hour:       true,
+    timePickerIncrement:    15,
+    showISOWeekNumbers:     true,
+    locale: {
+        format: "DD/MM/YYYY",
+        firstDay: 1
+    },
+    ranges: {
+       'Current Day':               [rangeStart, rangeEnd], //default value for the page
+       'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+       'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+       'Last 7 Days':               [moment().startOf('day').subtract(1, 'weeks'), moment().startOf('day')],
+       'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
+       'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+       'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+       'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
+       'All Time':                  ['{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+    },
+    startDate:  rangeStart,
+    endDate:    rangeEnd,
+    minDate:    '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
+    maxDate:    moment(),
+    opens:      'left'
+}, page_daterange);
+
+/**
+ * callback function to execute upon selected date range
+ */
+function page_daterange(start, end) {
+    rangeStart = start;
+    rangeEnd   = end;
+
+    /**
+     * place the selected range in the <span> at the top of the page
+     */
+    $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+    $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+    if (end.diff(start) === 0) {
+        console.log('we have difference between start and end of zero: we will add 1 hour to end');
+        end.add(1, 'hour');
+    }
+
+    console.log(start + ':' + end);
+
+    /**
+     * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+     */
+    var chart_1_1 = $("#chart_1_1").highcharts();
+    var chart_1_2 = $("#chart_1_2").highcharts();
+    var chart_2_1 = $("#chart_2_1").highcharts();
+    var chart_2_2 = $("#chart_2_2").highcharts();
+    var chart_3_1 = $("#chart_3_1").highcharts();
+    var chart_3_2 = $("#chart_3_2").highcharts();
+    var chart_4_1 = $("#chart_4_1").highcharts();
+    var chart_4_2 = $("#chart_4_2").highcharts();
+    var chart_5_1 = $("#chart_5_1").highcharts();
+    var chart_5_2 = $("#chart_5_2").highcharts();
+    var chart_6_1 = $("#chart_6_1").highcharts();
+
+    chart_1_1.showLoading();
+    chart_1_2.showLoading();
+    chart_2_1.showLoading();
+    chart_2_2.showLoading();
+    chart_3_1.showLoading();
+    chart_3_2.showLoading();
+    chart_4_1.showLoading();
+    chart_4_2.showLoading();
+    chart_5_1.showLoading();
+    chart_5_2.showLoading();
+    chart_6_1.showLoading();
+
+    /**
+     * get the data for chart 6.1
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/geo-sense/api/visitor_report/weather_daily/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onChart_6_1_DataReceived
+    });
+
+    /**
+     * 
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/enviro-sense/api/stats/' + start + "/" + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onStats_DataReceived
+    });
+}
+
+/***************************************************************
+ * end of daterangepicker and ajax data loading
+ ***************************************************************/
+
+</script>
+{% endblock %}

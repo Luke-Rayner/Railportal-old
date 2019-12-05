@@ -1,0 +1,802 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+
+	<!-- Page 1 -->
+	<div class="custom-row left">
+        <p class="header">National Statistics Comparison</p>
+        <br>
+        <p>Please note :- further filtered categories are available via the Intelli-Sense portal including the ability to filter via sub category, i.e. market town / costal town etc, population, region and area. </p>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_left_donut_total_visitors_this_period"></span>
+                    </div>
+                    <div class="desc"> Total visitors this period </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_left_donut_average_visitors_per_day"></span>
+                    </div>
+                    <div class="desc"> Average visitors per day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_left_donut_total_visitor_difference_number"></span>
+                    </div>
+                    <div class="desc"> Total visitors difference </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_left_donut_total_visitor_difference_percentage"></span>
+                    </div>
+                    <div class="desc"> Total visitors difference </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_left_donut_total_visitor_dwell_difference_number"></span>
+                    </div>
+                    <div class="desc"> Average dwell time </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_left_donut_total_visitor_dwell_difference_percentage"></span>
+                    </div>
+                    <div class="desc"> Busiest time of day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_ns_total_visitors_new_vs_repeat_pie" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_ns_daily_visitors_new_vs_repeat_column" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <!-- Page 2 -->
+    <div class="custom-row before">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_right_donut_total_visitors_this_period"></span>
+                    </div>
+                    <div class="desc"> Average total visitors this period </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_right_donut_average_visitors_per_day"></span>
+                    </div>
+                    <div class="desc"> Average visitors per day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_right_donut_total_visitor_difference_number"></span>
+                    </div>
+                    <div class="desc"> Total visitors difference </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_right_donut_total_visitor_difference_percentage"></span>
+                    </div>
+                    <div class="desc"> Total visitors difference </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_right_donut_total_visitor_dwell_difference_number"></span>
+                    </div>
+                    <div class="desc"> Average dwell time </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_ns_right_donut_total_visitor_dwell_difference_percentage"></span>
+                    </div>
+                    <div class="desc"> Busiest time of day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_right_ns_total_visitors_new_vs_repeat_pie" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_right_ns_daily_visitors_new_vs_repeat_column" class="full_width_chart"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd = {{end_date}};
+var selected_zone = {{selected_zone}};
+var venue = {{venue | raw}};
+
+var pdf_left_total_visitors  = 0;
+var pdf_left_daily_visitors  = 0;
+var pdf_right_total_visitors = 0;
+var pdf_right_daily_visitors = 0;
+
+/**
+ * shared function to update the "delta donuts"
+ */
+function pdf_update_comparison_donut (number_value, container_id, donut_id, perc = false) {
+    var number_up = true;
+    container_id = '#' + container_id;
+    donut_id = '#' + donut_id;
+
+    if (number_value < 0) {
+        var number_up = false;
+    }
+
+    if (!number_up) {
+        $(donut_id).css({color: '#DD686E'});
+        var donut_suffix = ' <i class="fa fa-arrow-down"></i>';
+    } else {
+        $(donut_id).css({color: '#66B366'});
+
+        if (number_value > 0) {
+            var donut_suffix = ' <i class="fa fa-arrow-up"></i>';
+        } else {
+            var donut_suffix = '';
+        }
+    }
+
+    if (number_value == 0) {
+        donut_suffix = '';
+    }
+
+    if (perc) {
+        $(donut_id).html(number_value.toLocaleString() + '%' + donut_suffix);
+    } else {
+        $(donut_id).html(number_value.toLocaleString() + donut_suffix);
+    }
+}
+
+$(document).ready(function() { 
+	/**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/zone_report/new_vs_repeat/' + selected_zone + '/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onChart_leftVisitorInformation_DataReceived
+    });
+
+    var chart_ns_total_visitors_new_vs_repeat_pie_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_ns_total_visitors_new_vs_repeat_pie',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 +
+                                     '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    chart_ns_total_visitors_new_vs_repeat_pie_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "new visitors",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat visitors",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    var chart_ns_daily_visitors_new_vs_repeat_column_Options = {
+        chart: {
+            renderTo: 'chart_ns_daily_visitors_new_vs_repeat_column',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onChart_leftVisitorInformation_DataReceived(data) {
+    	/**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * when date range is longer than 6 weeks we switch to area chart instead of column
+         */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_ns_daily_visitors_new_vs_repeat_column_Options.series = seriesoptions;
+        var chart_ns_daily_visitors_new_vs_repeat_column = new Highcharts.Chart(chart_ns_daily_visitors_new_vs_repeat_column_Options);
+        chart_ns_daily_visitors_new_vs_repeat_column.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_ns_daily_visitors_new_vs_repeat_column.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_ns_daily_visitors_new_vs_repeat_column.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * 
+         */
+        var chart_ns_total_visitors_new_vs_repeat_pie__font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var chart_ns_total_visitors_new_vs_repeat_pie__font_size_perc = 120;
+        }
+
+        chart_ns_total_visitors_new_vs_repeat_pie_Options.title.text = '<b style="font-size: ' + chart_ns_total_visitors_new_vs_repeat_pie__font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b>Total</b>';
+
+        var chart_ns_total_visitors_new_vs_repeat_pie = new Highcharts.Chart(chart_ns_total_visitors_new_vs_repeat_pie_Options);
+        chart_ns_total_visitors_new_vs_repeat_pie.series[0].setData([totalnew, totalrepeat]);
+
+        /**
+         * Donuts are populated
+         */
+        pdf_left_total_visitors  = totalnew + totalrepeat;
+        $('#pdf_ns_left_donut_total_visitors_this_period').html((pdf_left_total_visitors).toLocaleString());
+
+        /**
+         * NOTE: with this function we also feed the "average visitors" data to donut 4
+         */
+        var total_visitors = totalnew + totalrepeat;
+        var counter = data.new.length;
+
+        if (counter > 1) {
+            var average = Math.floor(total_visitors / counter);
+        } else {
+            var average = total_visitors;
+        }
+
+        pdf_left_daily_visitors = average;
+        $('#pdf_ns_left_donut_average_visitors_per_day').html(average.toLocaleString());
+
+        /**
+         * initially set the delta's on the left-hand side to 0
+         */
+        $('#pdf_ns_left_donut_total_visitor_difference_number').html('0');
+        $('#pdf_ns_left_donut_total_visitor_difference_percentage').html('0%');
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/average_dwelltime/zone/' + selected_zone + '/' + pdfRangeStart + "/" + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_ns_left_donut_total_visitor_dwell_difference_number_DataReceived
+    });
+
+    function onPdf_ns_left_donut_total_visitor_dwell_difference_number_DataReceived(data) {
+        // Load all the data into the DOM
+        $('#pdf_ns_left_donut_total_visitor_dwell_difference_number').html(data + ' <span style="font-size: 60%;">minutes</span>');
+    }
+
+    /**
+     * 
+     */
+     $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/zone_report/visitors_per_hourofday/' + selected_zone + '/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_ns_left_donut_total_visitor_dwell_difference_percentage_DataReceived
+    });
+
+    function onPdf_ns_left_donut_total_visitor_dwell_difference_percentage_DataReceived(data) {
+        /**
+         * here we also get the busiest hour and send that to donut 4
+         */
+        var hours = _.sortBy(data, function(value, key) {
+            return value[1];
+        });
+
+        if (hours.length > 0) {
+            $('#pdf_ns_left_donut_total_visitor_dwell_difference_percentage').html((_.last(hours)[0]) + ':00 - ' + (_.last(hours)[0] + 1) + ':00');
+        } else {
+            $('#pdf_ns_left_donut_total_visitor_dwell_difference_percentage').html('<span style="font-size: 60%;">no data</span>');
+        }
+    }
+
+    var pdf_ns_venue_filters = {};
+    pdf_ns_venue_filters = {
+        category:       venue.category_id,
+        sub_categories: [],
+        country:        venue.country_id,
+        region:         0,
+        area:           0,
+    }
+
+    pdf_ns_venue_filters.{{csrf_key}} = "{{csrf_token}}";
+
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/national_stats_report/new_vs_repeat/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'POST',
+        data: pdf_ns_venue_filters,
+        dataType: 'json',
+        success: onChart_rightVisitorInformation_DataReceived
+    });
+
+    var chart_right_ns_total_visitors_new_vs_repeat_pie_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_right_ns_total_visitors_new_vs_repeat_pie',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    chart_right_ns_total_visitors_new_vs_repeat_pie_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "new visitors",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat visitors",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    var chart_right_ns_daily_visitors_new_vs_repeat_column_Options = {
+        chart: {
+            renderTo: 'chart_right_ns_daily_visitors_new_vs_repeat_column',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    function onChart_rightVisitorInformation_DataReceived(data) {
+    	/**
+         * 
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * 
+         */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_right_ns_daily_visitors_new_vs_repeat_column_Options.series = seriesoptions;
+        var chart_right_ns_daily_visitors_new_vs_repeat_column = new Highcharts.Chart(chart_right_ns_daily_visitors_new_vs_repeat_column_Options);
+        chart_right_ns_daily_visitors_new_vs_repeat_column.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_right_ns_daily_visitors_new_vs_repeat_column.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_right_ns_daily_visitors_new_vs_repeat_column.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        var chart_right_ns_total_visitors_new_vs_repeat_pie__font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var chart_right_ns_total_visitors_new_vs_repeat_pie__font_size_perc = 120;
+        }
+
+        chart_right_ns_total_visitors_new_vs_repeat_pie_Options.title.text = '<b style="font-size: ' + chart_right_ns_total_visitors_new_vs_repeat_pie__font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b>Total</b>';
+
+        var chart_right_ns_total_visitors_new_vs_repeat_pie = new Highcharts.Chart(chart_right_ns_total_visitors_new_vs_repeat_pie_Options);
+        chart_right_ns_total_visitors_new_vs_repeat_pie.series[0].setData([totalnew, totalrepeat]);
+
+        /**
+         * Populate donuts now
+         */
+        pdf_right_total_visitors = totalnew + totalrepeat;
+        $('#pdf_ns_right_donut_total_visitors_this_period').html((pdf_right_total_visitors).toLocaleString());
+
+        var total_visitors = totalnew + totalrepeat;
+        var counter = data.new.length;
+
+        if (counter > 1) {
+            var average = Math.floor(total_visitors / counter);
+        } else {
+            var average = total_visitors;
+        }
+
+        pdf_right_daily_visitors = average;
+        $('#pdf_ns_right_donut_average_visitors_per_day').html(average.toLocaleString());
+
+        /**
+         * initially we set the content to 0
+         */
+        $('#pdf_ns_right_donut_total_visitor_difference_number').html('0');
+        $('#pdf_ns_right_donut_total_visitor_difference_percentage').html('0%');
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/national_stats_report/average_dwelltime/' + pdfRangeStart + "/" + pdfRangeEnd,
+        type: 'POST',
+        data: pdf_ns_venue_filters,
+        dataType: 'json',
+        success: onPdf_ns_right_donut_total_visitor_dwell_difference_number_DataReceived
+    });
+
+    function onPdf_ns_right_donut_total_visitor_dwell_difference_number_DataReceived(data) {
+        $('#pdf_ns_right_donut_total_visitor_dwell_difference_number').html(data + ' <span style="font-size: 60%;">minutes</span>');
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/national_stats_report/visitors_per_hourofday/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'POST',
+        data: pdf_ns_venue_filters,
+        dataType: 'json',
+        success: onPdf_ns_right_donut_total_visitor_dwell_difference_percentage_DataReceived
+    });
+
+    function onPdf_ns_right_donut_total_visitor_dwell_difference_percentage_DataReceived(data) {
+        var hours = _.sortBy(data, function(value, key) {
+            return value[1];
+        });
+
+        if (hours.length > 0) {
+            $('#pdf_ns_right_donut_total_visitor_dwell_difference_percentage').html((_.last(hours)[0]) + ':00 - ' + (_.last(hours)[0] + 1) + ':00');
+        } else {
+            $('#pdf_ns_right_donut_total_visitor_dwell_difference_percentage').html('<span style="font-size: 60%;">no data</span>');
+        }
+    }
+
+    /**
+     * whatever we need to do when *all* AJAX requests have finished
+     */
+    $(document).ajaxStop(function () {
+        /**
+         * now we are able to compare left-hand and right-hand results and update
+         * the contents of donuts 5 & 6 accordingly
+         */
+        if (pdf_left_total_visitors != 0 && pdf_right_total_visitors != 0 && pdf_left_daily_visitors != 0 && pdf_right_daily_visitors != 0) {
+            /**
+             * work on donut 5
+             */
+            var pdf_delta_total_left = pdf_left_total_visitors - pdf_right_total_visitors;
+            pdf_update_comparison_donut (pdf_delta_total_left, 'donut_container_5', 'pdf_ns_left_donut_total_visitor_difference_number');
+
+            /**
+             * work on donut 6
+             */
+            var pdf_delta_perc_left = Math.round(((pdf_left_total_visitors - pdf_right_total_visitors)/pdf_right_total_visitors)*10000)/100;
+            pdf_update_comparison_donut (pdf_delta_perc_left, 'donut_container_6', 'pdf_ns_left_donut_total_visitor_difference_percentage', true);
+
+            /**
+             * work on right donut 5
+             */
+            var pdf_delta_total_right = pdf_right_total_visitors - pdf_left_total_visitors;
+            pdf_update_comparison_donut (pdf_delta_total_right, 'right_donut_container_5', 'pdf_ns_right_donut_total_visitor_difference_number');
+
+            /**
+             * work on right donut 6
+             */
+            var pdf_delta_perc_right = Math.round(((pdf_right_total_visitors - pdf_left_total_visitors)/pdf_left_total_visitors)*10000)/100;
+            pdf_update_comparison_donut (pdf_delta_perc_right, 'right_donut_container_6', 'pdf_ns_right_donut_total_visitor_difference_percentage', true);
+        } else {
+            //console.log('at least one of the values equals zero');
+        }
+    });
+});
+</script>
+{% endblock %}

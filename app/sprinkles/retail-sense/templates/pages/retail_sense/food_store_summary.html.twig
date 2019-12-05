@@ -1,0 +1,1021 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Food Store Retail Report Summary",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="row text-center" style="display: none" id="pdf_title">
+        <img src="{{site.uri.public}}/images/WiFi-Logo-Image-Blue.png" height="50px" width="50px" style="margin-top: 5px"/>
+        <u><h1 class="bold">INTELLI-SENSE</h1></u>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="page-title">
+                <h1>{{page.title}}
+                    <small>{{page.description}}</small>
+                </h1>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <button id="custom_datepicker" class="btn pull-right" style="background-color: #1c2746; color: white;"></button>
+            <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+            <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+            <!-- <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+        </div>
+
+        <div id="custom_datepicker_content" hidden>
+            <label>Start Month:</label>
+            <select id="start_month" class="form-control">
+                <option value="1">January</option>
+                <option value="2">Feburary</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+
+            <select id="start_year" class="form-control" style="margin-top: 5px;">
+                {% for i in 1986..2019 %}
+                    <option value="{{i}}">{{i}}</option>
+                {% endfor %}
+            </select>
+                
+            <br>
+
+            <label>End Month:</label>
+            <select id="end_month" class="form-control">
+                <option value="1">January</option>
+                <option value="2">Feburary</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+
+            <select id="end_year" class="form-control" style="margin-top: 5px;">
+                {% for i in 1986..2019 %}
+                    <option value="{{i}}">{{i}}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" id="datepicker_apply_btn" class="btn btn-primary" style="margin: 5px 0; width: 100%;">Apply</button>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Average Weekly Retail Sales <p style="font-size: 16px;">all businesses for <span id="donut_1_month_container"></span> </p>  </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-cloud-download"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Average Weekly Retail Sales <p style="font-size: 16px;">large businesses for <span id="donut_3_month_container"></span></p> </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc"> Average Weekly Retail Sales <p style="font-size: 16px;">small businesses for <span id="donut_4_month_container"></span></p> </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Average Weekly Online Retail Sales <p style="font-size: 16px;">all businesses for <span id="donut_2_month_container"></span></p> </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Online Penetration <p style="font-size: 16px;">for <span id="donut_5_month_container"></span></p> </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-cloud-download"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_7"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Sales, Year on Year Difference <p style="font-size: 16px;">all businesses for <span id="donut_7_month_container"></span></p> </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_8"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc"> Sales, Month on Month Difference <p style="font-size: 16px;">all businesses for <span id="donut_8_month_container"></span></p> </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Footfall, last month </div>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="clearfix"></div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Average Weekly Sales (£)</span>
+                    <span class="caption-helper">Excl fuel</span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">% Difference Compared to Same Month Last Year</span>
+                    <span class="caption-helper">Excl fuel</span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="PAGE-BREAK-BEFORE: always">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Average Online Weekly Sales (£)</span>
+                    <span class="caption-helper">Excl fuel</span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">% Difference Compared to Same Month Last Year</span>
+                    <span class="caption-helper">Excl fuel</span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row text-center" style="display: none" id="pdf_url">
+    website address: <a>www.elephantwifi.co.uk</a>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+// Functions to print to PDF
+function genPDF() {
+    var pdf_title = document.getElementById("pdf_title");
+    if (pdf_title.style.display === "none") {
+        pdf_title.style.display = "block";
+    }
+
+    var pdf_url = document.getElementById("pdf_url");
+    if (pdf_url.style.display === "none") {
+        pdf_url.style.display = "block";
+    }
+
+    var element = document.getElementsByClassName("page-content")[0];
+    var opt = {
+        margin:       1,
+        filename:     'retail_food_store_summary.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 1 },
+        jsPDF:        { unit: 'pt', format: [1280, 720], orientation: 'l' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+
+    // Hide the element after 2 seconds allowing the screenshot to be taken while the element is shown
+    window.setTimeout(hidePdfElements, 2000);
+}
+
+function hidePdfElements() {
+    var pdf_title = document.getElementById("pdf_title");
+    pdf_title.style.display = "none";
+
+    var pdf_url = document.getElementById("pdf_url");
+    pdf_url.style.display = "none";
+}
+
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * file name and report title for CSV download
+ */
+var csv_filename = 'retail_food_store_summary-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title    = '';
+var venue_name   = '{{user.venue_name}}';
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    /**
+     * update export title to reflect selected range
+     */
+    var csv_title = 'Retail-Sense: Retail Food Store Summary (' + $('#page_daterange_selected_large').text().replace(/,/g , '') + ')';
+
+    /**
+     * get the data from the charts
+     */
+    csv_data.push({
+        heading: 'Overall metrics',
+        process: true,
+        data: [['DateTime', 'Average Weekly Retail Sales (all businesses)', 'Average Weekly Retail Sales (large businesses)', 'Average Weekly Retail Sales (small businesses)', 'Average Weekly Online Retail Sales (all businesses)', 'Online Penetration', 'Sales, Year on Year Difference (all businesses)', 'Sales, Month on Month Difference (all businesses)', 'Footfall'],
+               [
+                    moment().format("DD MMMM YYYY HH:mm"),
+                    $('#donut_1').text().replace(/,/g , ''),
+                    $('#donut_3').text().replace(/,/g , ''),
+                    $('#donut_4').text().replace(/,/g , ''),
+                    $('#donut_2').text().replace(/,/g , ''),
+                    $('#donut_5').text().replace(/,/g , ''),
+                    $('#donut_7').text().replace(/,/g , ''),
+                    $('#donut_8').text().replace(/,/g , ''),
+                    $('#donut_6').text().replace(/,/g , ''),
+               ]]
+               // when process is true there must be at least two arrays (lines) of content: headers and data
+    });
+
+    csv_data.push({
+        heading: 'Average Weekly Sales (£) - Excl fuel',
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: '% Difference Compared to Same Month Last Year - Excl fuel',
+        process: false,
+        data: $('#chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Average Online Weekly Sales (£) - Excl fuel',
+        process: false,
+        data: $('#chart_2_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: '% Difference Compared to Same Month Last Year - Excl fuel',
+        process: false,
+        data: $('#chart_2_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+});
+
+// Contain the popover within the body NOT the element it was called in.
+$('[data-toggle="popover"]').popover({
+    container: 'body'
+});
+
+$(function(){
+    $('#start_month option[value="' + moment().startOf('month').subtract(26, 'months').format('M') + '"]').attr('selected', true);
+    $('#start_year option[value="' + moment().startOf('month').subtract(26, 'months').format('YYYY') + '"]').attr('selected', true);
+    $('#end_month option[value="' + moment().startOf('month').format('M') + '"]').attr('selected', true);
+    $('#end_year option[value="' + moment().startOf('month').format('YYYY') + '"]').attr('selected', true);
+
+    $('#custom_datepicker').popover({
+        placement: 'bottom',
+        html:true,
+        content: function(){
+            return $('#custom_datepicker_content').html();
+        }
+    }).on('click', function(){
+
+        $('#start_year').change(function() {
+            $("#end_year > option").each(function() {
+                if (parseInt(this.value) < parseInt($('#start_year').val())) {
+                    if ( parseInt(moment().format('YYYY')) != parseInt($(this).val()) ) {
+                        $(this).hide();
+                    }
+                }
+                else {
+                    $(this).show();
+                }
+            });
+
+            if ( parseInt(moment().format('YYYY')) == parseInt($('#start_year').val())) {
+                var new_end_year = parseInt(moment().format('YYYY'));
+
+                $('#end_year option[value="' + $('#end_year').val() + '"]').attr('selected', false);
+                $('#end_year option[value="' + new_end_year + '"]').attr('selected', true);
+            }
+            else if (parseInt($('#start_year').val()) >= parseInt($('#end_year').val())) {
+                var new_end_year = parseInt($('#start_year').val()) + 1;
+
+                $('#end_year option[value="' + $('#end_year').val() + '"]').attr('selected', false);
+                $('#end_year option[value="' + new_end_year + '"]').attr('selected', true);
+            }
+
+        }).trigger('change');
+
+        // had to put it within the on click action so it grabs the correct info on submit
+        $('#datepicker_apply_btn').click(function(e) {
+            var start_month = $('#start_month').val();
+            var start_year  = $('#start_year').val();
+            var end_month   = $('#end_month').val();
+            var end_year    = $('#end_year').val();
+
+            $('.popover').hide();
+
+            var start_date = moment(start_month + '/1/' + start_year);
+            var end_date   = moment((parseInt(end_month) + 1).toLocaleString() + '/1/' + end_year);
+
+            $('#start_month option[value="' + moment().startOf('month').subtract(26, 'months').format('M') + '"]').attr('selected', false);
+            $('#start_year option[value="' + moment().startOf('month').subtract(26, 'months').format('YYYY') + '"]').attr('selected', false);
+            $('#end_month option[value="' + moment().startOf('month').format('M') + '"]').attr('selected', false);
+            $('#end_year option[value="' + moment().startOf('month').format('YYYY') + '"]').attr('selected', false);
+
+            $('#start_month option[value="' + start_month + '"]').attr('selected', true);
+            $('#start_year option[value="' + start_year + '"]').attr('selected', true);
+            $('#end_month option[value="' + end_month + '"]').attr('selected', true);
+            $('#end_year option[value="' + end_year + '"]').attr('selected', true);
+
+            page_daterange(start_date, end_date)
+
+            $('#custom_datepicker').html(moment(start_date).format('DD/MM/YYYY') + ' - ' + moment(end_date).format('DD/MM/YYYY') + ' <i class="fa fa-angle-down"></i>');
+        });
+    });
+});
+
+$(document).on('click', function (e) {
+    $('[data-toggle="popover"],[data-original-title]').each(function () {
+        //the 'is' for buttons that trigger popups
+        //the 'has' for icons within a button that triggers a popup
+        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {                
+            (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
+        }
+
+    });
+});
+
+/***************************************************************
+ * container: chart_1_1
+ ***************************************************************/
+Highcharts.setOptions({
+    lang: {
+        numericSymbols: ['th', 'm']
+    }
+});
+
+var chart_1_1_Options = {
+    chart: {
+        renderTo: 'chart_1_1',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime'
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var tooltipcontent = '<b>' + moment(this.x).format("MMMM YYYY") + '</b>';
+            var mySum = 0;
+            tooltipcontent += '<table style="width:100%">';
+
+            /**
+             * we have to loop here as we don't yet know how many series we will have
+             */
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">£' + (Math.round((this.y / 1000000) * 100) / 100).toLocaleString() + 'm</td></tr>';
+                mySum += this.y;
+            });
+
+            // tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>£' + (Math.round((mySum / 1000000) * 100) / 100).toLocaleString() + 'm</b><td></tr>';
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0,
+            stacking: 'normal'
+        },
+        series: {
+            // pointWidth: 30
+        }
+    },
+    legend: {
+        enabled: true
+    }
+};
+
+/**
+ * initialize the chart
+ */
+var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+chart_1_1.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onChart_1_1_DataReceived(data) {
+    /**
+     * do something with the data
+     */
+    var seriesoptions = [
+    {
+        type: 'column', // default chart type
+        lineWidth: 2,
+        states: {
+            hover: {
+                enabled: true,
+                lineWidth: 2
+            }
+        },
+        color: '#132149',
+        name: 'All Business Sales',
+        stack: 'sales'
+    },
+    {
+        type: 'line', // default chart type
+        lineWidth: 2,
+        states: {
+            hover: {
+                enabled: true,
+                lineWidth: 2
+            }
+        },
+        color: '#4bc920',
+        name: 'Large Business Sales',
+        stack: 'sales'
+    },
+    {
+        type: 'line', // default chart type
+        lineWidth: 2,
+        states: {
+            hover: {
+                enabled: true,
+                lineWidth: 2
+            }
+        },
+        color: '#e25826',
+        name: 'Small Business Sales',
+        stack: 'sales'
+    }];
+
+    chart_1_1_Options.series = seriesoptions;
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.series[0].setData(data[0]);
+    chart_1_1.series[1].setData(data[1]);
+    chart_1_1.series[2].setData(data[2]);
+
+    $('#donut_1').html('£' + (Math.round((data[0][data[0].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_1_month_container').html( moment(data[0][data[0].length - 1][0]).format('MMMM') );
+
+    $('#donut_3').html('£' + (Math.round((data[1][data[1].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_3_month_container').html( moment(data[1][data[1].length - 1][0]).format('MMMM') );
+
+    $('#donut_4').html('£' + (Math.round((data[2][data[2].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_4_month_container').html( moment(data[2][data[2].length - 1][0]).format('MMMM') );
+}
+
+/***************************************************************
+ * end of chart_1_1
+ **************************************************************/
+
+/***************************************************************
+ * container: chart_2_1
+ ***************************************************************/
+var chart_2_1_Options = {
+    chart: {
+        renderTo: 'chart_2_1',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime'
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var tooltipcontent = '<b>' + moment(this.x).format("MMMM YYYY") + '</b>';
+            var mySum = 0;
+            tooltipcontent += '<table style="width:100%">';
+
+            /**
+             * we have to loop here as we don't yet know how many series we will have
+             */
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">£' + (Math.round((this.y / 1000000) * 100) / 100).toLocaleString() + 'm</td></tr>';
+                mySum += this.y;
+            });
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0
+        },
+        series: {
+            // pointWidth: 30
+        }
+    },
+    legend: {
+        enabled: true
+    }
+};
+
+/**
+ * initialize the chart
+ */
+var chart_2_1 = new Highcharts.Chart(chart_2_1_Options);
+chart_2_1.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onChart_2_1_DataReceived(data) {
+    /**
+     * do something with the data
+     */
+    var seriesoptions = [
+        {
+            type: 'column', // default chart type
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: '#e25826',
+            name: 'Online Sales'
+        }
+    ];
+
+    chart_2_1_Options.series = seriesoptions;
+    var chart_2_1 = new Highcharts.Chart(chart_2_1_Options);
+    chart_2_1.series[0].setData(data);
+
+    $('#donut_2').html('£' + (Math.round((data[data.length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_2_month_container').html( moment(data[data.length - 1][0]).format('MMMM') );
+}
+
+/***************************************************************
+ * end of chart_2_1
+ **************************************************************/
+
+/***************************************************************
+ * container: chart_1_2
+ ***************************************************************/
+var chart_1_2_Options = {
+    chart: {
+        renderTo: 'chart_1_2',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime'
+    },
+    yAxis: {
+        softMin: -5,
+        startOnTick: false
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var tooltipcontent = '<b>' + moment(this.x).format("MMMM YYYY") + '</b>';
+            var mySum = 0;
+            tooltipcontent += '<table style="width:100%">';
+
+            /**
+             * we have to loop here as we don't yet know how many series we will have
+             */
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;"> ' + (Math.round(this.y * 100) / 100).toLocaleString() + '%</td></tr>';
+                mySum += this.y;
+            });
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0,
+            stacking: 'normal'
+        },
+        series: {
+            // pointWidth: 30
+        }
+    },
+    legend: {
+        enabled: true
+    }
+};
+
+/**
+ * initialize the chart
+ */
+var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+chart_1_2.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onChart_1_2_DataReceived(data) {
+    console.log(data);
+    /**
+     * do something with the data
+     */
+    var seriesoptions = [
+    {
+        type: 'column', // default chart type
+        lineWidth: 2,
+        states: {
+            hover: {
+                enabled: true,
+                lineWidth: 2
+            }
+        },
+        color: '#132149',
+        name: 'All Business Sales',
+        stack: 'sales'
+    },
+    {
+        type: 'line', // default chart type
+        lineWidth: 2,
+        states: {
+            hover: {
+                enabled: true,
+                lineWidth: 2
+            }
+        },
+        color: '#4bc920',
+        name: 'Large Business Sales % Difference',
+        stack: 'sales'
+    },
+    {
+        type: 'line', // default chart type
+        lineWidth: 2,
+        states: {
+            hover: {
+                enabled: true,
+                lineWidth: 2
+            }
+        },
+        color: '#e25826',
+        name: 'Small Business Sales % Difference',
+        stack: 'sales'
+    }];
+
+    chart_1_2_Options.series = seriesoptions;
+    var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+    chart_1_2.series[0].setData(data[0]);
+    chart_1_2.series[1].setData(data[1]);
+    chart_1_2.series[2].setData(data[2]);
+
+    $('#donut_7').html((Math.round((data[0][data[0].length - 1][1]) * 100) / 100).toLocaleString() + '%');
+    $('#donut_7_month_container').html( moment(data[0][data[0].length - 1][0]).format('MMMM') );
+
+    $('#donut_8').html((Math.round((data[3][data[3].length - 1][1]) * 100) / 100).toLocaleString() + '%');
+    $('#donut_8_month_container').html( moment(data[3][data[3].length - 1][0]).format('MMMM') );
+}
+
+/***************************************************************
+ * end of chart_2_1
+ **************************************************************/
+
+/***************************************************************
+ * container: chart_2_2
+ ***************************************************************/
+var chart_2_2_Options = {
+    chart: {
+        renderTo: 'chart_2_2',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime'
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var tooltipcontent = '<b>' + moment(this.x).format("MMMM YYYY") + '</b>';
+            var mySum = 0;
+            tooltipcontent += '<table style="width:100%">';
+
+            /**
+             * we have to loop here as we don't yet know how many series we will have
+             */
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;"> ' + (Math.round(this.y * 100) / 100).toLocaleString() + '%</td></tr>';
+                mySum += this.y;
+            });
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0
+        },
+        series: {
+            // pointWidth: 30
+        }
+    },
+    legend: {
+        enabled: true
+    }
+};
+
+/**
+ * initialize the chart
+ */
+var chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+chart_2_2.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onChart_2_2_DataReceived(data) {
+    /**
+     * do something with the data
+     */
+    var seriesoptions = [
+        {
+            type: 'column', // default chart type
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: '#e25826',
+            name: 'Online Sales % Difference'
+        }
+    ];
+
+    chart_2_2_Options.series = seriesoptions;
+    var chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+    chart_2_2.series[0].setData(data);
+}
+
+/***************************************************************
+ * end of chart_2_1
+ **************************************************************/
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onDonut_5_DataReceived(data) {
+    console.log(data);
+    $('#donut_5').html((Math.round(data.food_store_online_penetration[data.food_store_online_penetration.length - 1][1] * 100) / 100).toLocaleString() + '%');
+    $('#donut_5_month_container').html( moment(data.food_store_online_penetration[data.food_store_online_penetration.length - 1][0]).format('MMMM') );
+
+    /**
+     * Get the footfall data after receiving this data so we know which months to compare
+     * 1: ajax function to get visitors of last 1 month
+     * 2: ajax function to get footfall of previous 1 month period
+     * call these two ajax functions using promise, in order to execute a function after both results have been received
+     */
+    var a1Start = moment(data.all_retail_online_penetration[data.all_retail_online_penetration.length - 1][0]).startOf('month');
+    var a1End   = moment(data.all_retail_online_penetration[data.all_retail_online_penetration.length - 1][0]).endOf('month');
+
+    var a2Start = moment(data.all_retail_online_penetration[data.all_retail_online_penetration.length - 1][0]).startOf('month').subtract(1, 'month');
+    var a2End   = moment(data.all_retail_online_penetration[data.all_retail_online_penetration.length - 1][0]).endOf('month').subtract(1, 'month');
+
+    $.when( $.ajax({
+        url:      '{{site.uri.public}}/geo-sense/api/stats/venue/footfall_count/' + a1Start + '/' + a1End,
+        type:     'GET',
+        dataType: 'json'
+    }),
+    $.ajax({
+        url:      '{{site.uri.public}}/geo-sense/api/stats/venue/footfall_count/' + a2Start + '/' + a2End,
+        type:     'GET',
+        dataType: 'json'
+    })).done(function( a1, a2 ) {
+        var percentageChange = ((Math.round((((a2[0] - a1[0]) / a2[0]) * 100) * 100) / 100) * -1).toLocaleString();
+        $('#donut_6').html(percentageChange + '%');
+    });
+}
+
+/***************************************************************
+* daterangepicker and ajax loading of all the data from here
+****************************************************************/
+
+var range_start = moment().startOf('month').subtract(26, 'months');
+var range_end   = moment().startOf('month');
+
+page_daterange(range_start, range_end)
+
+/**
+ * callback function to execute upon selected date range
+ */
+function page_daterange(start, end) {
+
+    // Display the date range
+    $('#custom_datepicker').html(moment(start).format('DD/MM/YYYY') + ' - ' + moment(end).format('DD/MM/YYYY') + ' <i class="fa fa-angle-down"></i>');
+
+    /**
+     * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+     */
+    var chart_1_1 = $("#chart_1_1").highcharts();
+    var chart_1_2 = $("#chart_1_2").highcharts();
+    var chart_2_1 = $("#chart_2_1").highcharts();
+    var chart_2_2 = $("#chart_2_2").highcharts();
+
+    chart_1_1.showLoading();
+    chart_1_2.showLoading();
+    chart_2_1.showLoading();
+    chart_2_2.showLoading();
+
+    $('#donut_1').html('<i class="fa fa-spinner fa-spin"></i>');
+    $('#donut_2').html('<i class="fa fa-spinner fa-spin"></i>');
+    $('#donut_3').html('<i class="fa fa-spinner fa-spin"></i>');
+    $('#donut_4').html('<i class="fa fa-spinner fa-spin"></i>');
+
+    /**
+     * from here we call all ajax sources with the newly selected start/end:
+     */
+
+    /***************************************************************
+     * Ajax Get Requests
+     **************************************************************/
+
+    /**
+     * get the data for chart_1_1
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/retail-sense/api/stats/month_weekly_average/food_store_sales/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onChart_1_1_DataReceived
+    });
+
+    /**
+     * get the data for chart_1_2
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/retail-sense/api/stats/month_weekly_average/food_store_sales_percentage_change/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onChart_1_2_DataReceived
+    });
+
+    /**
+     * get the data for chart_2_1
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/retail-sense/api/stats/month_weekly_average/online_food_store_sales/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onChart_2_1_DataReceived
+    });
+
+    /**
+     * get the data for chart_2_2
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/retail-sense/api/stats/month_weekly_average/online_food_store_sales_percentage_change/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onChart_2_2_DataReceived
+    });
+
+    /**
+     * get the data for donut_5
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/retail-sense/api/stats/month_weekly_average/online_penetration/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onDonut_5_DataReceived
+    });
+}
+
+</script>
+{% endblock %}

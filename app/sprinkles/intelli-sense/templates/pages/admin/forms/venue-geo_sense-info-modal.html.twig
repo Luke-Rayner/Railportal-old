@@ -1,0 +1,288 @@
+<div id='{{box_id}}' class='modal fade' tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="icon-globe"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+
+                <form class="form-horizontal" id="venueForm" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="exTab2" class="">
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a  href="#{{box_id}}_tab_1" data-toggle="tab">General</a>
+                            </li>
+                            <li>
+                                <a href="#{{box_id}}_tab_2" data-toggle="tab">Map</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content ">
+                            <div class="tab-pane active" id="{{box_id}}_tab_1"> {# REMINDER: remember to give dynamic elements ids that are unique to the instance of the form or else things will go hayware! #}
+                                <br>
+                                <div class="form-group">
+                                    <label for="capture_start" class="col-sm-offset-1 col-sm-4 control-label">Data capture start date</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar fa-fw fa-lg"></i></span>
+                                            <div class="capture_start_wrapper"></div>
+                                        </div>
+                                        <p>If capture start isn't loading correct date click <a><span onclick="reloadVenueInfo('{{target_venue.id}}');">refresh</span></a></p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{box_id}}_event_info_bucket" class="col-sm-offset-1 col-sm-4 control-label">Event current visitors bucket</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-filter fa-fw fa-lg"></i></span>
+                                            <select id="{{box_id}}_event_info_bucket" name="event_info_bucket" class="form-control">
+                                                <option value="60" {% if (target_venue.venue_tracking.event_info_bucket == 60) %}selected{% endif %}>1 minute</option>
+                                                <option value="120" {% if (target_venue.venue_tracking.event_info_bucket == 120) %}selected{% endif %}>2 minutes</option>
+                                                <option value="300" {% if (target_venue.venue_tracking.event_info_bucket == 300) %}selected{% endif %}>5 minutes</option>
+                                                <option value="600" {% if (target_venue.venue_tracking.event_info_bucket == 600) %}selected{% endif %}>10 minutes</option>
+                                                <option value="900" {% if (target_venue.venue_tracking.event_info_bucket == 900) %}selected{% endif %}>15 minutes</option>
+                                                <option value="1800" {% if (target_venue.venue_tracking.event_info_bucket == 1800) %}selected{% endif %}>30 minutes</option>
+                                                <option value="1800" {% if (target_venue.venue_tracking.event_info_bucket == 2700) %}selected{% endif %}>45 minutes</option>
+                                                <option value="3600" {% if (target_venue.venue_tracking.event_info_bucket == 3600) %}selected{% endif %}>1 hour</option>
+                                                <option value="5400" {% if (target_venue.venue_tracking.event_info_bucket == 5400) %}selected{% endif %}>90 minutes</option>
+                                                <option value="7200" {% if (target_venue.venue_tracking.event_info_bucket == 7200) %}selected{% endif %}>2 hours</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{box_id}}_event_info_refresh" class="col-sm-offset-1 col-sm-4 control-label">Event page refresh rate</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-search-minus fa-fw fa-lg"></i></span>
+                                            <input type="number" class="form-control" maxlength="6" id="{{box_id}}_event_info_refresh" name="event_info_refresh" value="{{target_venue.venue_tracking.event_info_refresh}}" placeholder="Refresh rate in microseconds">
+                                            <span class="input-group-addon">microseconds</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{box_id}}_venue_tags" class="col-sm-offset-1 col-sm-4 control-label">Zone tag to filter on</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-tags fa-fw fa-lg" data-toggle="tooltip" data-placement="right" title="If no tag is selected, no filter will be applied and data will be collected for all drones/zones."></i></span>
+                                            <select id="{{box_id}}_venue_tags" class="form-control select2" name="event_info_zone_tag">
+                                                <option value="0">No tag selected</option>
+                                                {% for tag in tags %}
+                                                <option value="{{tag.id}}" {% if tag.id == target_venue.venue_tracking.event_info_zone_tag %}selected{% endif %}>{{tag.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                <div class="col-sm-offset-5 col-sm-7">
+                                    <button type="button" class="btn blue" data-dismiss="modal"><i class="fa fa-times-circle fa-fw"></i> Cancel</button>
+                                    <button type='submit' id="venueSubmit" name="venueSubmit" class="btn orange"><i class="fa fa-cloud-upload fa-fw"></i> {{submit_button}}</button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="{{box_id}}_venue_id" name="id" value="{{target_venue.id}}">
+                            </div>
+                            <div class="tab-pane" id="{{box_id}}_tab_2">
+                                <br>
+                                <div class="note note-info">
+                                    <h4>Map image must be:</h4>
+                                    <ul>
+                                        <li>PNG or JPEG format</li>
+                                        <li>maximum size is {{(background_upload_size_limit/1000) | raw | number_format}}KBytes</li>
+                                    </ul>
+                                </div>
+                                <div id="fineuploader-geo-sense-map-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+
+console.log("hello");
+
+$(document).ready(function() {
+    /**
+     * enable Bootstrap tooltips on the modal
+     */
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger : 'hover'
+        });
+    });
+
+    /**
+     * When we load the modal delete any existance of capture_start and then recreate it.
+     * - Prevents the inout from display invalid date
+     */
+    $('#capture_start').remove();
+    $('.capture_start_wrapper').append('<input type="text" id="capture_start" name="capture_start" value="{{target_venue.venue_tracking.capture_start}}" class="form-control">');
+
+    /**
+     * display the timestamp in human-readable format
+     * TODO:
+     * - fix this not working after switching between edit/create usage of this form on the same page
+     */
+    $('#capture_start').daterangepicker({
+            locale: {
+              format: 'DD-MM-YYYY'
+            },
+            singleDatePicker:   true,
+            startDate:          moment.unix($('#capture_start').val()).format('DD-MM-YYYY'),
+            minDate:            moment('01-01-2015'),
+            maxDate:            moment()
+        }, function(start, end, label) {
+            // we are done here
+    });
+
+    /**
+     * Assign values to the variables we will need later on
+     */
+    var existing_geo_sense_map_files    = {{existing_geo_sense_map_files_json | raw}};
+    var geo_sense_map_upload_size_limit = {{geo_sense_map_upload_size_limit | raw}};
+
+    var params = {};
+    params[site.csrf.keys.name] = site.csrf.name;
+    params[site.csrf.keys.value] = site.csrf.value;
+
+    /**
+     * configuration of the Fine Uploader library for the map upload zone
+     */
+    var mapUploader = new qq.FineUploader({
+        element:  document.getElementById('fineuploader-geo-sense-map-container'),
+        template: 'qq-simple-thumbnails-template-geo-sense-map',
+        multiple: false,
+        request: {
+            endpoint: '{{site.uri.public}}/admin/venue/file_upload/post/geo-sense/map/{{target_venue.id}}',
+            params: params
+        },
+        deleteFile: {
+            enabled:   true,
+            method:   'POST', // IMPORTANT: allows us to submit the CSRF token as required by Slim framework
+            endpoint: '{{site.uri.public}}/admin/venue/file_upload/delete/geo-sense/map/{{target_venue.id}}',
+            params: params
+        },
+        chunking: {
+            enabled: false
+        },
+        resume: {
+            enabled: false
+        },
+        retry: {
+            enableAuto: false,
+            showButton: true
+        },
+        callbacks: {
+            onError: function(id, name, errorReason, xhrOrXdr) {
+                $('#geo_sense_map_upload_feedback_message').html('Upload failed: ' + errorReason);
+            },
+            onComplete: function(id, name, responseJSON, xhr) {
+                if (responseJSON.success) {
+                    $('#geo_sense_map_upload_feedback_message').html('Upload successful');
+                    $('#geo_sense_map_dropzone_div').hide();
+                    $('#geo_sense_map_upload_button_div').hide();
+                    $('#splash_iframe')[0].contentWindow.location.reload(true);
+                }
+            },
+            onDeleteComplete: function(id, xhr, isError) {
+                if (isError == false) {
+                    $('#geo_sense_map_dropzone_div').show();
+                    $('#geo_sense_map_upload_button_div').show();
+                    $('#splash_iframe')[0].contentWindow.location.reload(true);
+                    existing_geo_sense_map_files = [];
+                    mapUploader.addInitialFiles(existing_geo_sense_map_files);
+                }
+            }
+        },
+        validation: {
+            allowedExtensions: ['jpeg', 'jpg', 'png'],
+            acceptFiles:       'image/jpeg, image/png',
+            sizeLimit:         {{geo_sense_map_upload_size_limit | raw}},
+            itemLimit:         1,
+            // image:             {
+            //     minHeight: 20,
+            //     minWidth: 100,
+            //     maxHeight:500,
+            //     maxWidth: 800
+            // }
+        },
+    });
+
+    if (existing_geo_sense_map_files.length > 0) {
+        $('#geo_sense_map_dropzone_div').hide();
+        $('#geo_sense_map_upload_button_div').hide();
+    }
+
+    /**
+     * inform the uploader instance of any existing files we might wish to display
+     */
+    mapUploader.addInitialFiles(existing_geo_sense_map_files);
+});
+</script>
+<script type="text/template" id="qq-simple-thumbnails-template-geo-sense-map">
+    <div class="qq-uploader-selector qq-uploader" qq-drop-area-text="Drop map file here">
+        <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
+            <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
+        </div>
+        <div id="geo_sense_map_dropzone_div" class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+            <span class="qq-upload-drop-area-text-selector"></span>
+        </div>
+        <div id="geo_sense_map_upload_button_div" class="qq-upload-button-selector btn blue">
+            <div><i class="fa fa-cloud-upload fa-fw" aria-hidden="true"></i> Upload a file</div>
+        </div>
+        <span class="qq-drop-processing-selector qq-drop-processing">
+            <span>Processing dropped files...</span>
+            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+        </span>
+        <ul class="qq-upload-list-selector qq-upload-list" aria-live="polite" aria-relevant="additions removals">
+            <li>
+                <div class="qq-progress-bar-container-selector">
+                    <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
+                </div>
+                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                <img class="qq-thumbnail-selector" qq-max-size="200" qq-server-scale>
+                <span class="qq-upload-file-selector qq-upload-file"></span>
+                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon" aria-label="Edit filename"></span>
+                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                <span class="qq-upload-size-selector qq-upload-size"></span>
+                <br>
+                <button type="button" class="qq-upload-cancel-selector btn red"><i class="fa fa-ban" aria-hidden="true"></i> Cancel</button>
+                <button type="button" class="qq-upload-delete-selector btn red"><i class="fa fa-trash fa-fw" aria-hidden="true"></i> Delete</button>
+                <button type="button" class="qq-upload-retry-selector btn blue"><i class="fa fa-refresh fa-fw" aria-hidden="true"></i> Retry</button>
+                <span id="geo_sense_map_upload_feedback_message" class="qq-upload-status-text"></span>
+            </li>
+        </ul>
+
+        <dialog class="qq-alert-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">Close</button>
+            </div>
+        </dialog>
+
+        <dialog class="qq-confirm-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">No</button>
+                <button type="button" class="qq-ok-button-selector">Yes</button>
+            </div>
+        </dialog>
+
+        <dialog class="qq-prompt-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <input type="text">
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">Cancel</button>
+                <button type="button" class="qq-ok-button-selector">Ok</button>
+            </div>
+        </dialog>
+    </div>
+</script>

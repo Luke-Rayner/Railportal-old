@@ -1,0 +1,1037 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Air Quality AQI Report",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="enviro_report_range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne" style="background-color: #1c2746; color: white;">
+                    <h4 class="panel-title">
+                    <a id="zone-selection" role="button" class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        <i class="up-down fa fa-chevron-down fa-fw pull-right"></i>
+                        <b>Zone Selection Tool</b>
+                    </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <h4>Please select the zones you wish to report on and press the apply button</h4>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="enviro_sensors_list" class="col-xs-12" align="center" style="line-height: 22px;">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <button class="btn btn-primary" id="apply_zone_update">Apply Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Daily Air Quality Index (DAQI)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_top" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Nitrogen Dioxide (NO2)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Ozone (O3)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Sulfur Dioxide (SO2)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Particle Matter 2.5 (PM2.5)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_3_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Particle Matter (PM10)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_1" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_3_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold"> Weather Data</span>
+                    <span class="caption-helper">powered by <a href="https://darksky.net/poweredby/" target="new_window" style="color:white">dark sky</a></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_2" style="width: 100%; height: 250px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+/**
+ * define this chart and it's weather icons globally for use in the callback functions
+ */
+var chart_3_2 = {};
+var weather_icons_array = [];
+
+/**
+ * define default start and end for the page
+ */
+var rangeStart  = moment().startOf('day').subtract(1, 'weeks');
+var rangeEnd    = moment();
+
+/**
+ * get the allowed zones for this user
+ */
+$.ajax({
+    url:        '{{site.uri.public}}/enviro-sense/api/list/enviro_sensors',
+    type:       'GET',
+    dataType:   'json',
+    success:    onZonesDataReceived
+});
+
+var all_enviro_sensor = [];
+var enviro_sensor_ids  = [];
+function onZonesDataReceived(data) {
+    console.log(data);
+    $.each(data.rows, function(key, value) {
+        $('#enviro_sensors_list').append('<span id="enviro_sensor_' + value.id + '" class="tag label label-info" style="margin-right: 5px; background-color: #4CAF50; display: inline-block;"><span>' + value.name + '</span><a style="padding-left: 3px; color: white;" onclick="zone_list_change(' + value.id + ')"><i class="remove glyphicon glyphicon-remove-sign glyphicon-white"></i></a></span>');
+
+        enviro_sensor_ids.push(value.id);
+        all_enviro_sensor.push(value.id);
+    });
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+}
+
+function zone_list_change(enviro_sensor_id) {
+    if ($('#enviro_sensor_' + enviro_sensor_id).hasClass('label-info')) {
+        $('#enviro_sensor_' + enviro_sensor_id).removeClass('label-info').addClass('label-danger').css('background-color', '#D9534F').find('i').removeClass('glyphicon-remove-sign').addClass('glyphicon-ok-sign');         
+
+        enviro_sensor_ids = $.grep(enviro_sensor_ids, function(value) {
+            return value != enviro_sensor_id;
+        });
+    }
+    else {
+        $('#enviro_sensor_' + enviro_sensor_id).removeClass('label-danger').addClass('label-info').css('background-color', '#4CAF50').find('i').removeClass('glyphicon-ok-sign').addClass('glyphicon-remove-sign');
+
+        enviro_sensor_ids.push(enviro_sensor_id);
+    }    
+}
+
+$('#apply_zone_update').click(function() {
+    page_daterange(rangeStart, rangeEnd);
+});
+
+var sensorValue = 0;
+
+/***************************************************************
+ * create the chart options for the aqi sensors
+ ***************************************************************/
+var chart_AQI_Options = {
+    chart: {
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime',
+        plotBands: weekends
+    },
+    yAxis: [
+        {
+            floor: null,
+            max: 10,
+            labels: {
+                format: '{value}'
+            },
+            plotBands: [
+            {
+                color: '#9CFF9C',
+                from: 0,
+                to: 1,
+                id: 'plotband'
+            },
+            {
+                color: '#31FF00',
+                from: 1,
+                to: 2,
+                id: 'plotband'
+            },
+            {
+                color: '#31CF00',
+                from: 2,
+                to: 3,
+                id: 'plotband'
+            },
+            {
+                color: '#FFFF00',
+                from: 3,
+                to: 4,
+                id: 'plotband'
+            },
+            {
+                color: '#FFCF00',
+                from: 4,
+                to: 5,
+                id: 'plotband'
+            },
+            {
+                color: '#FF9A00',
+                from: 5,
+                to: 6,
+                id: 'plotband'
+            },
+            {
+                color: '#FF6464',
+                from: 6,
+                to: 7,
+                id: 'plotband'
+            },
+            {
+                color: '#FF0000',
+                from: 7,
+                to: 8,
+                id: 'plotband'
+            },
+            {
+                color: '#990000',
+                from: 8,
+                to: 9,
+                id: 'plotband'
+            },
+            {
+                color: '#CE30FF',
+                from: 9,
+                to: 10,
+                id: 'plotband'
+            }]
+        }
+    ],
+    plotOptions: {
+        column: {
+            borderWidth: 0,
+            stacking: 'normal'
+            //pointPlacement: 'between'
+        },
+        line: {
+            pointPlacement: 'between',
+            stacking: 'normal',
+        },
+        series: {
+            marker: {
+                enabled: false,
+                symbol: 'circle',
+                radius: 2,
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                }
+            }
+        }
+    },
+    legend: {
+        enabled: true
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var chart = this.points[0].series.chart; //get the chart object
+            var visitor_data = chart.series[1].options.data;
+            var date = this.x;
+            var visitor_count = 0;
+
+            $.each(visitor_data, function(index, value) {
+                if(value[0] == date) {
+                    visitor_count = value[1];
+                }
+            });
+
+            var tooltipcontent = '<b>' + moment.unix((this.points[0].key / 1000)).format("DD/MM/YYYY HH:mm"); + '</b>';
+            tooltipcontent += '<table style="width:100%">';
+
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> AQI Rating:</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                tooltipcontent += '<tr><td><span style="color: #E05A25">' + symbol + '</span> Value:</td><td style="text-align: right;">' + visitor_count + ' ug/m3</td></tr>';
+            });
+
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    }
+};
+
+/***************************************************************
+ * create the chart options for DAQI chart
+ ***************************************************************/
+var chart_DAQI_Options = {
+    chart: {
+        renderTo: 'chart_top',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x'
+    },
+    xAxis: {
+        type: 'datetime',
+        plotBands: weekends
+    },
+    yAxis: [
+        {
+            floor: null,
+            max: 10,
+            labels: {
+                format: '{value}'
+            }
+        }
+    ],
+    plotOptions: {
+        column: {
+            borderWidth: 0//,
+            //pointPlacement: 'between'
+        },
+        line: {
+            pointPlacement: 'between'
+        },
+        series: {
+            marker: {
+                enabled: false,
+                symbol: 'circle',
+                radius: 2,
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                }
+            }
+        }
+    },
+    legend: {
+        enabled: true
+    },
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var tooltipcontent = '<b>' + moment.unix((this.points[0].key / 1000)).format("DD/MM/YYYY HH:mm"); + '</b>';
+            tooltipcontent += '<table style="width:100%">';
+
+            $.each(this.points, function () {
+                var symbol = '■';
+                tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> Rating:</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+            });
+
+            tooltipcontent += '</table>';
+            return tooltipcontent;
+        }
+    }
+};
+
+/**
+ * initialize the chart
+*/
+chart_AQI_Options.chart.renderTo = 'chart_1_1';
+var chart_1_1 = new Highcharts.Chart(chart_AQI_Options);
+chart_1_1.showLoading();
+
+chart_AQI_Options.chart.renderTo = 'chart_1_2';
+var chart_1_2 = new Highcharts.Chart(chart_AQI_Options);
+chart_1_2.showLoading();
+
+chart_AQI_Options.chart.renderTo = 'chart_2_1';
+var chart_2_1 = new Highcharts.Chart(chart_AQI_Options);
+chart_2_1.showLoading();
+
+chart_AQI_Options.chart.renderTo = 'chart_2_2';
+var chart_2_2 = new Highcharts.Chart(chart_AQI_Options);
+chart_2_2.showLoading();
+
+chart_AQI_Options.chart.renderTo = 'chart_3_1';
+var chart_3_1 = new Highcharts.Chart(chart_AQI_Options);
+chart_3_1.showLoading();
+
+var chart_top = new Highcharts.Chart(chart_DAQI_Options);
+chart_top.showLoading();
+
+
+/***************************************************************
+ * end of chart_4_2
+ ***************************************************************/
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onStats_DataReceived(data) {
+    /**
+     * define series options
+     */
+    var seriesoptions = [
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: 'black',
+            connectNulls: false
+        },
+        {
+            type: 'spline',
+            name: 'Values',
+            visible: false,
+            showInLegend: false
+        }
+    ];
+
+    chart_AQI_Options.series   = seriesoptions;
+
+    /**
+     * push the data into the chart
+     */
+    chart_AQI_Options.chart.renderTo = 'chart_1_1';
+    chart_1_1 = new Highcharts.Chart(chart_AQI_Options);
+
+    chart_AQI_Options.chart.renderTo = 'chart_1_2';
+    chart_1_2 = new Highcharts.Chart(chart_AQI_Options);
+
+    chart_AQI_Options.chart.renderTo = 'chart_2_1';
+    chart_2_1 = new Highcharts.Chart(chart_AQI_Options);
+
+    chart_AQI_Options.chart.renderTo = 'chart_2_2';
+    chart_2_2 = new Highcharts.Chart(chart_AQI_Options);
+
+    chart_AQI_Options.chart.renderTo = 'chart_3_1';
+    chart_3_1 = new Highcharts.Chart(chart_AQI_Options);
+
+    console.log(data);
+
+    nitrogenDioxide_ratings = [];
+    nitrogenDioxide_values  = [];
+    $.each(data['nitrogen_dioxide'], function(key, value) {
+        nitrogenDioxide_ratings.push([value.ts * 1000, value.rating]);
+        nitrogenDioxide_values.push([value.ts * 1000, Math.round(value.value * 100) / 100])
+    });
+
+    ozone_ratings = [];
+    ozone_values  = [];
+    $.each(data['ozone'], function(key, value) {
+        ozone_ratings.push([value.ts * 1000, value.rating]);
+        ozone_values.push([value.ts * 1000, Math.round(value.value * 100) / 100])
+    });
+
+    sulfurDioxide_ratings = [];
+    sulfurDioxide_values  = [];
+    $.each(data['sulfur_dioxide'], function(key, value) {
+        sulfurDioxide_ratings.push([value.ts * 1000, value.rating]);
+        sulfurDioxide_values.push([value.ts * 1000, Math.round(value.value * 100) / 100])
+    });
+
+    particleMatter25_ratings = [];
+    particleMatter25_values  = [];
+    $.each(data['particle_matter_2_5'], function(key, value) {
+        particleMatter25_ratings.push([value.ts * 1000, value.rating]);
+        particleMatter25_values.push([value.ts * 1000, Math.round(value.value * 100) / 100])
+    });
+
+    particleMatter10_ratings = [];
+    particleMatter10_values  = [];
+    $.each(data['particle_matter_10'], function(key, value) {
+        particleMatter10_ratings.push([value.ts * 1000, value.rating]);
+        particleMatter10_values.push([value.ts * 1000, Math.round(value.value * 100) / 100])
+    });
+
+
+    chart_1_1.series[0].setData(nitrogenDioxide_ratings);
+    chart_1_1.series[1].setData(nitrogenDioxide_values);
+    chart_1_1.series[0].update({name:'Nitrogen Dioxide'}, true);
+
+    chart_1_2.series[0].setData(ozone_ratings);
+    chart_1_2.series[1].setData(ozone_values);
+    chart_1_2.series[0].update({name:'Ozone'}, true);
+
+    chart_2_1.series[0].setData(sulfurDioxide_ratings);
+    chart_2_1.series[1].setData(sulfurDioxide_values);
+    chart_2_1.series[0].update({name:'Sulfur Dioxide'}, true);
+
+    chart_2_2.series[0].setData(particleMatter25_ratings);
+    chart_2_2.series[1].setData(particleMatter25_values);
+    chart_2_2.series[0].update({name:'Particle Matter 2.5'}, true);
+
+    chart_3_1.series[0].setData(particleMatter10_ratings);
+    chart_3_1.series[1].setData(particleMatter10_values);
+    chart_3_1.series[0].update({name:'Particle Matter 10'}, true);
+}
+
+function onDAQIStats_DataReceived(data) {
+    console.log(data);
+
+    /**
+     * do something with the data
+     */
+    var seriesoptions = [
+        {
+            type: 'column', // default chart type
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: 'white',
+            name: 'DAQI'
+        }
+    ];
+
+    daqis = [];
+    $.each(data, function(key, value) {
+        var daqi_value = value.daqi_value;
+        var color = '';
+
+        if (daqi_value <= 3 && daqi_value > 0) {
+            color = '#009900';
+        }
+        else if (daqi_value <= 6 && daqi_value > 3) {
+            color = '#FF9900';
+        }
+        else if (daqi_value <= 9 && daqi_value > 6) {
+            color = '#FF0000';
+        }
+        else {
+            color = '#CE30FF';
+        }
+
+        daqis.push({"x": value.day_epoch * 1000, "y": value.daqi_value, "color": color});
+    });
+
+    chart_DAQI_Options.series = seriesoptions;
+    chart_top = new Highcharts.Chart(chart_DAQI_Options);
+
+    chart_top.series[0].setData(daqis);
+
+    
+    // chart_top.series[0].setData(daqis);
+}
+
+/***************************************************************
+ * start of weather stats chart
+ * container: chart_3_2
+ ***************************************************************/
+var chart_3_2_Options = {
+    chart: {
+        renderTo: 'chart_3_2',
+        backgroundColor: '#FFFFFF',
+        zoomType: 'x',
+        events: {
+            redraw: function(event) {
+                redrawWeatherIcons(event);
+            }
+        }
+    },
+    xAxis: {
+        type: 'datetime',
+        plotBands: weekends
+    },
+    yAxis: [
+        {
+            floor: null,
+            minPadding: 0.1,
+            maxPadding: 0.2,
+            labels: {
+                format: '{value}°'
+            }
+        },
+        {
+            floor: null,
+            labels: {
+                format: '{value} mm'
+            },
+            opposite: true
+        }
+    ],
+    tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+            var symbol = '■';
+            var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+            if (this.points[1] && this.points[2] && this.points[0]) {
+                tooltipcontent += '<table style="width:100%">';
+                tooltipcontent += '<tr><td><span style="color:' + this.points[1].point.color + '">' + symbol + '</span> ';
+                tooltipcontent += this.points[1].series.name + ':</td><td style="text-align: right;">' + this.points[1].point.y.toFixed(1).toLocaleString() + ' °C</td></tr>';
+                tooltipcontent += '<tr><td><span style="color:' + this.points[2].point.color + '">' + symbol + '</span> ';
+                tooltipcontent += this.points[2].series.name + ':</td><td style="text-align: right;">' + this.points[2].point.y.toFixed(1).toLocaleString() + ' °C</td></tr>';
+                tooltipcontent += '<tr><td><span style="color:' + this.points[0].point.color + '">' + symbol + '</span> ';
+                tooltipcontent += this.points[0].series.name + ':</td><td style="text-align: right;">' + this.points[0].point.y.toFixed(1).toLocaleString() + ' mm</td></tr>';
+                tooltipcontent += '</table>';
+                tooltipcontent += '<br/><span style="display:block; width:200px; white-space:normal;"><i>' + this.points[1].point.summary + '</i></span>';
+            }
+
+            return tooltipcontent;
+        }
+    },
+    plotOptions: {
+        column: {
+            borderWidth: 0//,
+            //pointPlacement: 'between'
+        },
+        line: {
+            pointPlacement: 'between'
+        },
+        series: {
+            marker: {
+                enabled: false,
+                symbol: 'circle',
+                radius: 2,
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                }
+            }
+        }
+    },
+    legend: {
+        enabled: true
+    }
+};
+
+/**
+ * initialize the chart
+ */
+chart_3_2 = new Highcharts.Chart(chart_3_2_Options);
+chart_3_2.showLoading();
+
+/**
+ * callback to be called from the bundled ajax calls
+ */
+function onChart_3_2_DataReceived(data) {
+    /**
+     * define the series and their options
+     */
+    var seriesoptions = [
+        {
+            type: 'column',
+            //pointWidth: 100,
+            states: {
+                hover: {
+                    enabled: false
+                }
+            },
+            color: '#C6D4FC',
+            name: 'precipitation',
+            pointRange: 24 * 3600 * 1000,
+            connectNulls: false,
+            yAxis: 1
+        },
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: '#DD686E',
+            name: 'max temperature',
+            pointRange: 24 * 3600 * 1000,
+            connectNulls: false
+        },
+        {
+            type: 'spline',
+            lineWidth: 2,
+            states: {
+                hover: {
+                    enabled: true,
+                    lineWidth: 2
+                }
+            },
+            color: '#132149',
+            name: 'min temperature',
+            pointRange: 24 * 3600 * 1000,
+            connectNulls: false
+        }
+    ];
+
+    chart_3_2_Options.series = seriesoptions;
+    chart_3_2 = new Highcharts.Chart(chart_3_2_Options);
+    chart_3_2.series[0].setData(noGapsDataArray(data.precipitation, 24*60*60));
+    chart_3_2.series[2].setData(noGapsDataArray(data.temp_min, 24*60*60));
+    chart_3_2.series[1].setData(noGapsDataArray(data.temp_max, 24*60*60));
+    chart_3_2.xAxis[0].update({
+        plotBands: weekends
+    });
+}
+
+/**
+ * we need to redraw the weather icons when the chart gets redrawn/resized
+ */
+function redrawWeatherIcons(event) {
+    /**
+     * destroy all weather icons that exist inside the chart area before we draw new ones, then empty the array
+     */
+    _.forEach(weather_icons_array, function(point) {
+        if (point) {
+            point.destroy();
+        }
+    });
+
+    weather_icons_array = [];
+
+    /**
+     * cycle through the data points to draw icons for those within the chart
+     * first count the number of points that are actually in the visible part of the chart
+     */
+    var points_count_in_chart = _.countBy(event.target.series[1].points, function(point) {
+        return point.isInside;
+    });
+
+    if (points_count_in_chart.true < 40) {
+        /**
+         * only process points that are inside the new chart area and only draw icon where we have less than
+         * 40 data points. Otherwise the chart would become too crowded
+         */
+        _.forEach(event.target.series[1].points, function(point) {
+            var file_name = '';
+
+            if (point.isInside) {
+                /**
+                 * here we translate the provided icon attribute to the actual file name we want to render
+                 */
+                switch(point.icon) {
+                    case 'clear-day':
+                        file_name = 'f00d(59)_32';
+                        break;
+                    case 'night-clear':
+                        file_name = 'f02e(12)_32';
+                        break;
+                    case 'rain':
+                        file_name = 'f019(41)_32';
+                        break;
+                    case 'snow':
+                        file_name = 'f01b(57)_32';
+                        break;
+                    case 'sleet':
+                        file_name = 'f017(58)_32';
+                        break;
+                    case 'strong-wind':
+                        file_name = 'f050(0)_32';
+                        break;
+                    case 'fog':
+                        file_name = 'f021(29)_32';
+                        break;
+                    case 'cloudy':
+                        file_name = 'f013(36)_32';
+                        break;
+                    case 'partly-cloudy-day':
+                        file_name = 'f002(53)_32';
+                        break;
+                    case 'partly-cloudy-night':
+                        file_name = 'f031(15)_32';
+                        break;
+                    case 'hail':
+                        file_name = 'f015(38)_32';
+                        break;
+                    case 'thunderstorm':
+                        file_name = 'f01e(30)_32';
+                        break;
+                    case 'tornado':
+                        file_name = 'f056(1)_32';
+                        break;
+                    case 'wind':
+                        file_name = 'f085(2)_32';
+                        break;
+                    default:
+                        file_name = 'f00d(59)_32';
+                }
+
+                /**
+                 * render the icon relative to the max temp point it is attached to
+                 * first construct the icon, then render it to the canvas
+                 *
+                 * NOTE:
+                 * we add the icon object to an array for later use (e.g. to remove the icons upon redraw of the chart)
+                 */
+                weather_icons_array[point.index] = chart_3_1.renderer.image(
+                    '{{site.uri.public}}/images/weather_icons_32x32/' + file_name + '.png',
+                    point.plotX+20,
+                    point.plotY-25,
+                    30,
+                    30
+                ).attr({
+                    zIndex: 5
+                });
+
+                weather_icons_array[point.index].add();
+            }
+        });
+    }
+}
+
+/***************************************************************
+ * end of chart 3.2
+ ***************************************************************/
+
+/***************************************************************
+ * daterangepicker and ajax loading of all the data from here
+ **************************************************************/
+
+/**
+ * functions to display the "active" custom date range and the picker for current page
+ */
+$('#enviro_report_range').daterangepicker({
+    timePicker:             true,
+    timePicker24Hour:       true,
+    timePickerIncrement:    15,
+    showISOWeekNumbers:     true,
+    locale: {
+        format: "DD/MM/YYYY",
+        firstDay: 1
+    },
+    ranges: {
+       'Current Day':               [moment().startOf('day'), moment()], 
+       'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+       'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+       'Last 7 Days':               [rangeStart, rangeEnd], //default value for the page
+       'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
+       'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+       'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+       'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
+       'All Time':                  ['{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+    },
+    startDate:  rangeStart,
+    endDate:    rangeEnd,
+    minDate:    '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
+    maxDate:    moment(),
+    opens:      'left'
+}, page_daterange);
+
+/**
+ * callback function to execute upon selected date range
+ */
+function page_daterange(start, end) {
+    rangeStart = start;
+    rangeEnd   = end;
+
+    /**
+     * place the selected range in the <span> at the top of the page
+     */
+    $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+    $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+    if (end.diff(start) === 0) {
+        console.log('we have difference between start and end of zero: we will add 1 hour to end');
+        end.add(1, 'hour');
+    }
+
+    console.log(start + ':' + end);
+
+    /**
+     * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+     */
+    var chart_top = $("#chart_top").highcharts();
+    var chart_1_1 = $("#chart_1_1").highcharts();
+    var chart_1_2 = $("#chart_1_2").highcharts();
+    var chart_2_1 = $("#chart_2_1").highcharts();
+    var chart_2_2 = $("#chart_2_2").highcharts();
+    var chart_3_1 = $("#chart_3_1").highcharts();
+    var chart_3_2 = $("#chart_3_2").highcharts();
+
+    chart_top.showLoading();
+    chart_1_1.showLoading();
+    chart_1_2.showLoading();
+    chart_2_1.showLoading();
+    chart_2_2.showLoading();
+    chart_3_1.showLoading();
+    chart_3_2.showLoading();
+
+    if (enviro_sensor_ids.length == 0) {
+        enviro_sensor_ids = [0];
+    }
+
+    /**
+     * get the data for chart 3.1
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/geo-sense/api/visitor_report/weather_daily/' + start + '/' + end,
+        type:       'GET',
+        dataType:   'json',
+        success:    onChart_3_2_DataReceived
+    });
+
+    /**
+     * get the average dwell time for donut_3
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/enviro-sense/api/daqi/stats/' + start + "/" + end + "/" + enviro_sensor_ids,
+        type:       'GET',
+        dataType:   'json',
+        success:    onDAQIStats_DataReceived
+    });
+
+    /**
+     * get the average dwell time for donut_3
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/enviro-sense/api/aqi_stats/' + start + "/" + end + '/' + enviro_sensor_ids,
+        type:       'GET',
+        dataType:   'json',
+        success:    onStats_DataReceived
+    });
+}
+
+/***************************************************************
+ * end of daterangepicker and ajax data loading
+ ***************************************************************/
+
+</script>
+{% endblock %}

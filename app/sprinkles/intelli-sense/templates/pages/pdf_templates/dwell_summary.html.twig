@@ -1,0 +1,152 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Dwell Summary</p>
+        <br>
+        <p>This chart shows a summary of the visitor dwell time analytics, each colour represents a dwell category as shown in the key. The second chart is a numerical breakdown of each day and the associated dwell category counts.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_daily_dwell_information">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>120+ mins</th>
+                    <th>90-120 mins</th>
+                    <th>60-90 mins</th>
+                    <th>30-60 mins</th>
+                    <th>5-30 mins</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() {
+
+    /**
+     * 
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/geo-sense/api/stats/venue/visitors_durations/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type:       'GET',
+        dataType:   'json',
+        success:    onPdf_Month_DailyDwellInformation_DataReceived
+    });
+
+    var chart_dailyDwellInformationArea_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_Options.chart.zoomType  = 'x';
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onPdf_Month_DailyDwellInformation_DataReceived(data) {
+        /**
+         * define the series received
+         */
+        var seriesoptions_full = [
+            {
+                type: 'area',
+                name: '120+ mins',
+                color: '#949898'
+            },
+            {
+                type: 'area',
+                name: '90-120 mins',
+                color: '#5a5a5a'
+            },
+            {
+                type: 'area',
+                name: '60-90 mins',
+                color: '#6eb553'
+            },
+            {
+                type: 'area',
+                name: '30-60 mins',
+                color: '#4e5977'
+            },
+            {
+                type: 'area',
+                name: '5-30 mins',
+                color: '#e9825c'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_Options.series = seriesoptions_full;
+        chart_dailyDwellInformationArea_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_Options.chart.renderTo  = 'chart_daily_dwell_information_area';
+        chart_dailyDwellInformationArea = new Highcharts.Chart(chart_dailyDwellInformationArea_Options);
+        chart_dailyDwellInformationArea.series[4].setData(noGapsDataArray(data['dt_level_5'], 86400));
+        chart_dailyDwellInformationArea.series[3].setData(noGapsDataArray(data['dt_level_4'], 86400));
+        chart_dailyDwellInformationArea.series[2].setData(noGapsDataArray(data['dt_level_3'], 86400));
+        chart_dailyDwellInformationArea.series[1].setData(noGapsDataArray(data['dt_level_2'], 86400));
+        chart_dailyDwellInformationArea.series[0].setData(noGapsDataArray(data['dt_level_1'], 86400));
+        
+        chart_dailyDwellInformationArea.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data['dt_level_5'], function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data['dt_level_4'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['dt_level_3'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['dt_level_2'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['dt_level_1'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + '</td><td>' + value[4] + '</td><td>' + value[5] + '</td></tr>';
+        });
+
+        $('#table_daily_dwell_information tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

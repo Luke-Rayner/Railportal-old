@@ -1,0 +1,34 @@
+---
+gender:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+birth_date_day:
+  validators:
+    length:
+      min: 1
+      max: 2
+      message: IDENTITY_BIRTH_DATE_DAY_CHAR_LIMIT
+  sanitizers:
+    raw: {}
+birth_date_month:
+  sanitizers:
+    raw: {}
+birth_date_year:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    length:
+      min: 4
+      max: 4
+      message: BIRTH_YEAR_CHAR_LENGTH
+  sanitizers:
+    raw: {}
+postcode:
+  validators:
+    length:
+      min: 1
+      max: 10
+      message: POSTCODE_CHAR_LIMIT
+  sanitizers:
+    raw: {}

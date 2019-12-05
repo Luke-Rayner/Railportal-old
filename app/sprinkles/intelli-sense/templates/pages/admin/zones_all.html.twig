@@ -1,0 +1,236 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Zones overview",
+        "description" : "Page which displays all zones zones."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Zone Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="zones" class="table table-sorting table-striped table-hover datatable" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Venue</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Tags</th>
+                            <th>Lat</th>
+                            <th>Long</th>
+                        </tr>
+                    </thead>
+                </table>
+                <button type="button" class="btn btn-success" id="addNewZone">
+                    <i class="fa fa-plus-square"></i> Add new Zone
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+$(document).ready(function() {
+    var zonestable = $('#zones').DataTable({
+        responsive: true,
+        autoWidth:  true,
+        scrollX:    true,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/api/zones/all",
+            dataSrc: function(json) {
+                console.log(json['rows']);
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'name'},
+            {data: 'venue.name'},
+            {data: 'zone_type',
+                render: function(data, type, full, meta) {
+                    if (full.wifi_zone == 1 && full.tracking_zone == 1) {
+                        return 'Both';
+                    }
+                    else if (full.wifi_zone == 1) {
+                        return 'WiFi';
+                    }
+                    else if (full.tracking_zone == 1) {
+                        return 'Geo Sense';
+                    }
+                    else {
+                        'Unknown';
+                    }
+                }
+            },
+            {data: 'category.name'},
+            {data: 'tags',
+                render: function(data, type, full, meta) {
+                    if (typeof data !== 'undefined') {
+                        if (type === 'display') {
+                            var html_contents = '';
+                            _.forEach(data, function(tag) {
+                                html_contents += '<span class="badge badge-primary" style="font-size:x-small;">' + tag.name + '</span> ';
+                            });
+                            return html_contents;
+                        }
+
+                        if (type === 'filter') {
+                            var text_contents = '';
+                            _.forEach(data, function(tag) {
+                                text_contents += tag.name + ' ';
+                            });
+                            return text_contents;
+                        }
+                        return data;
+                    }
+                    return;
+                }
+            },
+            {data: 'lat'},
+            {data: 'lon'}
+        ],
+    });
+
+    /**
+     * open the addNewZoneModal upon click on the button
+     */
+    $('#addNewZone').click(function(e) {
+        e.preventDefault();
+
+        var url = site.uri.public + "/admin/forms/zones/create";
+
+        /**
+         * Show the modal
+         * The second param is the form id which can be found in the twig template
+         */
+        Forms(url, 'create_zone');
+    });
+
+    /**
+     * open the updateZoneModal upon tap/click on a row in the zones table
+     */
+    $('body').on('click', '#zones tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this zone
+         */
+        var thisZone = zonestable.row( this ).data();
+        
+        var url = site.uri.public + "/admin/forms/zones/update/" + thisZone.id;;
+
+        /**
+         * Show the modal
+         * The second param is the form id which can be found in the twig template
+         */
+        Forms(url, 'update_zone');
+    });
+
+     /********************************************
+     * Forms function to load and submit modals *
+     *******************************************/
+    function Forms(url, form_id) {
+        var data = {
+            box_id: form_id,
+            include_venue: 1
+        };
+
+        /**
+         * Delete any existing instance of the form with the same name
+         */
+        if($('#' + form_id).length ) {
+            $('#' + form_id).remove();
+        }
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+          type: "GET",
+          url: url,
+          data: data,
+          cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#' + form_id).modal('show');
+
+            /**
+             * Link submission buttons
+             */
+            $('#' + form_id + ' form').ufForm({
+                validator: validators,
+                msgTarget: $("#alerts-page")
+            }).on("submitSuccess.ufForm", function() {
+                $('#' + form_id).modal('hide');
+                zonestable.ajax.reload();
+            });
+        });
+    }
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $(".modal").on('shown', function() {
+        //
+    });
+
+    /**
+     * table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(zonestable.draw, 100);
+    });
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+---
+email_address:
+  validators:
+    required:
+      message: ACCOUNT_SPECIFY_EMAIL
+    length:
+      min: 1
+      max: 150
+      message: ACCOUNT_EMAIL_CHAR_LIMIT
+    email:
+      message: ACCOUNT_INVALID_EMAIL

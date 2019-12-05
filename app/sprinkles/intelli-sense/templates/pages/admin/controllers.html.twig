@@ -1,0 +1,261 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title" : "Controllers",
+        "description" : "manage UniFi controllers"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Controller Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="controllers" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>Name</th>
+                            <th>URL</th>
+                            <th>Shared</th>
+                            <th>Contact</th>
+                            <th>Version</th>
+                            <th>Last check</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn blue" id="createController">
+                          <i class="fa fa-plus-square"></i> Add new Controller
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END PORTLETS -->
+{# END PAGE CONTENT #}
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+/**
+ * global variables as required
+ */
+
+$(document).ready(function() {
+
+    var controllers_table = $('#controllers').on('error.dt', flashToasts).DataTable({
+        order: [
+            [0, 'asc']
+        ],
+        processing: true,
+        scrollX: true,
+        ajax: {
+            url: site.uri.public + '/api/list/controllers',
+            dataSrc: function(json) {
+                return json.rows;
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name'},
+            {data: 'url'},
+            {data: 'shared',
+                render: function(data, type, full, meta) {
+                    if (type === 'display' || type === 'filter') {
+                        if (data == 0) {
+                            return 'no';
+                        } else {
+                            return 'yes';
+                        }
+                    }
+
+                    return data;
+                }
+            },
+            {data: 'contact'},
+            {data: 'version'},
+            {data: 'version_last_check',
+                render: function(data, type, full, meta) {
+                    if (type === 'display' || type === 'filter') {
+                        if (data == 0) {
+                            return 'never';
+                        } else {
+                            return moment(data * 1000).format("D MMM YYYY, HH:mm");
+                        }
+                    }
+
+                    return data;
+                }
+            }
+        ],
+        fnRowCallback: function(row, data, displayIndex) {
+            $('#datatables_refresh').prop('disabled', false);
+            $('#datatables_refresh').find('i').removeClass().addClass('fa fa-refresh fa-fw fa-lg');
+        }
+    });
+
+    /**
+     * fix to redraw the tables in hidden divs with scrollx enabled upon tab being opened
+     */
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .columns.adjust();
+    });
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $('.modal').on('shown', function() {
+        //
+    });
+
+    /**
+     * function for refreshing datatables contents
+     */
+    $('body').on('click', '#datatables_refresh', function(e) {
+        e.preventDefault();
+
+        /**
+         * Reload the datatables data using ajax
+         */
+        controllers_table.ajax.reload();
+    });
+
+    /**
+     * fix to get Bootstrap tooltips to work within Datatables
+     */
+    $('#controllers').on('draw.dt', function () {
+        $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    });
+
+    /**
+     * functions for Controller Management from here
+     */
+
+    /**
+     * open the Modal to create a new controller
+     */
+    $('#createController').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        controllerForm('dialog-controller-create')
+    });
+
+    /**
+     * open the Modal to update the controller upon tap/click on a row in the controllers table
+     */
+    $('body').on('click touchstart', '#controllers tbody tr', function(e) {
+        e.preventDefault();
+        var thisController = controllers_table.row(this).data();
+        controllerForm('dialog-controller-edit', thisController.id)
+    });
+
+    /**
+     * Display a modal form for updating an existing controller or creating a new controller.
+     * example call: controllerForm('dialog-controller-edit', controller_id);
+     */
+    function controllerForm(box_id, controller_id) {
+        controller_id = typeof controller_id !== 'undefined' ? controller_id : "";
+
+        var data = {
+            box_id: box_id
+        };
+
+        /**
+         * Delete any existing instance of the form with the same name
+         */
+        if($('#' + box_id).length ) {
+            $('#' + box_id).remove();
+        }
+
+        /**
+         * also delete any existing instances of the confirmation modal if they exist
+         */
+        if($('#confirmModal').length ) {
+            $('#confirmModal').remove();
+        }
+
+        var url = site.uri.public + "/admin/forms/controllers";
+
+        /**
+         * If we are updating an existing controller
+         */
+        if (controller_id) {
+            url = site.uri.public + "/admin/forms/controllers/u/" + controller_id;
+        }
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+          type: "GET",
+          data: data,
+          url: url,
+          cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#' + box_id).modal('show');
+
+            /**
+             * Link submission buttons
+             */
+            $('#' + box_id + ' form').ufForm({
+                validator: validators,
+                msgTarget: $("#alerts-page")
+            }).on("submitSuccess.ufForm", function() {
+                window.location.reload(true);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

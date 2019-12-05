@@ -1,0 +1,395 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Live event info",
+        "description" : "Page to display live data for events"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-12 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">{{current_user.venue_name}}: current visitors</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div style="width:100%; height:40px;"></div>
+                <div class="live_visitor_count hidden-xs" style="width: 100%; height: 160px; text-align: center; font-size: 1200%;"></div>
+                <div class="live_visitor_count visible-xs-block" style="width: 100%; height: 90px; text-align: center; font-size: 600%;"></div>
+                <div class="hidden-xs" style="width:100%; height:30px;"></div>
+                <div id="chart_container_1" style="width:100%; height:100px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">{{current_user.venue_name}}: current visitor count over time</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_container_2" style="width:100%; height:200px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+    
+var current_visitor_count = 0;
+var counter_suffix = '';
+var refresh_interval = {{current_user.primaryVenue.venue_tracking.event_info_refresh}};
+var previous_quarter = 0;
+
+/**
+ * Set the global timezone for this session for use in moment.js
+ */
+moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+moment.updateLocale('en', {
+    week : {
+        dow : 1,
+    }
+});
+
+/***************************************************************
+ * start of the chart to be drawn just below the main metric
+ * container: chart_container_1
+ * - first we define the options for this chart
+ ***************************************************************/
+var chart_1_Options = {
+    global: {
+        getTimezoneOffset: function (timestamp) {
+            timezoneOffset = -moment.tz(timestamp, timezone).utcOffset();
+            return timezoneOffset;
+        }
+    },
+    chart: {
+        renderTo: 'chart_container_1',
+        backgroundColor: '#FFFFFF',
+        type: 'spline',
+        alignTicks: false,
+        marginTop: 0
+    },
+    title: {
+        text: false
+    },
+    xAxis: {
+        type: 'datetime',
+        tickWidth: 1,
+        tickLength: 10,
+        gridLineWidth: 0,
+        labels: {
+            align: 'left',
+            x: 5,
+            y: 13
+        },
+        plotLines: [],
+        events: {
+            afterSetExtremes: function(event){
+                /**
+                 * catch when event.min or event.max is undefined, else set the sequence vars to the new values
+                 */
+                if (event.min && event.max) {
+                    /**
+                     * whatever we wish to do when the chart extremes have been newly set
+                     */
+                } else {
+                    /**
+                     * what we do when the received data array for the chart is empty
+                     */
+                    chart_1.showLoading('No data to display');
+                }
+            }
+        }
+    },
+    yAxis: {
+        gridLineWidth: 0,
+        labels: {
+            enabled: false
+        }
+    },
+    tooltip: {
+        formatter: function () {
+            /**
+             * here we format the tooltip
+             */
+            var tooltipcontent = '<b>' + moment(this.x).format("HH:mm") + '</b>';
+            tooltipcontent += '<br/>' + this.series.name + ': ' + this.y.toLocaleString();
+
+            return tooltipcontent;
+        }
+    },
+    legend: {
+        enabled: false
+    },
+    series: [{
+        name: 'Current visitors',
+        data: []
+    }]
+};
+
+/**
+ * initialise the chart
+ */
+var chart_1 = new Highcharts.Chart(chart_1_Options);
+
+/***************************************************************
+ * start of the second chart
+ * container: chart_container_2
+ * - first we define the options for this chart
+ ***************************************************************/
+var chart_2_Options = {
+    global: {
+        getTimezoneOffset: function (timestamp) {
+            timezoneOffset = -moment.tz(timestamp, timezone).utcOffset();
+            return timezoneOffset;
+        }
+    },
+    chart: {
+        renderTo: 'chart_container_2',
+        backgroundColor: '#FFFFFF',
+        type: 'column',
+        alignTicks: false,
+        marginTop: 0
+    },
+    title: {
+        text: false
+    },
+    xAxis: {
+        type: 'datetime',
+        tickWidth: 1,
+        tickLength: 10,
+        gridLineWidth: 0,
+        labels: {
+            align: 'left',
+            x: 5,
+            y: 13
+        },
+        plotLines: [],
+        events: {
+            afterSetExtremes: function(event){
+                /**
+                 * catch when event.min or event.max is undefined, else set the sequence vars to the new values
+                 */
+                if (event.min && event.max) {
+                    /**
+                     * whatever we wish to do when the chart extremes have been newly set
+                     */
+                } else {
+                    /**
+                     * what we do when the received data array for the chart is empty
+                     */
+                    chart_2.showLoading('No data to display');
+                }
+            }
+        }
+    },
+    yAxis: {
+        gridLineWidth: 0,
+        labels: {
+            enabled: false
+        }
+    },
+    tooltip: {
+        formatter: function () {
+            /**
+             * here we format the tooltip
+             */
+            var tooltipcontent = '<b>' + moment(this.x).format("HH:mm") + '</b>';
+            tooltipcontent += '<br/>' + this.series.name + ': ' + this.y.toLocaleString();
+
+            return tooltipcontent;
+        }
+    },
+    legend: {
+        enabled: false
+    },
+    series: [{
+        name: 'Current visitors',
+        data: []
+    }]
+};
+
+/**
+ * initialise the second chart
+ */
+var chart_2 = new Highcharts.Chart(chart_2_Options);
+
+/**
+ * function to fetch footfall counter
+ */
+function fetchFootfallData() {
+    //console.log('refreshing live metrics');
+
+    /**
+     * ajax function to get current footfall
+     * NOTE: this data is also refreshed every so many seconds, so any changes made here also need to applied
+     * to the timer function at the end of the script section
+     */
+    $.ajax({
+        url:      '{{site.uri.public}}/geo-sense/api/event/footfall_count/',
+        type:     'GET',
+        dataType: 'json',
+        success:  onCurrentFootfallDataReceived
+    });
+}
+
+/**
+ * function push the received footfall data to the page
+ */
+function onCurrentFootfallDataReceived(data) {
+    if (data > current_visitor_count) {
+        counter_suffix = ' <i class="fa fa-arrow-circle-up" style="font-size: 50%;"></i>';
+    } else if (data < current_visitor_count) {
+        counter_suffix = ' <i class="fa fa-arrow-circle-down" style="font-size: 50%;"></i>';
+    } else {
+        counter_suffix = ' <i class="fa fa-arrow-circle-left" style="font-size: 50%;"></i>';
+    }
+
+    $('.live_visitor_count').html(data.toLocaleString() + counter_suffix);
+
+    /**
+     * chart update preparations:
+     * shift if the series is longer than roughly 4 hours (variance caused by the time needed for the AJAX calls)
+     */
+    var series = chart_1.series[0];
+    var shift  = series.data.length > (14400/(refresh_interval/1000));
+
+    /**
+     * add the point
+     */
+    chart_1.series[0].addPoint([Date.now(), data], true, shift);
+    chart_1.hideLoading();
+
+    /**
+     * update the current count for the next time we call this function
+     */
+    current_visitor_count = data;
+
+    /**
+     * check whether we have a change in quarter
+     */
+    var timestamp = Math.floor(Date.now() / 1000);
+    current_quarter = timestamp - (timestamp % 900);
+
+    if (previous_quarter != 0 && current_quarter > previous_quarter) {
+        //console.log('we have a quarter change, adding a data point to the second chart');
+
+        /**
+         * we assume a length of 8 hours (32 quarters) which we wish to display in the second chart
+         */
+        var series_2 = chart_2.series[0];
+        var shift_2  = series_2.data.length > 32;
+
+        chart_2.series[0].addPoint([Date.now(), data], true, shift_2);
+    }
+
+    previous_quarter = current_quarter;
+}
+
+/**
+ * function to fetch footfall series for second chart,
+ * only to be called once upon page ready
+ */
+function fetchFootfallSeries() {
+    /**
+     * ajax function to get footfall series
+     */
+    $.ajax({
+        url:      '{{site.uri.public}}/geo-sense/api/event/footfall_series/',
+        type:     'GET',
+        dataType: 'json',
+        success:  onFootfallSeriesReceived
+    });
+}
+
+/**
+ * function to push the received footfall series to the second chart
+ */
+function onFootfallSeriesReceived(data) {
+    /**
+     * chart preparations
+     */
+    var series = chart_2.series[0];
+    chart_2.hideLoading();
+
+    /**
+     * iterate through the data array of objects to push each point to the chart,
+     * each object should look like so: {"x":"1363700566","y":8.04}
+     */
+    $.each(data,function(index, object){
+        series.addPoint(object, false);
+    });
+
+    chart_2.redraw();
+}
+
+$(document).ready(function() {
+    fetchFootfallData();
+    fetchFootfallSeries();
+
+    /***************************************************************
+     * function to refresh ajax data from here
+     ***************************************************************/
+    /**
+     * refresh these metrics at the interval set by variable "venue.event_info_refresh"
+     *
+     * TO DO:
+     * - add some form of feedback to the user
+     */
+
+    /**
+     * whatever we need to do when all AJAX requests have finished
+     */
+    $(document).ajaxStop(function () {
+        setTimeout(function(){
+            fetchFootfallData();
+        }, refresh_interval);
+    });
+
+    /**
+     * show chart "loading" messages
+     */
+    chart_1.showLoading();
+    chart_2.showLoading();
+
+    /**
+     * whatever we want to do upon window resize and collapse of sidebar
+     */
+    $(window).resize(function(){
+        //
+    });
+});
+</script>
+{% endblock %}

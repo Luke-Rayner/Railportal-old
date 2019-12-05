@@ -1,0 +1,175 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<style>
+    #table_zone_overview td {
+        font-size: 16px !important;
+    }
+</style>
+
+<div class="pdf-page-content">
+	<div class="custom-row left">
+        <p class="header">Zone Summary</p>
+        <br>
+        <p>Zones are areas of the venue that allow for specific footfall counting and will contain at least one GEO-Sense sensor. All zone counts are unique to the zone and visitor or visit counts they do not take into consideration any other zones.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Zone Overview</p>
+        <p>The chart below shows all zones associated to this venue. Each zone listed shows the total unique visitor count split by New or Repeat. The second charts shows the actual numbers of visitors per zone.</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_zone_overview_bar" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_zone_overview">
+            <thead>
+                <tr>
+                    <th>Zone name</th>
+                    <th>New visitors</th>
+                    <th>Repeat visitors</th>
+                    <th>Total visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() {
+
+    /**
+     * 
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/geo-sense/api/visitor_report/busiest_zones/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type:       'GET',
+        dataType:   'json',
+        success:    chart_zoneOverviewBar_Options_DataReceived
+    });
+
+    var chart_zoneOverviewBar_Options = {
+        chart: {
+            renderTo: 'chart_zone_overview_bar',
+            backgroundColor: '#FFFFFF'
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0
+            },
+            series: {
+                maxPointWidth: 40,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        xAxis: {
+            type: 'category'
+        }
+    };
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function chart_zoneOverviewBar_Options_DataReceived(data) {
+        console.log(data);
+        /**
+         * sort the json results (zone with highest visitor count first)
+         */
+        data.sort(function(a, b) {
+            var x=a[1];
+            var y=b[1];
+            return y-x;
+        });
+
+        var repeatVisitors = [];
+        var newVisitors = [];
+
+        for (var i = 0; i < data.length; i++) {
+            repeatVisitors.push([data[i][0], data[i][1]]);
+            newVisitors.push([data[i][0], data[i][2]]);
+        }
+
+        /**
+         * only show legend when we have a few zones to display
+         */
+        if (repeatVisitors.length < 6) {
+            chart_zoneOverviewBar_Options.legend.enabled = true;
+        }
+
+        var seriesoptions = [
+            {
+                type: 'bar', // default chart type
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'bar', // default chart type
+                states: {
+                    hover: {
+                        enabled: true
+                    }
+                },
+                color: '#132149',
+                name: 'repeat visitors',
+                stack: 'visitors'
+            }
+        ];
+
+        chart_zoneOverviewBar_Options.series = seriesoptions;
+        var chart_zoneOverviewBar = new Highcharts.Chart(chart_zoneOverviewBar_Options);
+        chart_zoneOverviewBar.series[1].setData(repeatVisitors);
+        chart_zoneOverviewBar.series[0].setData(newVisitors);
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(newVisitors, function(key, value) {
+            combinedArray.push([value[0], value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(repeatVisitors, function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            var total_visitors = value[1] + value[2]
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + total_visitors + '</td></tr>';
+        });
+
+        $('#table_zone_overview tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

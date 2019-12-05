@@ -1,0 +1,1600 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Comparison Report",
+        "description" : "Report showing you old data compared to the new data"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="row text-center" style="display: none" id="pdf_title">
+        <img src="{{site.uri.public}}/images/WiFi-Logo-Image-Blue.png" height="50px" width="50px" style="margin-top: 5px"/>
+        <u><h1 class="bold">INTELLI-SENSE</h1></u>
+    </div>
+
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <!-- <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+</div>
+
+<br>
+
+<div class="row">
+	<div class="col-lg-6 col-xs-12 col-sm-12">
+		<div class="page-toolbar">
+	        <div id="old-charts-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+	            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="old_page_daterange_selected"></span><span class="visible-xs-inline" id="old_page_daterange_selected_small"></span>&nbsp;
+	            <i class="icon-calendar"></i>&nbsp;
+	            <span class="thin uppercase hidden-xs"></span>&nbsp;
+	            <i class="fas fa-angle-down"></i>
+	        </div>
+	    </div>
+	</div>
+	<div class="col-lg-6 col-xs-12 col-sm-12">
+		<div class="page-toolbar">
+	        <div id="new-charts-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+	            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="new_page_daterange_selected"></span><span class="visible-xs-inline" id="new_page_daterange_selected"></span>&nbsp;
+	            <i class="icon-calendar"></i>&nbsp;
+	            <span class="thin uppercase hidden-xs"></span>&nbsp;
+	            <i class="fas fa-angle-down"></i>
+	        </div>
+	    </div>
+	</div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Total Browsers - New Vs Repeat</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Total Browsers - New Vs Repeat</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="PAGE-BREAK-AFTER: always">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Number of Browsers - New Vs Repeat</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Number of Browsers - New Vs Repeat</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_3_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Age Breakdown</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_3_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Age Breakdown</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_3_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_4_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Gender Count</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_4_1" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_4_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Gender Count</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_4_2" style="width: 100%; height: 200px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row text-center" style="display: none" id="pdf_url">
+    website address: <a>www.elephantwifi.co.uk</a>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * file name and report title for CSV download
+ */
+var csv_filename = 'Comparison Report - ' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title = '';
+var venue_name = '{{user.venue_name}}';
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    /**
+     * update export title to reflect selected range
+     */
+    var csv_title = 'ElephantWiFi: Comparison Report ({{user.venue_name}}';
+
+    csv_data.push({
+        heading: 'Left Chart - Total Browsers - New Vs Repeat',
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Left Chart - Number of Browsers - New Vs Repeat',
+        process: false,
+        data: $('#chart_2_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Left Chart - Age Breakdown',
+        process: false,
+        data: $('#chart_3_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Left Chart - Gender Count',
+        process: false,
+        data: $('#chart_4_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Right Chart - Total Browsers - New Vs Repeat',
+        process: false,
+        data: $('#chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Right Chart - Number of Browsers - New Vs Repeat',
+        process: false,
+        data: $('#chart_2_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Right Chart - Age Breakdown',
+        process: false,
+        data: $('#chart_3_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Right Chart - Gender Count',
+        process: false,
+        data: $('#chart_4_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+
+    csv_data = [];
+});
+
+function genPDF() {
+    var pdf_title = document.getElementById("pdf_title");
+    if (pdf_title.style.display === "none") {
+        pdf_title.style.display = "block";
+    }
+
+    var pdf_url = document.getElementById("pdf_url");
+    if (pdf_url.style.display === "none") {
+        pdf_url.style.display = "block";
+    }
+
+    var element = document.getElementsByClassName("page-content")[0];
+    var opt = {
+        margin:       1,
+        filename:     'comparison_report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 1 },
+        jsPDF:        { unit: 'pt', format: [1280, 720], orientation: 'l' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+
+    // Hide the element after 2 seconds allowing the screenshot to be taken while the element is shown
+    window.setTimeout(hidePdfElements, 2000);
+}
+
+function hidePdfElements() {
+    var pdf_title = document.getElementById("pdf_title");
+    pdf_title.style.display = "none";
+
+    var pdf_url = document.getElementById("pdf_url");
+    pdf_url.style.display = "none";
+}
+
+$(document).ready(function() {
+	/***************************************************************
+	 * START OF OLD DATA CHARTS
+	 ***************************************************************/
+
+    /***************************************************************
+     * BEGIN daterangepicker from here
+     ***************************************************************/
+
+    var oldDataDates = getOldDataDates();
+    /**
+     * define $start and $end for most of the charts
+     * and determine how far back do we go back to get clients stats
+     * TODO:
+     */
+    var leftRangeStart;
+    var leftRangeEnd;
+
+    /**
+     * Create the variable used for the minimum date you can select in the datepicker
+     */
+    var minDate;
+    if ('{{current_user.primaryVenue.venue_wifi.old_venue}}' == 1) {
+        minDate = moment(oldDataDates['start_date'] * 1000);
+        leftRangeStart = moment(oldDataDates['end_date'] * 1000).subtract(7, 'days');
+        leftRangeEnd = moment(oldDataDates['end_date'] * 1000).subtract(1, 'days');
+    } else {
+        minDate = '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}';
+        leftRangeStart = moment().subtract(2, 'weeks').startOf('day');
+        leftRangeEnd = moment().subtract(1, 'weeks').endOf('day');
+    }
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    old_page_daterange(leftRangeStart, leftRangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     * - assuming start of data collection is January 1st, 2015
+     * TODO:
+     * - consider a venue variable that holds the start date and is checked/updated when setting up
+     */
+    $('#old-charts-range').daterangepicker({
+        showISOWeekNumbers:     true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        startDate:   leftRangeStart,
+        endDate:     leftRangeEnd,
+        minDate:     minDate,
+        maxDate:     moment().subtract(1, 'day').endOf('day'),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, old_page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function old_page_daterange(start, end) {
+        console.log(start + ':' + end);
+
+        /**
+         * place the selected range in the <span>s at the top of the page
+         */
+        $('#old_page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#old_page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        if(start > oldDataDates['end_date'] * 1000) {
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_comparison_report/new_vs_repeat/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    newNewVsRepeatDataRecieved(data, 'left');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_comparison_report/age_breakdown/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    newAgeBreakdownDataRecieved(data, 'left');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/stats/venue/males_vs_females_count/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    newGenderCountDataRecieved(data, 'left');
+                }
+            });
+        } 
+        else {
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_report/new_vs_repeat/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    oldNewVsRepeatDataRecieved(data, 'left');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_report/gender_count/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    oldGenderCountDataRecieved(data, 'left');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_report/age_breakdown/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    oldAgeBreakdownDataRecieved(data, 'left');
+                }
+            });
+        }
+    }
+
+    /***************************************************************
+     * END of daterangepicker
+     ***************************************************************/
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function oldNewVsRepeatDataRecieved(series, chart_side) {
+        data = series;
+
+        chart_2_2_Options.yAxis = {
+            stackLabels: {
+                useHTML: true,
+                enabled: true,
+                align: 'center',
+                verticalAlign: 'top',
+                formatter: function () {
+                    var day_epoch  = this.x;
+                    var event = '';
+                    var event_categories = [];
+                    $.each(series.event, function(key, value) {
+                        if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                            if (event_categories.length == 0) {
+                                event = `<span padding-top: 20px;><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+
+                            if ($.inArray(value['category_id'], event_categories) == -1) {
+                                event += `<br><span><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar fa-sm"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+                        }
+                    });
+                    return event;
+                }
+            }
+        }
+
+        chart_2_2_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                var day_epoch  = this.x;
+                $.each(series.event, function(key, value) {
+                    if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                        tooltipcontent += '<p><b>Event: </b>' + value['name'] + '</p>';
+                    }
+                });
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+
+                return tooltipcontent;
+            }
+        }
+
+        chart_2_1_Options.yAxis = {
+            stackLabels: {
+                useHTML: true,
+                enabled: true,
+                align: 'center',
+                verticalAlign: 'top',
+                formatter: function () {
+                    var day_epoch  = this.x;
+                    var event = '';
+                    var event_categories = [];
+                    $.each(series.event, function(key, value) {
+                        if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                            if (event_categories.length == 0) {
+                                event = `<span padding-top: 20px;><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+
+                            if ($.inArray(value['category_id'], event_categories) == -1) {
+                                event += `<br><span><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar fa-sm"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+                        }
+                    });
+                    return event;
+                }
+            }
+        }
+
+        chart_2_1_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                var day_epoch  = this.x;
+                $.each(series.event, function(key, value) {
+                    if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                        tooltipcontent += '<p><b>Event: </b>' + value['name'] + '</p>';
+                    }
+                });
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+
+                return tooltipcontent;
+            }
+        }
+
+        /**
+         * NOTE: with this function we also feed the "total visitors" data to chart 1.2
+         */
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * define font size percentage for the donut contents, reduce size if total is over 1M
+         */
+        var font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var font_size_perc = 120;
+        }
+
+        if(chart_side != 'right') {
+            chart_1_1_Options.title.text = '<b style="font-size: ' + font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b style="font-size: 10px">Total</b>';
+            var chart_1 = new Highcharts.Chart(chart_1_1_Options);
+        } else {
+            chart_1_2_Options.title.text = '<b style="font-size: ' + font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b style="font-size: 10px">Total</b>';
+            var chart_1 = new Highcharts.Chart(chart_1_2_Options);
+        }
+
+        chart_1.series[0].setData([totalnew, totalrepeat]);        
+
+
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new browsers',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat browsers',
+                stack: 'visitors'
+            }
+        ];
+
+        /*
+        when date range is longer than 6 weeks we switch to area chart instead of column
+        */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        if(chart_side != 'right') {
+            chart_2_1_Options.series = seriesoptions;
+            var chart_2 = new Highcharts.Chart(chart_2_1_Options);
+        } else {
+            chart_2_2_Options.series = seriesoptions;
+            var chart_2 = new Highcharts.Chart(chart_2_2_Options);
+        }
+
+        chart_2.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_2.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_2.xAxis[0].update({
+            plotBands: weekends
+        });
+    }
+
+    function oldAgeBreakdownDataRecieved(series, chart_side) {
+        console.log(series);
+        data = series;
+
+        var seriesoptions = [
+            {
+                color: '#e25826',
+                name: 'browsers'
+            }
+        ];
+
+        if(chart_side != 'right') {
+            chart_3_1_Options.series = seriesoptions;
+            var chart_3 = new Highcharts.Chart(chart_3_1_Options);
+        } else {
+            chart_3_2_Options.series = seriesoptions;
+            var chart_3 = new Highcharts.Chart(chart_3_2_Options);
+        }
+
+        chart_3.series[0].setData(data);
+    }
+
+    function oldGenderCountDataRecieved(series, chart_side) {
+        console.log(series);
+        data = series;
+
+        var males       = data[0];
+        var females     = data[1];
+        var undisclosed = data[2];
+
+        if(chart_side != 'right') {
+            var chart_4 = new Highcharts.Chart(chart_4_1_Options);
+        } else {
+            var chart_4 = new Highcharts.Chart(chart_4_2_Options);
+        }
+
+        chart_4.series[0].setData([males, females, undisclosed]);
+    }
+
+    /***************************************************************
+     * start of new vs repeat pie chart
+     * container: chart_1_1
+     ***************************************************************/
+    var chart_1_1_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_1_1',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true,
+            itemStyle: {
+                fontSize: '16px'
+            },
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 + '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    chart_1_1_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "new browsers",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat browsers",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    /**
+     * initialize the chart
+     */
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.showLoading();
+
+    /***************************************************************
+     * start of visitor stats chart
+     * container: chart_2_1
+     ***************************************************************/
+    var chart_2_1_Options = {
+        chart: {
+            renderTo: 'chart_2_1',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends,
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /*
+    initialize the chart
+    */
+    var chart_2_1 = new Highcharts.Chart(chart_2_1_Options);
+    chart_2_1.showLoading();
+
+    /***************************************************************
+     * start of chart_3_1_Options count chart
+     * container: chart_3_1
+     ***************************************************************/
+    var chart_3_1_Options = {
+        chart: {
+            renderTo:        'chart_3_1',
+            backgroundColor: '#FFFFFF',
+            type:            'column'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                // var tooltipcontent = '<b>' + this.x + '</b>';
+                var mySum = 0;
+                var tooltipcontent = '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the providerIdentity count chart
+     */
+    var chart_3_1 = new Highcharts.Chart(chart_3_1_Options);
+    chart_3_1.showLoading();
+
+    /***************************************************************
+     * start of new vs repeat pie chart
+     * container: chart_4_1
+     ***************************************************************/
+    var chart_4_1_Options = {
+        chart: {
+            renderTo:        'chart_4_1',
+            backgroundColor: '#FFFFFF',
+            type:            'column'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                // var tooltipcontent = '<b>' + this.x + '</b>';
+                var mySum = 0;
+                var tooltipcontent = '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    chart_4_1_Options.series = [{
+        name: "visitors",
+        data: [{
+            name: "males",
+            y: 0,
+            color: '#132149'
+        },
+        {
+            name: "females",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "undisclosed",
+            y: 0,
+            color: '#282828'
+        }]
+    }];
+
+    /**
+     * initialize the chart
+     */
+    var chart_4_1 = new Highcharts.Chart(chart_4_1_Options);
+    chart_4_1.showLoading();
+
+    /***************************************************************
+	 * END OF OLD DATA CHARTS
+	 ***************************************************************/
+
+	/***************************************************************
+	 * START OF NEW DATA CHARTS
+	 ***************************************************************/
+
+	/***************************************************************
+     * BEGIN daterangepicker from here
+     ***************************************************************/
+
+    /**
+     * define $start and $end for most of the charts
+     * and determine how far back do we go back to get clients stats
+     * TODO:
+     */
+    var newRangeEnd       = moment().subtract(1, 'day').endOf('day');
+    var newRangeStart     = moment().subtract(1, 'weeks').startOf('day');
+    var newRightNow       = moment().subtract(1, 'day').endOf('day');
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    new_page_daterange(newRangeStart, newRangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     * - assuming start of data collection is January 1st, 2015
+     * TODO:
+     * - consider a venue variable that holds the start date and is checked/updated when setting up
+     */
+    $('#new-charts-range').daterangepicker({
+        showISOWeekNumbers:     true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        ranges: {
+           'Current week':     [moment().startOf('week'), newRightNow],
+           'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
+           'Past 7 days':      [newRangeStart, newRangeEnd],
+           'Current month':    [moment().startOf('month'), moment().endOf('month')],
+           'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
+           'Past 31 days':     [moment().startOf('day').subtract(31, 'days'), newRightNow],
+           'Current year':     [moment().startOf('year'), newRightNow],
+           'Past 365 days':    [moment().startOf('day').subtract(1, 'years'), newRightNow]
+        },
+        startDate:   newRangeStart,
+        endDate:     newRangeEnd,
+        minDate:     minDate,
+        maxDate:     moment().subtract(1, 'day').endOf('day'),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, new_page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function new_page_daterange(start, end) {
+
+        /**
+         * place the selected range in the <span>s at the top of the page
+         */
+        $('#new_page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#new_page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        if(start > oldDataDates['end_date'] * 1000) {
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_comparison_report/new_vs_repeat/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    newNewVsRepeatDataRecieved(data, 'right');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_comparison_report/age_breakdown/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    newAgeBreakdownDataRecieved(data, 'right');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/stats/venue/males_vs_females_count/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    newGenderCountDataRecieved(data, 'right');
+                }
+            });
+        } 
+        else {
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_report/new_vs_repeat/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    oldNewVsRepeatDataRecieved(data, 'right');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_report/gender_count/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    oldGenderCountDataRecieved(data, 'right');
+                }
+            });
+
+            $.ajax({
+                url: '{{site.uri.public}}/elephantwifi/api/old_data_report/age_breakdown/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success: function(data){
+                    oldAgeBreakdownDataRecieved(data, 'right');
+                }
+            });
+        }
+    }
+
+    /***************************************************************
+     * END of daterangepicker
+     ***************************************************************/
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function newNewVsRepeatDataRecieved(series, chart_side) {
+        data = series;
+
+        chart_2_2_Options.yAxis = {
+            stackLabels: {
+                useHTML: true,
+                enabled: true,
+                align: 'center',
+                verticalAlign: 'top',
+                formatter: function () {
+                    var day_epoch  = this.x;
+                    var event = '';
+                    var event_categories = [];
+                    $.each(series.event, function(key, value) {
+                        if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                            if (event_categories.length == 0) {
+                                event = `<span padding-top: 20px;><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+
+                            if ($.inArray(value['category_id'], event_categories) == -1) {
+                                event += `<br><span><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar fa-sm"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+                        }
+                    });
+                    return event;
+                }
+            }
+        }
+
+        chart_2_2_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                var day_epoch  = this.x;
+                $.each(series.event, function(key, value) {
+                    if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                        tooltipcontent += '<p><b>Event: </b>' + value['name'] + '</p>';
+                    }
+                });
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+
+                return tooltipcontent;
+            }
+        }
+
+        chart_2_1_Options.yAxis = {
+            stackLabels: {
+                useHTML: true,
+                enabled: true,
+                align: 'center',
+                verticalAlign: 'top',
+                formatter: function () {
+                    var day_epoch  = this.x;
+                    var event = '';
+                    var event_categories = [];
+                    $.each(series.event, function(key, value) {
+                        if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                            if (event_categories.length == 0) {
+                                event = `<span padding-top: 20px;><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+
+                            if ($.inArray(value['category_id'], event_categories) == -1) {
+                                event += `<br><span><i style="background-color:` + value['color'] + `" class="circle-icon fas fa-calendar fa-sm"></i></span>`;
+                                event_categories.push(value['category_id']); 
+                            }
+                        }
+                    });
+                    return event;
+                }
+            }
+        }
+
+        chart_2_1_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                var day_epoch  = this.x;
+                $.each(series.event, function(key, value) {
+                    if (day_epoch >= value['start_date'] && day_epoch <= value['end_date']) {
+                        tooltipcontent += '<p><b>Event: </b>' + value['name'] + '</p>';
+                    }
+                });
+
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+
+                return tooltipcontent;
+            }
+        }
+
+        /**
+         * NOTE: with this function we also feed the "total visitors" data to chart 1.2
+         */
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * define font size percentage for the donut contents, reduce size if total is over 1M
+         */
+        var font_size_perc = 150;
+        if (totalnew + totalrepeat >= 1000000) {
+            var font_size_perc = 120;
+        }
+
+        if (chart_side != "left") {
+            chart_1_2_Options.title.text = '<b style="font-size: ' + font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b style="font-size: 10px">Total</b>';
+            var chart_1 = new Highcharts.Chart(chart_1_2_Options);
+        } else {
+            chart_1_1_Options.title.text = '<b style="font-size: ' + font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b style="font-size: 10px">Total</b>';
+            var chart_1 = new Highcharts.Chart(chart_1_1_Options);
+        }
+
+        chart_1.series[0].setData([totalnew, totalrepeat]);
+
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new browsers',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#132149',
+                name: 'repeat browsers',
+                stack: 'visitors'
+            }
+        ];
+
+        /*
+        when date range is longer than 6 weeks we switch to area chart instead of column
+        */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        if (chart_side != "left") {
+            chart_2_2_Options.series = seriesoptions;
+            var chart_2 = new Highcharts.Chart(chart_2_2_Options);
+        } else {
+            chart_2_1_Options.series = seriesoptions;
+            var chart_2 = new Highcharts.Chart(chart_2_1_Options);
+        }        
+        
+        chart_2.series[0].setData(noGapsDataArray(data.new, 86400));
+        chart_2.series[1].setData(noGapsDataArray(data.repeat, 86400));
+        chart_2.xAxis[0].update({
+            plotBands: weekends
+        });
+    }
+
+    function newAgeBreakdownDataRecieved(series, chart_side) {
+    	/**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e15910',
+                name: 'browsers',
+            }
+        ];      
+
+        if(chart_side != 'left') {
+            chart_3_2_Options.series = seriesoptions;
+            var chart_3 = new Highcharts.Chart(chart_3_2_Options);
+        } else {
+            chart_3_1_Options.series = seriesoptions;
+            var chart_3 = new Highcharts.Chart(chart_3_1_Options);
+        }
+
+        // Only 13+ year olds are allowed on the wifi so show that as the lowest number.
+        for (var ln = 0; ln < series.length; ln++) {
+            if(series[ln][0] == '10-19')
+                series[ln][0] = '13-19'
+        }
+        
+        chart_3.series[0].setData(series);
+    }
+
+    function newGenderCountDataRecieved(data, chart_side) {
+        var seriesoptions = [
+            {
+                color: '#e25826',
+                name: 'browsers'
+            }
+        ];
+
+        if(chart_side != 'left') {
+            chart_4_2_Options.series = seriesoptions;
+            chart_4 = new Highcharts.Chart(chart_4_2_Options);
+        } else {
+            chart_4_1_Options.series = seriesoptions;
+            chart_4 = new Highcharts.Chart(chart_4_1_Options);
+        }
+
+        var genderCount =[];
+        for (var ln = 0; ln < data.length; ln++) {
+
+            switch(data[ln]['gender']) {
+                case 'Male':
+                    var color = '#2C3A62';
+                    break;
+                case 'Female':
+                    var color = '#e25826'
+                    break;
+                default:
+                    var color = '#D3D3D3'
+            }
+
+            var item = {
+                'name':  data[ln]['gender'],
+                'y':     data[ln]['count'],
+                'color': color
+            };
+            genderCount.push(item);
+        }
+
+        chart_4.series[0].setData(genderCount);
+    }
+
+    /***************************************************************
+     * start of new vs repeat pie chart
+     * container: chart_1_2
+     ***************************************************************/
+    var chart_1_2_Options = {
+        chart: {
+            type: 'pie',
+            renderTo: 'chart_1_2',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow: false,
+            spacingTop: 0,
+            spacingBottom: 0,
+            spacingLeft: 0,
+            spacingRight: 0
+        },
+        plotOptions: {
+            pie: {
+                innerSize: '65%',
+                center: ['50%', '50%'],
+                borderWidth: 0,
+                allowPointSelect: false,
+                cursor: false,
+                showInLegend: true,
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                }
+            },
+            series: {
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            floating: true,
+            itemStyle: {
+                fontSize: '16px'
+            },
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 + '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        title: {
+            align: 'center',
+            verticalAlign: 'middle',
+            y: 10
+        }
+    };
+
+    chart_1_2_Options.series = [{
+        name: "browsers",
+        data: [{
+            name: "new browsers",
+            y: 0,
+            color: '#e25826'
+        },
+        {
+            name: "repeat browsers",
+            y: 0,
+            color: '#132149'
+        }]
+    }];
+
+    /**
+     * initialize the chart
+     */
+    var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+    chart_1_2.showLoading();
+
+    /***************************************************************
+     * start of visitor stats chart
+     * container: chart_2_2
+     ***************************************************************/
+    var chart_2_2_Options = {
+        chart: {
+            renderTo: 'chart_2_2',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends,
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /*
+    initialize the chart
+    */
+    var chart_2_2 = new Highcharts.Chart(chart_2_2_Options);
+    chart_2_2.showLoading();
+
+    /***************************************************************
+     * start of Age Breakdown count chart
+     * container: chart_3_2
+     ***************************************************************/
+    var chart_3_2_Options = {
+        chart: {
+            renderTo:        'chart_3_2',
+            backgroundColor: '#FFFFFF',
+            type:            'column'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                // var tooltipcontent = '<b>' + this.x + '</b>';
+                var mySum = 0;
+                var tooltipcontent = '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the providerIdentity count chart
+     */
+    var chart_3_2 = new Highcharts.Chart(chart_3_2_Options);
+    chart_3_2.showLoading();
+
+    /***************************************************************
+     * start of providerIdentity count chart
+     * container: chart_4_2
+     ***************************************************************/
+    var chart_4_2_Options = {
+        chart: {
+            renderTo:        'chart_4_2',
+            backgroundColor: '#FFFFFF',
+            type:            'column'
+        },
+        xAxis: {
+            type: 'category'
+        },
+        plotOptions: {
+            area: {
+                marker: {
+                    enabled: false,
+                    symbol:  'circle',
+                    radius:  2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the providerIdentity count chart
+     */
+    var chart_4_2 = new Highcharts.Chart(chart_4_2_Options);
+    chart_4_2.showLoading();
+});
+
+function getOldDataDates() {
+    var oldDataDates;
+
+    $.ajax({
+        url:        '{{site.uri.public}}/elephantwifi/api/old_data_report/start_end_dates',
+        async:      false,
+        type:       'GET',
+        dataType:   'json',
+        success: function(data){
+            oldDataDates = data;
+        }
+    });
+
+    return oldDataDates;
+}
+
+</script>
+{% endblock %}

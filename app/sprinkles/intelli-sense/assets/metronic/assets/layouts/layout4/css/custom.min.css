@@ -1,0 +1,13 @@
+.font-blue {
+    color: #003166!important;
+}
+
+.btn.orange:not(.btn-outline) {
+    color: #FFF;
+    background-color: #e15910;
+    border-color: #e15910;
+}
+
+.btn.orange:hover {
+    background-color: #ff5818;
+}

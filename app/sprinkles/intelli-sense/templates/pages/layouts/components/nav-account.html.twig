@@ -1,0 +1,142 @@
+<!-- BEGIN HEADER -->
+<div class="page-header navbar navbar-fixed-top" style="background:#1c2746 ;">
+    <!-- BEGIN HEADER INNER -->
+    <div class="page-header-inner ">
+        <!-- BEGIN LOGO -->
+        <div class="page-logo" style="width: auto; padding-right: 0">
+            <!-- {% if checkAccess('uri_dashboard') == true %}
+            <div class="menu-toggler sidebar-toggler" style="float: left;">
+                {# <!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header --> #}
+            </div>
+            {% endif %} -->
+            <a href="{{site.uri.public}}" style="margin-left: 20px">
+                <!-- fix this styling by overriding the CSS somewhere -->
+                <img src="{{ assets.url("assets://images/intelli-logo-white.png") }}" alt="logo" class="logo-default" width="45" height="50" style="margin: 12px 6px 0px; float: right; position: top;">
+            </a>
+        </div>
+        <div class="navbar-header hidden-sm hidden-xs" style="vertical-align: center;">
+            <h2 class="bold" style="color: white; font-size: 1.8vw;">Welcome to the INTELLI-Sense Portal</h2>
+        </div>
+
+        <div class="navbar-header visible-sm">
+            <h4 class="bold" style="color: white; margin-top: 25px;">Intelli-Sense Portal</h4>
+        </div>
+
+        <!-- END LOGO -->
+        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+        <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"> </a>
+        <!-- END RESPONSIVE MENU TOGGLER -->
+        <!-- BEGIN PAGE TOP -->
+        <div class="page-top">
+            <!-- BEGIN TOP NAVIGATION MENU -->
+            <div class="top-menu">
+                <ul class="nav navbar-nav pull-right">
+                    <li class="separator hide"> </li>
+
+                    <!-- <li class="dropdown dropdown-notification dropdown-dark">
+                        <a href="{{site.uri.public}}/pdf-report-generation" class="no-hover"><button class="btn orange" id="pdf_report_download" style="margin-top: 5%">PDF Report Download</button></a>
+                    </li> -->
+
+                    {# <li class="dropdown dropdown-user dropdown-dark no-hover hidden-xs">
+                        <a href="javascript:;" class="dropdown-toggle no-hover pdf_dropdown" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <button class="btn orange" id="pdf_report_download" style="font-size: 0.8vw;">PDF Report Download</button>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-default" style="width: 300px !important;">
+                            <li><a href="{{site.uri.public}}/pdf-report-generation">Geo-Sense PDF Report</a></li>
+                            <li class="disabled no-hover"><a href="#"><i>WiFi PDF Report (Coming Soon)</i></a></li>
+                            <li class="disabled no-hover"><a href="#"><i>Air Quality PDF Report (Coming Soon)</i></a></li>
+                        </ul>
+                    </li> #}
+
+                    <li class="separator hide"> </li>
+
+                    {# <li class="dropdown dropdown-notification dropdown-dark">
+                        <a href="{{site.uri.public}}/landing-page" class="dropdown-toggle">
+                            <i class="fa fa-home"></i> 
+                        </a>
+                    </li> #}
+
+                    <li class="separator hide"> </li>
+
+                    {% if checkAccess('uri_wifi_user') == true and checkAccess('uri_dashboard') == true %}
+                    <li class="dropdown dropdown-notification dropdown-dark">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <span class="visible-xs visible-sm-inline visible-md-inline visible-lg-inline" style="color: #aeb2c4;font-weight: 600;">Switch Portal <i class="fa fa-angle-down"></i></span>
+                        </a>
+                        {# TODO: do not show dropdown if only 1 venue is available in user.getVenues, also leave out current venue from dropdown? #}
+                        <ul id="portal_selection" class="dropdown-menu dropdown-menu-default scrollable-menu" style="width: 195px; margin-right: 0;">
+                            <li>
+                                <a href="{{site.uri.public}}/wifi/dashboard">
+                                    <i class="fa fa-sign-out fa-fw"></i> Main Portal </a>
+                            </li>
+                            <li>
+                                <a href="{{site.uri.public}}/wifi_user/dashboard">
+                                    <i class="fa fa-user fa-fw"></i> Personal Portal </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    <!-- BEGIN VENUE SELECTION DROPDOWN -->
+                    {# <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte --> #}
+                    {% if checkAccess('uri_dashboard') == true %}
+                    <li class="dropdown dropdown-notification dropdown-dark">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <span class="visible-sm-inline visible-md-inline visible-lg-inline" style="color: #aeb2c4;font-weight: 600;">{{current_user.venue_name}}</span><span class="visible-xs-inline" style="color: #aeb2c4; font-weight: 600;">Venue</span><i class="fa fa-angle-down"></i>
+                        </a>
+                        {# TODO: do not show dropdown if only 1 venue is available in current_user.getVenues, also leave out current venue from dropdown? #}
+                        <ul id="venue_selection" class="dropdown-menu dropdown-menu-default scrollable-menu" style="width: 195px; margin-right: 0;">
+                            {% for venue in current_user.getVenues() %}
+                                <li class="venue_id" id="venue_{{venue.id}}">
+                                    <a href="#">{{venue.name}}
+                                {% if current_user.primary_venue_id == venue.id %}
+                                    <i class="fa fa-check fa-fw"></i>
+                                {% endif %}
+                                </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                    <!-- END VENUE SELECTION DROPDOWN -->
+                    <li class="separator hide"> </li>
+                    <!-- BEGIN USER LOGIN DROPDOWN -->
+                    {# <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte --> #}
+                    <li class="dropdown dropdown-user dropdown-dark">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <span class="username username-hide-on-mobile hidden-sm" style="font-size: 0.8vw;"> {{current_user.user_name}} </span>
+                            {# <!-- DOC: Do not remove below empty space(&nbsp;) as its purposely used --> #}
+                            <img alt="" class="img-circle" src="https://www.gravatar.com/avatar/ccdf72039b0b1e2adec767c609845887?d=mm&s=50?d=mm&s=50" /> </a>
+                        <ul class="dropdown-menu dropdown-menu-default">
+                            {% if checkAccess('uri_dashboard') == true %}
+                            <li>
+                                <a href="{{site.uri.public}}/account/settings">
+                                    <i class="fa fa-user fa-fw"></i> My Account Settings </a>
+                            </li>
+                            {% endif %}
+                            <li id="session_timeout_li" style="display: none">
+                                <a href="#" onclick="sessionExpiryModal(event, 'session_modal_id');">
+                                    <i class="fa fa-hourglass-half fa-fw"></i> Session timeout
+                                </a>
+                            </li>
+                            {% if checkAccess('uri_public_api') %}
+                            <li>
+                                <a href="{{site.uri.public}}/account/manage_api_key"><i class="fa fa-key fa-fw"></i> Manage API key</a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a href="{{site.uri.public}}/account/logout">
+                                    <i class="fa fa-sign-out fa-fw"></i> Log Out </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- END USER LOGIN DROPDOWN -->
+                </ul>
+            </div>
+            <!-- END TOP NAVIGATION MENU -->
+        </div>
+        <!-- END PAGE TOP -->
+    </div>
+    <!-- END HEADER INNER -->
+</div>
+<!-- END HEADER

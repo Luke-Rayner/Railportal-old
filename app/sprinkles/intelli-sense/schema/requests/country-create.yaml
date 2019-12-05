@@ -1,0 +1,21 @@
+---
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 2
+      max: 30
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED

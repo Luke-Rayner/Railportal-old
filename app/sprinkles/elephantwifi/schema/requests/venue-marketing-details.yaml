@@ -1,0 +1,41 @@
+---
+marketing_public_key:
+  validators:
+    length:
+      min: 1
+      max: 150
+      message: MARKETING_PUBLIC_KEY
+marketing_email:
+  validators:
+    length:
+      min: 1
+      max: 150
+      message: MARKETING_EMAIL
+    email:
+      message: INVALID_EMAIL
+  sanitizers:
+    raw: {}
+marketing_first_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: MARKETING_FIRST_NAME
+  sanitizers:
+    raw: {}
+marketing_last_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: MARKETING_LAST_NAME
+  sanitizers:
+    raw: {}
+marketing_company_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: MARKETING_COMPANY_NAME
+  sanitizers:
+    raw: {}

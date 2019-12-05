@@ -1,0 +1,25 @@
+---
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+capture_start:
+  validators:
+    required:
+      label: "&CAPTURE_START"
+      message: VALIDATE.REQUIRED
+event_info_bucket:
+  validators:
+    numeric:
+      message: "Invalid Number"
+event_info_zone_tag:
+  validators:
+    numeric:
+      message: "Invalid Number"
+event_info_refresh:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&EVENT_INFO_REFRESH"
+      message: VALIDATE.REQUIRED

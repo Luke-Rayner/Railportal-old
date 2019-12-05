@@ -1,0 +1,38 @@
+---
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 2
+      max: 30
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+admin_category:
+  validators:
+    numeric:
+      message: "Invalid Number"
+category_color:
+  validators:
+    length:
+      label: "&CATEGORY_COLOR"
+      min: 1
+      max: 10
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&CATEGORY_COLOR"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&CATEGORY_COLOR"
+      message: VALIDATE.NO_TRAIL_WS

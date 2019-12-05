@@ -1,0 +1,280 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <div class="custom-row left">
+        <p class="header text-orange"><u>Summary Information</u></p>
+        <br>
+        <p>Based on the data provided since GEO-Sense went live the average visit counts are</p>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_average_visits_per_year"></span>
+                    </div>
+                    <div class="desc"> Average visits, per year </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_average_visits_per_month"></span>
+                    </div>
+                    <div class="desc"> Average visits, per month </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_average_visits_per_week"></span>
+                    </div>
+                    <div class="desc"> Average visits, per week </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_average_visits_per_day"></span>
+                    </div>
+                    <div class="desc"> Average visits, per day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <div class="custom-row center">
+        <p class="header">Specific to the date range selected</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row center">
+        <div class="half-page">
+            <p class="sub-header">The total visit count</p>
+        </div>
+        <div class="half-page">
+            <p class="sub-header">Average daily visit count</p>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_month_total_visit_count"></span>
+                    </div>
+                    <div class="desc"> Total visits this period </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_month_average_daily_visit_count"></span>
+                    </div>
+                    <div class="desc"> Average visits per day </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row center">
+        <div class="half-page">
+            <p class="sub-header">Busiest time of day</p>
+        </div>
+        <div class="half-page">
+            <p class="sub-header">Average Dwell Period</p>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_month_busiest_time_day"></span>
+                    </div>
+                    <div class="desc"> Busiest time of day </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat yellow-gold" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_month_average_dwell_time"></span>
+                    </div>
+                    <div class="desc"> Average dwell time </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() { 
+    /**
+     *
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/alltime_averages',
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_AvgVisitor_DataReceived
+    });
+
+    /**
+     *
+     */
+    function onPdf_AvgVisitor_DataReceived(data) {
+        $('#pdf_average_visits_per_year').html(data.average_yearly.toLocaleString());
+        $('#pdf_average_visits_per_month').html(data.average_monthly.toLocaleString());
+        $('#pdf_average_visits_per_week').html(data.average_weekly.toLocaleString());
+        $('#pdf_average_visits_per_day').html(data.average_daily.toLocaleString());
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/new_vs_repeat/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Month_TotalVisits_AvgDailyVisits_ThisPeriod_DataReceived
+    });
+
+    /**
+     *
+     */
+    function onPdf_Month_TotalVisits_AvgDailyVisits_ThisPeriod_DataReceived(data) {
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * populate the donuts
+         */
+        $('#pdf_month_total_visit_count').html((totalnew + totalrepeat).toLocaleString());
+
+        var total_visitors = totalnew + totalrepeat;
+        var counter = data.new.length;
+
+        if (counter > 1) {
+            var average = Math.floor(total_visitors/counter);
+        } else {
+            var average = total_visitors;
+        }
+
+        $('#pdf_month_average_daily_visit_count').html(average.toLocaleString());
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/visitors_per_hourofday/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Month_BusiestTimeOfDay_DataReceived
+    });
+
+    /**
+     *
+     */
+    function onPdf_Month_BusiestTimeOfDay_DataReceived(data) {
+        var hours = _.sortBy(data, function(value, key) {
+            return value[1];
+        });
+
+        if (hours.length > 0) {
+            $('#pdf_month_busiest_time_day').html((_.last(hours)[0]) + ':00 - ' + (_.last(hours)[0] + 1) + ':00');
+        } else {
+            $('#pdf_month_busiest_time_day').html('<span style="font-size: 60%;">no data</span>');
+        }
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/venue/visitors_durations/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_Month_AverageDwellTime_DataReceived
+    });
+
+    /**
+     *
+     */
+    function onPdf_Month_AverageDwellTime_DataReceived(data) {
+        var dwell_average = 0;
+        $.each(data['dt_average'], function(index, value) {
+            dwell_average += value[1];
+        });
+
+        dwell_average = Math.round(dwell_average / data['dt_average'].length);
+
+        $('#pdf_month_average_dwell_time').html(dwell_average + ' <span style="font-size: 80%;">minutes</span>');
+    }
+});
+</script>
+{% endblock %}

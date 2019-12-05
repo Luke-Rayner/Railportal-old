@@ -1,0 +1,310 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Air Quality Venue Summary Report",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+        <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-thermometer-full"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="span_temp"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Temperature </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+        <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-tint"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="span_hum"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Humidity </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+        <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-cloud-download"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="span_pres"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Pressure(hPa)</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- <div class="row">
+    <div class="col-lg-12 col-xs-12 col-sm-12">
+        <div id="chart_container_top" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Daily Air Quality Index (DAQI) -  Live Status</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="span_aqi" style="width: 100%; height: 220px; margin: 0 auto; text-align: center; font-size: 800%;"></div>
+                <div style="padding-top: 10px; width: 100%; margin: 0 auto; text-align: center; font-size: 100%;">
+                    The above status is based on the DAQI scale for more information please see the following link - <a href="https://uk-air.defra.gov.uk/air-pollution/daqi" target="_blank">Defra Scale</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<div class="row">
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Nitrogen Dioxide (NO2)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 800%;"></div>
+                <div style="padding-top: 10px; width: 100%; margin: 0 auto; text-align: center; font-size: 100%;">
+                    External link to <a href="https://uk-air.defra.gov.uk/air-pollution/daqi?view=more-info&pollutant=no2#pollutant" target="_blank">Defra Scale</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Ozone (O3)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 800%;"></div>
+                <div style="padding-top: 10px; width: 100%; margin: 0 auto; text-align: center; font-size: 100%;">
+                    External link to <a href="https://uk-air.defra.gov.uk/air-pollution/daqi?view=more-info&pollutant=ozone#pollutant" target="_blank">Defra Scale</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Sulfur Dioxide (SO2)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_3" style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 800%;"></div>
+                <div style="padding-top: 10px; width: 100%; margin: 0 auto; text-align: center; font-size: 100%;">
+                    External link to <a href="https://uk-air.defra.gov.uk/air-pollution/daqi?view=more-info&pollutant=so2#pollutant" target="_blank">Defra Scale</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">PM2.5 Particles (PM2.5)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 800%;"></div>
+                <div style="padding-top: 10px; width: 100%; margin: 0 auto; text-align: center; font-size: 100%;">
+                    External link to <a href="https://uk-air.defra.gov.uk/air-pollution/daqi?view=more-info&pollutant=pm25#pollutant" target="_blank">Defra Scale</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">PM10 Particles (PM10)</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 800%;"></div>
+                <div style="padding-top: 10px; width: 100%; margin: 0 auto; text-align: center; font-size: 100%;">
+                    External link to <a href="https://uk-air.defra.gov.uk/air-pollution/daqi?view=more-info&pollutant=pm10#pollutant" target="_blank">Defra Scale</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+$(document).ready(function() {
+
+    /**
+     * get the DAQI stats
+     */
+    // $.ajax({
+    //     url:      '{{site.uri.public}}/enviro-sense/api/overview/daqi',
+    //     type:     'GET',
+    //     dataType: 'json',
+    //     success:   onEnviroOverviewDAQIDataReceived
+    // });
+
+    /**
+     * get the enviromental stats
+     */
+    $.ajax({
+        url:      '{{site.uri.public}}/enviro-sense/api/overview/stats',
+        type:     'GET',
+        dataType: 'json',
+        success:   onEnviroOverviewStatsDataReceived
+    });
+
+    /**
+     * get the top donut stats
+     */
+    $.ajax({
+        url:      '{{site.uri.public}}/enviro-sense/api/overview/donut_stats',
+        type:     'GET',
+        dataType: 'json',
+        success:   onEnviroOverviewDonutStatsDataReceived
+    });
+
+    // function onEnviroOverviewDAQIDataReceived(data) {
+    //     //Get AQI
+    //     var aqi_rating = data['value'].toFixed(0);
+    //     var aqi_color  = '';
+    //     var aqi_text = '';
+    //     var aqi_text_color = '';
+
+    //     if (aqi_rating == 1 || aqi_rating == 2 || aqi_rating == 3) {
+    //          aqi_color = '#009900';
+    //          aqi_text = 'Low'
+    //          aqi_text_color = 'black'
+    //     } 
+    //     else if (aqi_rating == 4 || aqi_rating == 5 || aqi_rating == 6) {
+    //         aqi_color = '#FF9900';
+    //         aqi_text = 'Moderate'
+    //         aqi_text_color = 'black'
+    //     }
+    //     else if (aqi_rating == 7 || aqi_rating == 8 || aqi_rating == 9) {
+    //         aqi_color = '#FF0000';
+    //         aqi_text = 'High'
+    //         aqi_text_color = 'white'
+    //     }
+    //     else {
+    //         aqi_color = '#CE30FF';
+    //         aqi_text = 'Very High'
+    //         aqi_text_color = 'white'
+    //     }
+
+    //     $('#span_aqi').html("DAQI " + aqi_rating + "<br><p style='font-size: 20px;'>" + aqi_text + "</p><p style='font-size: 16px;'><i>" + data['name'] + "</i></p>");
+    //     $('#span_aqi').css('background-color', aqi_color);
+    //     $('#span_aqi').css('color', aqi_text_color);
+    // }
+
+    function onEnviroOverviewStatsDataReceived(data) {
+        console.log(data);
+        //nitrogen_dioxide chart
+        $('#chart_1_1').html(data['nitrogen_dioxide']['value'].toFixed(2) + "<br><p style='font-size: 20px;'>" + data['nitrogen_dioxide']['rating_text'] + "</p>");
+        $('#chart_1_1').css('background-color', data['nitrogen_dioxide']['color']);
+        textColor(data, 'nitrogen_dioxide', '#chart_1_1');
+
+        //ozone chart
+        $('#chart_1_2').html(data['ozone']['value'].toFixed(2)  + "<br><p style='font-size: 20px;'>" + data['ozone']['rating_text'] + "</p>");
+        $('#chart_1_2').css('background-color', data['ozone']['color']);
+        textColor(data, 'ozone', '#chart_1_2');
+
+        //sulfur_dioxide chart
+        $('#chart_1_3').html(data['sulfur_dioxide']['value'].toFixed(2)  + "<br><p style='font-size: 20px;'>" + data['sulfur_dioxide']['rating_text'] + "</p>");
+        $('#chart_1_3').css('background-color', data['sulfur_dioxide']['color']);
+        textColor(data, 'sulfur_dioxide', '#chart_1_3');
+
+        //particle_matter_2_5 chart
+        $('#chart_2_1').html(data['particle_matter_2_5']['value'].toFixed(2)  + "<br><p style='font-size: 20px;'>" + data['particle_matter_2_5']['rating_text'] + "</p>");
+        $('#chart_2_1').css('background-color', data['particle_matter_2_5']['color']);
+        textColor(data, 'particle_matter_2_5', '#chart_2_1');
+
+        //particle_matter_10 chart
+        $('#chart_2_2').html(data['particle_matter_10']['value'].toFixed(2)  + "<br><p style='font-size: 20px;'>" + data['particle_matter_10']['rating_text'] + "</p>");
+        $('#chart_2_2').css('background-color', data['particle_matter_10']['color']);
+        textColor(data, 'particle_matter_10', '#chart_2_2');
+    }
+
+    function onEnviroOverviewDonutStatsDataReceived(data) {
+        $('#span_temp').html(data['temperature'].toFixed(2) + '°C');
+        $('#span_hum').html(data['humidity'].toFixed(2) + '%');
+        $('#span_pres').html(Math.round(data['pressure'] / 100));
+    }
+
+    function textColor(data, index, chart) {
+        if (data[index]['color'] == '#FF6464' || data[index]['color'] == '#FF0000' || data[index]['color'] == '#990000' || data[index]['color'] == '#CE30FF') {
+            $(chart).css('color', 'white');
+        }
+    }
+});
+
+</script>
+{% endblock %}

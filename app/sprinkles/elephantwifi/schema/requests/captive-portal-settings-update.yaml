@@ -1,0 +1,293 @@
+---
+redirect_url:
+  validators:
+    length:
+      min: 12
+      max: 256
+      message: REDIRECT_URL_CHAR_LIMIT
+    uri:
+      message: VALIDATE_URI
+  sanitizers:
+    raw: {}
+auth_duration:
+  validators:
+    length:
+      max: 8
+      message: AUTH_DURATION_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+registration_duration:
+  validators:
+    length:
+      max: 8
+      message: REGISTRATION_DURATION_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+redirect_timeout:
+  validators:
+    length:
+      max: 6
+      message: REDIRECT_TIMEOUT_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+speed_limit_down:
+  validators:
+    length:
+      max: 6
+      message: SPEED_LIMIT_DOWN_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+speed_limit_up:
+  validators:
+    length:
+      max: 6
+      message: SPEED_LIMIT_UP_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+data_transfer_limit:
+  validators:
+    integer:
+      length:
+        max: 8
+        message: DATA_TRANSFER_CHAR_LIMIT
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+data_consent_text:
+  validators:
+    length:
+      min: 10
+      message: REQUIRED_DATA_CONSENT_TEXT_CHAR_LIMIT
+    required:
+      message: REQUIRED_DATA_CONSENT_TEXT
+  sanitizers:
+    raw: {}
+marketing_consent_text:
+  validators:
+    length:
+      min: 10
+      message: REQUIRED_MARKETING_CONSENT_TEXT_CHAR_LIMIT
+    required:
+      message: REQUIRED_MARKETING_CONSENT_TEXT
+  sanitizers:
+    raw: {}
+location_consent_text: {}
+required_location_consent:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_LOCATION_TEXT_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+terms_conditions_pdf: {}
+form_firstname:
+  validators:
+    length:
+      max: 1
+      message: FORM_FIRSTNAME_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+form_lastname:
+  validators:
+    length:
+      max: 1
+      message: FORM_LASTNAME_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+form_email:
+  validators:
+    length:
+      max: 1
+      message: FORM_EMAIL_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+form_gender:
+  validators:
+    length:
+      max: 1
+      message: FORM_GENDER_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+form_birth_date:
+  validators:
+    length:
+      max: 1
+      message: FORM_BIRTH_DATE_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+form_postcode:
+  validators:
+    length:
+      max: 1
+      message: FORM_POSTCODE_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+required_firstname:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_FIRSTNAME_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+required_lastname:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_LASTNAME_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+required_email:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_EMAIL_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+required_gender:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_GENDER_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+required_birth_date:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_BIRTH_DATE_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+required_postcode:
+  validators:
+    length:
+      max: 1
+      message: REQUIRED_POSTCODE_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+social_auth_enable_facebook:
+  validators:
+    length:
+      max: 1
+      message: ENABLE_FACEBOOK_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+social_auth_enable_twitter:
+  validators:
+    length:
+      max: 1
+      message: ENABLE_TWITTER_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+social_auth_enable_linkedin:
+  validators:
+    length:
+      max: 1
+      message: ENABLE_LINKEDIN_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+social_auth_enable_googleplus:
+  validators:
+    length:
+      max: 1
+      message: ENABLE_GOOGLEPLUS_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+social_auth_enable_registration_fallback:
+  validators:
+    length:
+      max: 1
+      message: ENABLE_REGISTRATION_FALLBACK_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+social_auth_temp_auth_duration:
+  validators:
+    length:
+      max: 2
+      message: TEMP_AUTH_DURATION_CHAR_LIMIT
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}
+venue_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    required:
+      message: VENUE_ID_REQUIRED
+free_access_settings_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+    required:
+      message: VENUE_ID_REQUIRED
+primary_method:
+  validators:
+    required:
+      message: CAPTIVE_PORTAL_PRIMARY_METHOD_REQUIRED
+__comment__captive_portal: we need the line below since we also update the captive_portal
+  property for the Site object from this form
+captive_portal:
+  validators:
+    required:
+      message: VENUE_CAPTIVE_PORTAL_MODE_REQUIRED
+mailing_list: {}
+mailchimp_double_opt_in: {}
+mailchimp_api_key:
+  validators:
+    length:
+      min: 5
+      max: 40
+      message: MAILCHIMP_API_KEY_CHAR_LIMIT
+    no_leading_whitespace:
+      message: MAILCHIMP_API_KEY_NO_LEAD_WS
+    no_trailing_whitespace:
+      message: MAILCHIMP_API_KEY_NO_TRAIL_WS
+  sanitizers:
+    raw: {}
+mailchimp_list_id: {}

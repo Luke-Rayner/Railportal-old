@@ -1,0 +1,19 @@
+{% block subject %}
+    {{site.site_title}}: Drone {{drone.id}} has been offline for {{offline_duration}} minutes
+{% endblock %}
+
+{% block body %}
+<p>
+    Dear recipient,
+</p>
+<p>
+    Drone <b>{{drone.id}}</b> has been offline for <b>{{offline_duration}}</b> minutes! Please check the root-cause.<br><br>
+    Venue: <b>{{drone.zone.venue.name}}</b><br>
+    Drone name: <b>{{drone.name}}</b><br>
+    Drone IP address: <b>{{drone.local_ip}}</b><br>
+</p>
+<p>
+    With regards,<br><br>
+    The {{site.site_title}} Monitoring System
+</p>
+{% endblock %}

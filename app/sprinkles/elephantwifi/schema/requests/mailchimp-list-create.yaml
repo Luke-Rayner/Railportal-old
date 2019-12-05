@@ -1,0 +1,23 @@
+---
+list_uid:
+  validators:
+    length:
+      min: 1
+      max: 20
+      message: MARKETING_LIST_UID_REQUIRED
+    no_leading_whitespace:
+      message: MARKETING_LIST_UID_NO_LEAD_WS
+    no_trailing_whitespace:
+      message: MARKETING_LIST_UID_NO_TRAIL_WS
+    required:
+      message: MARKETING_LIST_UID_REQUIRED
+  sanitizers:
+    raw: {}
+marketing_list_type_id:
+  validators:
+    required:
+      message: MARKETING_LIST_TYPE_REQUIRED
+    integer:
+      message: VALIDATE_INTEGER
+  sanitizers:
+    raw: {}

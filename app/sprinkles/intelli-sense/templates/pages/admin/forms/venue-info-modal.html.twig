@@ -1,0 +1,492 @@
+<div id='dialog-venue-info' class='modal fade' tabindex="-1" role="basic" aria-hidden="true" data-width="1000">
+    <div class="modal-dialog" style="width: 80%;">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class='modal-title'><i class="icon-globe"></i> Venue Details</h4>
+            </div>
+            <div class='modal-body' style="background-color: #E9ECF3;">
+
+                <div class="portlet light bordered">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Shared Information</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                    </div>
+                    <div class="portlet-body" id="notification_portlet_body">
+                        <table id="shared_info_table" class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Start Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Locale</th>
+                                    <th>Timezone</th>
+                                    <th>Lat</th>
+                                    <th>Lon</th>
+                                    <th>Visitor Bucket</th>
+                                    <th>Journey Segments</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="portlet light bordered">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Specific Information</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                    </div>
+                    <div class="portlet-body" id="notification_portlet_body">
+                        <div id="tabSection" class="">
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a  href="#heatmap_tab" data-toggle="tab">Heatmap</a>
+                                </li>
+                                <li>
+                                    <a href="#dwell_time_tab" data-toggle="tab">Dwell Time</a>
+                                </li>
+                                <li>
+                                    <a href="#nuts_tab" data-toggle="tab">Nuts</a>
+                                </li>
+
+                                {% if (target_venue.wifi_venue == 1)%}
+                                <li>
+                                    <a href="#wifi_tab" data-toggle="tab">WiFi</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                            <div class="tab-content">
+
+                                <div class="tab-pane active" id="heatmap_tab">
+                                    <table id="heatmap_table" class="table datatable">
+                                        <thead>
+                                            <tr>
+                                                <th>Heatmap Min Zoom</th>
+                                                <th>Heatmap Max Zoom</th>
+                                                <th>Heatmap Init Zoom</th>
+                                                <th>Heatmap Radius</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+
+                                <div class="tab-pane" id="dwell_time_tab">
+                                    <table id="dwelltime_table" class="table datatable">
+                                        <thead>
+                                            <tr>
+                                                <th>{{target_venue.dt_level_1_label}}</th>
+                                                <th>{{target_venue.dt_level_2_label}}</th>
+                                                <th>{{target_venue.dt_level_3_label}}</th>
+                                                <th>{{target_venue.dt_level_4_label}}</th>
+                                                <th>{{target_venue.dt_level_5_label}}</th>
+                                                <th>Skipped Label</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+
+                                <div class="tab-pane" id="nuts_tab">
+                                    <table id="nuts_table" class="table datatable">
+                                        <thead>
+                                            <tr style="width: 100% !important">
+                                                <th>Country</th>
+                                                <th>Region</th>
+                                                <th>Area</th>
+                                                <th>Tags</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+
+                                <div class="tab-pane" id="wifi_tab">
+                                    <table id="wifi_table" class="table datatable">
+                                        <thead>
+                                            <tr>
+                                                <th>Controller</th>
+                                                <th>Marketing Public Key</th>
+                                                <th>Marketing Private Key</th>
+                                                <th>Old Venue</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <br>
+                                <button type="button" class="btn green" id="updateSharedInfo">
+                                  <i class="fa fa-plus-square"></i> Update Shared
+                                </button>
+
+                                <button type="button" class="btn blue" id="updateWifiInfo">
+                                  <i class="fa fa-plus-square"></i> Update WiFi
+                                </button>
+
+                                <button type="button" class="btn orange" id="updateTrackingInfo">
+                                  <i class="fa fa-plus-square"></i> Update Geo-Sense
+                                </button>
+
+                                <button type="button" class="btn btn-danger" id="deleteVenue">
+                                    <i class="fa fa-ban"></i> Delete Venue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- start confirmation modal -->
+<div id="confirmModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="confirmModalHeader" id="confirmModalHeader"><i class="fa fa-question-circle fa-lg fa-fw"></i>Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Are you sure you wish to permanently remove this venue?
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> Cancel
+                            </button>
+                            <button type='submit' id="confirmModalSubmit" name="confirmModalSubmit" class="btn blue">
+                                <i class="fa fa-cloud-upload fa-fw"></i> Delete
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" class="init">
+var venue = [];
+var target_venue = {{target_venue | raw}};
+
+venue.push(target_venue);
+
+$(document).ready(function() {
+    var sharedInfoTable = $('#shared_info_table').DataTable({
+        autoWidth: false,
+        searching: false, 
+        paging: false, 
+        info: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        data: venue,
+        columns: [
+            {data: 'name'},
+            {data: 'capture_start'},
+            {data: 'venue_type',
+                render: function(data, type, full, meta) {
+                    if (full.wifi_venue == 1 && full.tracking_venue == 1) {
+                        return 'Both';
+                    }
+                    else if (full.wifi_venue == 1) {
+                        return 'WiFi';
+                    }
+                    else if (full.tracking_venue == 1) {
+                        return 'Geo Sense';
+                    }
+                    else {
+                        'Unknown';
+                    }
+                }
+            },
+            {data: 'category.name'},
+            {data: 'locale'},
+            {data: 'time_zone'},
+            {data: 'lat'},
+            {data: 'lon'},
+            {data: 'current_visitors_bucket'},
+            {data: 'sankey_max_route_length'}
+        ],
+    });
+
+    $('#shared_info_table').DataTable().columns.adjust().draw();
+
+    var heatmapTable = $('#heatmap_table').DataTable({
+        autoWidth: false,
+        searching: false, 
+        paging: false, 
+        info: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        data: venue,
+        columns: [
+            {data: 'heatmap_min_zoom'},
+            {data: 'heatmap_max_zoom'},
+            {data: 'heatmap_init_zoom'},
+            {data: 'heatmap_radius'},
+        ],
+    });
+
+    var dwelltimeTable = $('#dwelltime_table').DataTable({
+        autoWidth: false,
+        searching: false, 
+        paging: false, 
+        info: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        data: venue,
+        columns: [
+            {data: 'dt_threshold_1'},
+            {data: 'dt_threshold_2'},
+            {data: 'dt_threshold_3'},
+            {data: 'dt_threshold_4'},
+            {data: 'dt_threshold_5'},
+            {data: 'dt_skipped_label'},
+        ],
+    });
+
+    var nutsTable = $('#nuts_table').DataTable({
+        autoWidth: false,
+        searching: false, 
+        paging: false, 
+        info: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        data: venue,
+        columns: [
+            {data: 'country.name'},
+            {data: 'region.name'},
+            {data: 'area.name'},
+            {data: 'tags',
+                render: function(data, type, full, meta) {
+                    if (typeof data !== 'undefined') {
+                        if (type === 'display') {
+                            var html_contents = '';
+                            _.forEach(data, function(tag) {
+                                html_contents += '<span class="badge badge-primary" style="font-size:x-small;">' + tag.name + '</span> ';
+                            });
+                            return html_contents;
+                        }
+
+                        if (type === 'filter') {
+                            var text_contents = '';
+                            _.forEach(data, function(tag) {
+                                text_contents += tag.name + ' ';
+                            });
+                            return text_contents;
+                        }
+                        return data;
+                    }
+                    return;
+                }
+            }
+        ],
+    });
+
+    // Using this type of if statement prevents this code being rendered into the page if the if statement is false
+    {% if (target_venue['wifi_venue'] == "1") %}
+        var wifi_venue = [];
+        var wifi_venue_json = {{wifi_venue | raw}};
+        wifi_venue.push(wifi_venue_json);
+
+        var wifiTable = $('#wifi_table').DataTable({
+            autoWidth: false,
+            searching: false, 
+            paging: false, 
+            info: false,
+            language: {
+                "loadingRecords": "<br><br><h4>Loading...</h4>"
+            },
+            deferRender: true,
+            data: wifi_venue,
+            columns: [
+                {data: 'controller.name'},
+                {data: 'marketing_public_key'},
+                {data: 'marketing_private_key'},
+                {data: 'old_venue'}
+            ]
+        });
+    {% endif %}
+
+    /**
+     * open the Modal to update venue shared info
+     */
+    $('#updateSharedInfo').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        venueForm('dialog-venue-shared-update', 'shared', target_venue.id)
+    });
+
+    /**
+     * open the Modal to update venue shared info
+     */
+    $('#updateWifiInfo').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        venueForm('dialog-venue-wifi-update', 'wifi', target_venue.id)
+    });
+
+    /**
+     * open the Modal to update venue shared info
+     */
+    $('#updateTrackingInfo').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        venueForm('dialog-venue-tracking-update', 'tracking', target_venue.id)
+    });
+
+    /**
+     * Display a modal form for updating an existing venue or creating a new venue.
+     * example call: venueForm('dialog-venue-edit', venue_id);
+     */
+    function venueForm(box_id, venue_type, venue_id) {
+        venue_id = typeof venue_id !== 'undefined' ? venue_id : "";
+
+        var data = {
+            box_id: box_id
+        };
+
+        /**
+         * Delete any existing instance of the form with the same name
+         */
+        if($('#' + box_id).length ) {
+            $('#' + box_id).remove();
+        }
+
+        /**
+         * also delete any existing instances of the confirmation modal if they exist
+         */
+        if($('#confirmModal').length ) {
+            $('#confirmModal').remove();
+        }
+
+        var url = site.uri.public + "/admin/forms/venues/u/" + venue_type + "/" + venue_id;
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+            type: "GET",
+            data: data,
+            url: url,
+            cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            console.log(result);
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#' + box_id).modal('show');
+
+            /**
+             * Link submission buttons
+             */
+            $('#' + box_id + ' form').ufForm({
+                validator: validators,
+                msgTarget: $("#alerts-page")
+            }).on("submitSuccess.ufForm", function() {
+                window.location.href = '{{site.uri.public}}/venues#' + data;
+                window.location.reload();
+            });
+        });
+    }
+});
+
+/**
+ * function to open the confirmation modal in edit mode
+ */
+$('#deleteVenue').click(function(e) {
+    $('#confirmModal').modal('show');
+});
+
+/**
+ * process venue delete request from the confirmation modal
+ */
+$('#confirmModalSubmit').click(function(){
+    $('#confirmModalSubmit').prop('disabled', true);
+    $('#confirmModalSubmit').find('i').removeClass().addClass('fa fa-spinner fa-fw fa-spin');
+
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site.uri.public + '/admin/venues/delete/' + target_venue.id,
+        success:    onDeleteSuccess,
+        error:      onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('delete success');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+});
+
+</script>

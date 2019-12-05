@@ -1,0 +1,48 @@
+<div id='{{box_id}}' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-hourglass-half fa-fw fa-lg"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+                
+                <form name="user" method="post" action="{{form_action}}">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="alert alert-info" role="alert">
+                        The session expiry time determines after what time of inactivity the system automatically logs you off.
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6">
+                            <div class="form-group">
+                                <label for="input_locale">Session expiry time</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-hourglass-half"></i></span>
+                                    <input type="number" class="form-control" maxlength="6" id="{{box_id}}_session_expiry_time" name="session_expiry_time" placeholder="Session expiry timeout" value="{{current_user.session_expiry_time}}">
+                                    <span class="input-group-addon">minutes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group pull-right">
+                            <div class="col-sm-12">
+                                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                                <button type='submit' id="sessionExpirySubmit" name="sessionExpirySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> {{submit_button}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var session_timeout_validators = {{session_timeout_validators | raw}};
+
+$(document).ready(function() {
+    //
+});
+</script>

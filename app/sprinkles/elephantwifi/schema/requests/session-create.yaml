@@ -1,0 +1,31 @@
+---
+mac_address:
+  validators:
+    length:
+      min: 17
+      max: 17
+      message: MAC_ADDRESS_CHAR_LIMIT
+    required:
+      message: VALIDATE_REQUIRED
+  sanitizers:
+    raw: ''
+ap_mac_address:
+  validators:
+    length:
+      min: 17
+      max: 17
+      message: MAC_ADDRESS_CHAR_LIMIT
+    required:
+      message: VALIDATE_REQUIRED
+  sanitizers:
+    raw: ''
+php_session_id:
+  validators:
+    required:
+      message: VALIDATE_REQUIRED
+  sanitizers:
+    raw: ''
+local_venue_id:
+  validators:
+    required:
+      message: VALIDATE_REQUIRED

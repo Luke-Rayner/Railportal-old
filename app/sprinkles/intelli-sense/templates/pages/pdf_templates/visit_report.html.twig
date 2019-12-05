@@ -1,0 +1,503 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Visit Report</p>
+        <br>
+        <p>The figures below are based on the date range selected when downloading the PDF</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_visit_report_total_unique_visitors"></span>
+                    </div>
+                    <div class="desc"> Total Unique Visitors </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_visit_report_total_visits"></span>
+                    </div>
+                    <div class="desc"> Total Visits </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <p>The graph below shows an area graph for the date range selected showing the number of visits per day. The second chart is a full numerical breakdown per day showing the number of different visits.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_visit_report_visit_comparison" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <div class="custom-row left">
+        <br>
+        <table id="table_visit_report_visit_comparison">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>One Visit</th>
+                    <th>Two Visits</th>
+                    <th>Three Visits</th>
+                    <th>Four Visits</th>
+                    <th>Five Visits</th>
+                    <th>Six Visits</th>
+                    <th>Seven Visits</th>
+                    <th>Eight Visits</th>
+                    <th>Nine Visits</th>
+                    <th>Ten Visits</th>
+                    <th>Eleven Visits</th>
+                    <th>Twelve Visits</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Page 2 -->
+    <div class="custom-row before">
+        <p>The graph below shows an bar graph for the date range selected showing the daily visits. The second chart is a full numerical breakdown per day showing the total visit and visitor count for each day.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_visit_report_daily_visits" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <div class="custom-row left">
+        <br>
+        <table id="table_visit_report_daily_visits">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>Total Visits</th>
+                    <th>Total Visitors</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() {
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/venue/visits_comparison/' + pdfRangeStart + '/' + pdfRangeEnd + '/' + 4 + '/0',
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_VisitReport_TotalVisits_ThisPeriod_DataReceived
+    });
+
+    /**
+     *
+     */
+    var chart_visitReport_visitComparison_Options = {
+        chart: {
+            renderTo: 'chart_visit_report_visit_comparison',
+            type: 'area'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: [{
+            reversedStacks: false,
+        }, {
+            opposite: true,
+            min:      0,
+            labels: {
+                formatter: function() {
+                    return moment.duration(this.value, 'minutes').format('H [h] m [m]');
+                }
+            }
+        }],
+        plotOptions: {
+            line: {
+                pointPlacement: 'between'
+            },
+            area: {
+                stacking:  'normal',
+                lineWidth: 1,
+                marker: {
+                    lineWidth: 1
+                }
+            },
+            column: {
+                borderWidth: 0,
+                stacking:    'normal'
+            },
+            series: {
+                cursor: 'pointer',
+                marker: {
+                    enabled: null,
+                    symbol:  'circle',
+                    radius:  2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     *
+     */
+    function onPdf_VisitReport_TotalVisits_ThisPeriod_DataReceived(data) {
+        /**
+         * define the series received
+         */
+        var seriesoptions = [];
+
+        $.each(data, function(row_index, row) {
+            $.each(row, function(index, value) {
+                if(row_index == 'one_visit' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'One Visit', color: '#E9825C'})
+                    return false;
+                }
+
+                if(row_index == 'two_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Two Visits', color: '#1C2746'})
+                    return false;
+                }
+
+                if(row_index == 'three_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Three Visits', color: '#DD686E'})
+                    return false;
+                }
+
+                if(row_index == 'four_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Four Visits', color: '#949898'})
+                    return false;
+                }
+
+                if(row_index == 'five_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Five Visits', color: '#6EB553'})
+                    return false;
+                }
+
+                if(row_index == 'six_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Six Visits', color: '#E9825C'})
+                    return false;
+                }
+
+                if(row_index == 'seven_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Seven Visits', color: '#1C2746'})
+                    return false;
+                }
+
+                if(row_index == 'eight_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Eight Visits', color: '#DD686E'})
+                    return false;
+                }
+
+                if(row_index == 'nine_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Nine Visits', color: '#949898'})
+                    return false;
+                }
+
+                if(row_index == 'ten_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Ten Visits', color: '#6EB553'})
+                    return false;
+                }
+
+                if(row_index == 'eleven_visits' && value[1] > 0) {
+                    seriesoptions.push({type: 'area', name: 'Eleven Visits', color: '#E9825C'})
+                    return false;
+                }
+
+                if(row_index == 'twelve_visits' && value > 0) {
+                    seriesoptions.push({type: 'area', name: 'Twelve Visits', color: '#1C2746'})
+                    return false;
+                }
+            });
+        });
+
+        chart_visitReport_visitComparison_Options.series = seriesoptions;
+        chart_visitReport_visitComparison = new Highcharts.Chart(chart_visitReport_visitComparison_Options);
+
+        $.each(data, function(row_index, row) {
+            $.each(row, function(index, value) {
+                if(row_index == 'one_visit' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[0].setData(data['one_visit'])
+                    return false;
+                }
+
+                if(row_index == 'two_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[1].setData(data['two_visits'])
+                    return false;
+                }
+
+                if(row_index == 'three_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[2].setData(data['three_visits'])
+                    return false;
+                }
+
+                if(row_index == 'four_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[3].setData(data['four_visits'])
+                    return false;
+                }
+
+                if(row_index == 'five_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[4].setData(data['five_visits'])
+                    return false;
+                }
+
+                if(row_index == 'six_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[5].setData(data['six_visits'])
+                    return false;
+                }
+
+                if(row_index == 'seven_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[6].setData(data['seven_visits'])
+                    return false;
+                }
+
+                if(row_index == 'eight_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[7].setData(data['eight_visits'])
+                    return false;
+                }
+
+                if(row_index == 'nine_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[8].setData(data['nine_visits'])
+                    return false;
+                }
+
+                if(row_index == 'ten_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[9].setData(data['ten_visits'])
+                    return false;
+                }
+
+                if(row_index == 'eleven_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[10].setData(data['eleven_visits'])
+                    return false;
+                }
+
+                if(row_index == 'twelve_visits' && value[1] > 0) {
+                    chart_visitReport_visitComparison.series[11].setData(data['twelve_visits'])
+                    return false;
+                }
+            });
+        });
+
+        chart_visitReport_visitComparison.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var total_visitors = 0;
+        $.each(data, function(index_1, value_1) {
+            $.each(value_1, function(index_2, value_2) {
+                total_visitors += value_2[1];
+            })
+        })
+
+        $('#pdf_visit_report_total_unique_visitors').html(total_visitors);
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data['one_visit'], function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data['two_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['three_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['four_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['five_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['six_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['seven_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['eight_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['nine_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['ten_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['eleven_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['twelve_visits'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + '</td><td>' + value[4] + '</td><td>' + value[5] + '</td><td>' + value[6] + '</td><td>' + value[7] + '</td><td>' + value[8] + '</td><td>' + value[9] + '</td><td>' + value[10] + '</td><td>' + value[11] + '</td><td>' + value[12] + '</td></tr>';
+        });
+
+        $('#table_visit_report_visit_comparison tbody').append(html);
+    }
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/stats/venue/visits_comparison/' + pdfRangeStart + '/' + pdfRangeEnd + '/' + 4 + '/1',
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_VisitReport_TotalVisitors_ThisPeriod_DataReceived
+    });
+
+    var chart_visitReport_dailyVisits_Options = {
+        chart: {
+            renderTo: 'chart_visit_report_daily_visits',
+            backgroundColor: '#FFFFFF',
+            type: 'area'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        legend: {
+            enabled: true
+        },
+        plotOptions: {
+            column: {
+                colorByPoint: true,
+                stacking: 'normal',
+            },
+            series: {
+                cursor: 'pointer'
+            }
+        },
+        colors: [
+            '#2C3A62',
+            '#E9825C'
+        ]
+    };
+
+    function onPdf_VisitReport_TotalVisitors_ThisPeriod_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column',
+                name: 'Total Visits'
+            },
+            {
+                type: 'column',
+                name: 'Total Visitors',
+                visible: false,
+                showInLegend: false
+            }
+        ];
+
+        chart_visitReport_dailyVisits_Options.series = seriesoptions;
+        chart_visitReport_dailyVisits = new Highcharts.Chart(chart_visitReport_dailyVisits_Options);
+        chart_visitReport_dailyVisits.series[0].setData(data['visits']);
+        chart_visitReport_dailyVisits.series[1].setData(data['visitors']);
+
+        var total_visits = 0;
+        $.each(data['visits'], function(index, value) {
+            total_visits += value[1];
+        })
+
+        $('#pdf_visit_report_total_visits').html(total_visits);
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data['visits'], function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data['visitors'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td></tr>';
+        });
+
+        $('#table_visit_report_daily_visits tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

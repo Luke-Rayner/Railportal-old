@@ -1,0 +1,361 @@
+<div id='create_user_modal' class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'></button>
+                <h4 class='modal-title'>{{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+        		<form name="user" method="post" class="js-form" action="{{form_action}}">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="js-form-alerts"></div>
+                    <div class="row">
+                        {% if 'user_name' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-edit"></i></span>
+                                    <input type="text" class="form-control" name="user_name" autocomplete="off" value="{{target_user.user_name}}" placeholder="Please enter the user name" {% if 'user_name' in fields.disabled %}disabled{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if 'display_name' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group ">
+                                <label>Display Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-edit"></i></span>
+                                    <input type="text" class="form-control" name="first_name" autocomplete="off" value="{{target_user.first_name}}" placeholder="Please enter the display name" {% if 'display_name' in fields.disabled %}disabled{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if 'company_id' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="input_company_id">Company Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-building"></i></span>
+                                    <select id="input_company_id" class="form-control select2" name="company_id" {% if 'company_id' in fields.disabled %}disabled{% endif %}>
+                                        {% for company in companies %}
+                                        <option value="{{company.id}}" {% if (company.id == target_user.company_id) %}selected{% endif %}>{{company.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {# this dummy field is left here to maintain alignment within the user form #}
+                        {% if 'company_id' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group" style="visibility:hidden">
+                                <label>DUMMY FIELD</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-edit"></i></span>
+                                    <input type="text" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if 'email' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group ">
+                                <label>Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><a href="mailto: {{target_user.email}}"><i class="fa fa-envelope"></i></a></span>
+                                    <input type="text" class="form-control" name="email" autocomplete="off" value="{{target_user.email}}" placeholder="Email goes here" {% if 'email' in fields.disabled %}disabled{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if 'locale' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="input_locale">Locale</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-language"></i></span>
+                                    <select id="input_locale" class='form-control select2' name="locale" {% if 'locale' in fields.disabled %}disabled{% endif %}>
+                                        {% for option, label in locales %}
+                                        <option value="{{option}}" {% if (option == target_user.locale) %}selected{% endif %}>{{label}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if 'primary_venue_id' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="input_primary_venue_id">Primary venue</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-language"></i></span>
+                                    <select id="input_primary_venue_id" class='form-control select2' name="primary_venue_id" {% if 'primary_venue_id' in fields.disabled %}disabled{% endif %}>
+                                        {% for venue in venues %}
+                                        <option value="{{venue.id}}" {% if (venue.id == target_user.primary_venue_id) %}selected{% endif %}>{{venue.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        {% if 'groups' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            <h5>Groups</h5>
+                            <ul class="list-group permission-summary-rows">
+                            {% for group in groups %}
+                                <li class="list-group-item">
+                                    {{group.name}}
+                                    <span class="pull-right">
+                                      <input type="checkbox" name="groups[{{group.id}}]" class="form-control bootstrapswitch" data-id="{{group.id}}" {% if group.member %}checked{% endif %} {% if 'groups' in fields.disabled %}disabled{% endif %}>
+                                      {% if 'group_id' not in fields.hidden %}
+                                      <button type="button" class="bootstrapradio btn btn-xs" name="group_id" value="{{group.id}}" title="Set as primary group" data-selected="{% if group.id == target_user.group_id %}true{% else %}false{% endif %}">
+                                        <i class="fa fa-home"></i>
+                                      </button>
+                                      {% endif %}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% if 'venues' not in fields.hidden %}
+                        <div class="col-sm-6">
+                            {% if "submit" not in buttons.hidden %}
+                            {#
+                                whatever we want to show when we have an **active** form
+                                TODO:
+                                check this!!!!
+                                - here we assume that when the current user is allowed to modify the primary_venue_id they are also allowed
+                                    to modify the venues_allowed array
+                                - when active user is a site admin, it's probably best to limit the list of venues to those the site admin has access to
+                            #}
+                            <div class="form-group">
+                                <label>Venues allowed</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-globe"></i></span>
+                                    <select id="input_venues_allowed" class="form-control select2" multiple="multiple" name="venues_allowed" {% if 'primary_venue_id' in fields.disabled %}disabled{% endif %}>
+                                        {% for venue in venues %}
+                                        <option value="{{venue.id}}" {% if (venue.id in allowed_venues_ids) %}selected{% endif %}>{{venue.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Full venue view allowed?</label>
+                                <div class="input-group">
+                                    <input id="full_venue_view_allowed" type="checkbox" class="form-control bootstrapswitch" name="full_venue_view_allowed" {% if target_user.full_venue_view_allowed|default(1) == 1 %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Zones allowed</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-globe"></i></span>
+                                    <select id="input_zones_allowed" class="form-control select2" multiple="multiple" name="zones_allowed" {% if 'primary_venue_id' in fields.disabled %}disabled{% endif %}>
+                                        {% for venue in venues %}
+                                            <optgroup label="{{venue.name}}">
+                                            {% for zone in venue.zones %}
+                                                <option value="{{zone.id}}" {% if (zone.id in zones_access_ids) %}selected{% endif %}>{{zone.name}}</option>
+                                            {% endfor %}
+                                            </optgroup>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Programmatic setting of allowed zones">
+                                <button type="button" id="multi-set-zones" class="btn btn-default">
+                                    Add all Zones for Venues Allowed
+                                </button>
+                                <button type="button" id="multi-clear-zones" class="btn btn-default">
+                                    Clear Zones
+                                </button>
+                            </div>
+                            {% else %}
+                            {# whatever we want to show when we have a static info panel #}
+                            <h5>Venues allowed</h5>
+                            <div style="height: 100%; max-height: 400px;overflow-y: auto;">
+                                <ul class="list-group permission-summary-rows">
+                                {% for venue in allowed_venues %}
+                                    <li class="list-group-item">
+                                        {{venue.name}}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            <h5>Full venue view allowed?</h5>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <input id="full_venue_view_allowed" type="checkbox" class="form-control bootstrapswitch" {% if target_user.full_venue_view_allowed == 1 %}checked{% endif %} disabled>
+                                </div>
+                            </div>
+                            <h5>Zones allowed</h5>
+                            <div style="height: 100%; max-height: 120px;overflow-y: auto;">
+                                <ul class="list-group permission-summary-rows">
+                                {% for zone in zones_access %}
+                                    <li class="list-group-item">
+                                        {{zone.name}}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div><br>
+                    <div class="row">
+                        {% if "submit" not in buttons.hidden %}
+                        <div class="col-xs-8 col-sm-4">
+                            <div class="vert-pad">
+                                <button type="submit" class="btn btn-block blue">
+                                    {{submit_button}}
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if "edit" not in buttons.hidden %}
+                        <div class="col-xs-6 col-sm-3">
+                            <div class="vert-pad">
+                                <button type="button" class="btn btn-block btn-primary js-user-edit" data-id="{{target_user.id}}" data-toggle="modal">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if "delete" not in buttons.hidden %}
+                        <div class="col-xs-6 col-sm-3">
+                            <div class="vert-pad">
+                                <button type="button" class="btn btn-block btn-danger js-user-delete" data-id="{{target_user.id}}" data-user_name="{{target_user.user_name}}" data-toggle="modal">
+                                    <i class="fa fa-trash-o"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if "cancel" not in buttons.hidden %}
+                        <div class="col-xs-4 col-sm-3 pull-right">
+                            <div class="vert-pad">
+                                <button type="button" class="btn btn-block red" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+var zones = {{zones | raw}};
+var venues = {{venues | raw}};
+
+{% if "submit" not in buttons.hidden %}
+{# whatever we want to show when we have an **active** form #}
+$(document).ready(function() {
+
+    var switches = $('#create_user_modal .bootstrapswitch');
+    switches.bootstrapSwitch();
+    switches.bootstrapSwitch('setSizeClass', 'switch-mini');
+
+    // Initialize primary group buttons
+    $(".bootstrapradio").bootstrapradio();
+
+    var venue_input_select2 = $("select#input_venues_allowed").select2();
+
+    /**
+     * dynamically update the zones select options list based on the allowed venues values
+     */
+    $('#input_venues_allowed').on('change', update_allowed_zones);
+
+    function update_allowed_zones() {
+        /**
+         * store the selected venues to construct the dropdown list again
+         */
+        var venues_allowed = $('#input_venues_allowed').val();
+        var select_list = $("#input_zones_allowed");
+
+        /**
+         * store the selected zones to add back in again later on
+         */
+        var zones_allowed = select_list.val();
+        select_list.empty();
+
+        _.forEach(venues_allowed, function(venue_allowed) {
+            _.forEach(venues, function(venue) {
+                if (venue_allowed == venue.id) {
+                    /**
+                     * create an optgroup
+                     */
+                    var group = $('<optgroup label="' + venue.name + '" />');
+                    _.forEach(venue.zones, function(zone) {
+                        /**
+                         * create an option
+                         */
+                        $('<option value=' + zone.id + '>').html(zone.name).appendTo(group);
+                    });
+
+                    group.appendTo(select_list);
+                }
+            });
+        });
+
+        /**
+         * here we reconstruct the list of selected options from our cached results earlier on
+         */
+        var zone_input_select2 = $("select#input_zones_allowed").select2();
+        zone_input_select2.val(zones_allowed).trigger("change");
+    }
+
+    /**
+     * handle the buttons below the allowed zones field
+     */
+    $("#multi-set-zones").on("click", function () {
+        /**
+         * first we need to filter venues array on venues allowed
+         * then create an array containing ids for zones that belong to venues allowed
+         */
+        var filtered_zone_ids = [];
+        var venues_allowed = $('#input_venues_allowed').val();
+
+        _.forEach(venues_allowed, function(venue_allowed) {
+            _.forEach(venues, function(venue) {
+                if (venue_allowed == venue.id) {
+                    _.forEach(venue.zones, function(zone) {
+                        filtered_zone_ids.push(zone.id);
+                    });
+                }
+            });
+        });
+
+        /**
+         * then we push the ids for the filtered zones to the field
+         */
+        var zone_input_select2 = $("select#input_zones_allowed").select2();
+        zone_input_select2.val(filtered_zone_ids).trigger("change");
+    });
+
+    $("#multi-clear-zones").on("click", function () {
+        /**
+         * clear the allowed zones field
+         */
+        var zone_input_select2 = $("select#input_zones_allowed").select2();
+        zone_input_select2.val(null).trigger("change");
+    });
+
+    $('.modal').on('hidden.bs.modal', function(e) {
+        $('.modal-backdrop').remove();
+    });
+
+    /**
+     * we refresh the allowed zones dropdown 500ms after document ready
+     */
+    window.setTimeout(function(){
+        update_allowed_zones();
+    }, 500);
+});
+{% endif %}
+</script>

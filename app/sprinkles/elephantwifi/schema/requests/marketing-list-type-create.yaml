@@ -1,0 +1,30 @@
+---
+list_type_name:
+  validators:
+    length:
+      min: 1
+      max: 20
+      message: MARKETING_LIST_TYPE_NAME_REQUIRED
+    no_leading_whitespace:
+      message: MARKETING_LIST_TYPE_NAME_NO_LEAD_WS
+    no_trailing_whitespace:
+      message: MARKETING_LIST_TYPE_NAME_NO_TRAIL_WS
+    required:
+      message: MARKETING_LIST_TYPE_NAME_REQUIRED
+  sanitizers:
+    raw: {}
+list_type_text:
+  validators:
+    length:
+      min: 1
+      max: 255
+      message: MARKETING_LIST_TYPE_TEXT_REQUIRED
+    no_leading_whitespace:
+      message: MARKETING_LIST_TYPE_TEXT_NO_LEAD_WS
+    no_trailing_whitespace:
+      message: MARKETING_LIST_TYPE_TEXT_NO_TRAIL_WS
+    required:
+      message: MARKETING_LIST_TYPE_TEXT_REQUIRED
+  sanitizers:
+    raw: {}
+id: {}

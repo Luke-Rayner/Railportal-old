@@ -1,0 +1,309 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Companies Overview",
+        "description" : "Page which displays all available companies."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Company Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="companies" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                        	<th>Action</th>
+                            <th>ID</th>
+                            <th>Company name</th>
+                        </tr>
+                    </thead>
+                </table>
+                {% if "new" in buttons.shown %}
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn orange" id="addNewCompany">
+                          <i class="fa fa-plus-square"></i> Add new Company
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if "new" in buttons.shown %}
+<div id='addNewCompanyModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-building fa-fw fa-lg"></i> Add a new Company</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-alerts-page"></div>
+
+                <form class="form-horizontal" id="addCompany" action="{{site.uri.public}}/admin/companies" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="company_name" class="col-sm-offset-1 col-sm-4 control-label">Company name</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="64" id="company_name" name="name" placeholder="Company name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="companySubmit" name="companySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save new Company</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if "new" in buttons.shown %}
+<div id='updateCompanyModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-building fa-fw fa-lg"></i> Update Company</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateCompany" action="{{site.uri.public}}/admin/companies/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_company_name" class="col-sm-offset-1 col-sm-4 control-label">Company name</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="64" id="update_company_name" name="name" placeholder="Company name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="companySubmit" name="companySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Update Company</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_company_id" name="id">
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div id='companyDetailsModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-info-circle fa-fw fa-lg"></i> Company details</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-offset-2 col-sm-8">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>
+                                    <b>Id:</b>
+                                </td>
+                                <td>
+                                    <span id="details_company_id"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Name:</b>
+                                </td>
+                                <td>
+                                    <span id="details_company_name"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+	var companiestable;
+    var validators = {{validators | raw}};
+
+	function updateCompany(d) {
+        /**
+         * populate the form with the values for this company
+         */
+        company_id = d.getAttribute("data-company_row");
+
+        var thisCompany = companiestable.row( company_id ).data();
+        $('#update_company_id').val(thisCompany.id);
+        $('#update_company_name').val(thisCompany.name);
+
+        /**
+         * show the modal
+         */
+        $('#updateCompanyModal').modal('show');
+    }
+
+	function showCompanyDetails(d) {
+        /**
+         * populate the form with the values for this company
+         */
+        var company_row = d.getAttribute("data-company_row");
+        console.log(company_row);
+
+        var thisCompany = companiestable.row(company_row).data();
+
+        $('#details_company_id').html(thisCompany.id);
+        $('#details_company_name').html(thisCompany.name);
+
+        /**
+         * show the modal
+         */
+        $('#companyDetailsModal').modal('show');
+    }
+
+    function searchCompanyUsers(d) {
+        /**
+         * populate the form with the values for this company
+         */
+        var company_row = d.getAttribute("data-company_row");
+
+        var thisCompany = companiestable.row(company_row).data();
+
+        window.location.replace('{{site.uri.public}}/users#&sort[table-users][user_name]=desc&page[table-users]=1&size[table-users]=10&filter[table-users][company]=' + thisCompany.name);
+    }
+
+    $(document).ready(function() {
+        companiestable = $('#companies').DataTable({
+            autoWidth: false,
+            language: {
+                "loadingRecords": "<br><br><h4>Loading...</h4>"
+            },
+            deferRender: true,
+            ajax: {
+                url: "{{site.uri.public}}/api/list/companies",
+                dataSrc: function(json) {
+                    //console.log(json);
+                    return json['rows'];
+                }
+            },
+            columns: [
+            	{data: 'id',
+                    sortable: false,
+                    render: function(data, type, full, meta) {
+                        return '<i class="clickable fa fa-info-circle fa-fw fa-lg text-primary" data-company_row="'
+                            + meta.row + '" onclick="showCompanyDetails(this);" data-toggle="tooltip" data-placement="top" title="show details"></i>'
+
+                            + '&nbsp;<i class="clickable fas fa-pencil-alt fa-fw fa-lg text-primary" data-company_row="'
+                            + meta.row + '" onclick="updateCompany(this);" data-toggle="tooltip" data-placement="top" title="update company"></i>';
+                    }
+                },
+                {data: 'id'},
+                {data: 'name'},
+            ],
+        });
+
+        /**
+         * fix to get Bootstrap tooltips to work within Datatables (use the ID of the table container)
+         * also add data-container: 'body' to the element triggering the tooltip to get it on top of other elements
+         */
+        $('#companies').on('draw.dt', function () {
+            $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+        });
+
+        $('#addCompany').ufForm({
+            validator: validators,
+            msgTarget: $("#create-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        $('#updateCompany').ufForm({
+            validator: validators,
+            msgTarget: $("#update-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+
+        $('#addNewCompany').click(function(e) {
+            e.preventDefault();
+
+            /**
+             * show the modal
+             */
+            $('#addNewCompanyModal').modal('show');
+            $('#addCompany').find("[autofocus]:first").focus(); // TODO: why is this not working?
+        });
+
+        /**
+         * what we want to do when a modal gets hidden
+         */
+        $('.modal').on('hidden.bs.modal', function(e) {
+	        $('#form-alerts').empty();
+	        $('#update_form-alerts').empty();
+            //window.location.reload(true);
+        });
+
+        /**
+         * whatever we want to do when a modal gets shown
+         */
+        $(".modal").on('shown', function() {
+            //
+        });
+
+        /**
+         * table redraw on resize of window and collapse of sidebar
+         */
+        $(window).resize(function(){
+            setTimeout(companiestable.draw, 100);
+        });
+    });
+</script>
+{% endblock %}

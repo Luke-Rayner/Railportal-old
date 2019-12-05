@@ -1,0 +1,163 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Venue Event Calendar",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="col-md-9">
+        <div class="page-title">
+            <h1>{{page.title}}
+                <small>{{page.description}}</small>
+            </h1>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <button type="button" class="btn btn-success pull-right" id="addNewEvent">
+            <i class="fa fa-plus-square"></i> Add new Event
+        </button>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="portlet light bordered">
+            <div class="portlet-body">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        plugins: [ 'dayGrid' ],
+        eventSources: [{
+            url: '{{site.uri.public}}/api/calendar-events/venue',
+            textColor: 'white'
+        }],
+        contentHeight: 650,
+        eventClick: function(info) {
+            var url = site['uri']['public'] + "/admin/forms/event/update/" + info.event.id;
+
+            /**
+             * Show the modal
+             * The second param is the form id which can be found in the twig template
+             */
+            Forms(url);
+        }
+    });
+
+    calendar.render();
+});
+
+/**
+ * get all the calendar events
+ */
+$.ajax({
+    /**
+     * the following url gives us daily counts over the last 31 days
+     */
+    url:      '{{site.uri.public}}/api/calendar-events/venue',
+    type:     'GET',
+    dataType: 'json',
+    success:  onCalendarEventDataReceived
+});
+
+function onCalendarEventDataReceived($data) {
+    console.log($data);
+}
+
+/**
+ * open the addNewZoneModal upon click on the button
+ */
+$('#addNewEvent').click(function(e) {
+    e.preventDefault();
+
+    var url = site['uri']['public'] + "/admin/forms/event/create";
+
+    /**
+     * Show the modal
+     * The second param is the form id which can be found in the twig template
+     */
+    Forms(url);
+});
+
+/********************************************
+ * Forms function to load and submit modals *
+ *******************************************/
+function Forms(url) {
+
+    /**
+     * Delete any existing instance of the form with the same name
+     */
+    if($('#addNewEventModal').length ) {
+        $('#addNewEventModal').remove();
+    }
+
+    /**
+     * Fetch and render the form
+     */
+    $.ajax({
+      type: "GET",
+      url: url,
+      cache: false
+    })
+    .fail(function(result) {
+        /**
+         * Display errors on failure
+         */
+        $('#userfrosting-alerts').flashAlerts().done(function() {
+        });
+    })
+    .done(function(result) {
+        /**
+         * Append the form as a modal dialog to the body
+         */
+        $( "body" ).append(result);
+        $('#addNewEventModal').modal('show');
+
+        /**
+         * Link submission buttons
+         */
+        $('#addNewEventModal form').ufForm({
+            validator: validators,
+            msgTarget: $("#alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            $('#addNewEventModal').modal('hide');
+            location.reload();
+        });
+    });
+}
+
+/**
+ * what we want to do when a modal gets hidden
+ */
+$('.modal').on('hidden.bs.modal', function(e) {
+   $('#form-alerts').empty();
+   $('#update_form-alerts').empty();
+});
+
+/**
+ * whatever we want to do when a modal gets shown
+ */
+$(".modal").on('shown', function() {
+    //
+});
+
+</script>
+{% endblock %}

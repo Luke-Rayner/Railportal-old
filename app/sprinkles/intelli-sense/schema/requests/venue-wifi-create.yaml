@@ -1,0 +1,43 @@
+---
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+capture_start:
+  validators:
+    required:
+      label: "&CAPTURE_START"
+      message: VALIDATE.REQUIRED
+controller_venue_id:
+  validators:
+local_venue_id:
+  validators:
+captive_portal:
+  validators:
+    required:
+      label: "&CAPTIVEL_PORTAL"
+      message: VALIDATE.REQUIRED
+controller_id:
+  validators:
+is_sponsored:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&CATEGORY_ID"
+      message: VALIDATE.REQUIRED
+web_titan_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&WEB_TITAN_ID"
+      message: VALIDATE.REQUIRED
+old_venue:
+  validators:
+    length:
+      label: "&OLD_VENUE"
+      max: 1
+      message: VALIDATE.LENGTH_RANGE
+    numeric:
+      message: "Invalid Number"

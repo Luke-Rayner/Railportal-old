@@ -1,0 +1,273 @@
+---
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+name:
+  validators:
+    length:
+      label: "&PASSWORD"
+      min: 5
+      max: 50
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&USERNAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&USERNAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+enviro_venue:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&ENVIRO_VENUE"
+      max: 1
+      message: "VALIDATE.LENGTH_RANGE"
+category_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&CATEGORY_ID"
+      message: VALIDATE.REQUIRED
+time_zone:
+  validators:
+    required:
+      label: "&TIME_ZONE"
+      message: VALIDATE.REQUIRED
+footfall_bucket:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&FOOTFALL_BUCKET"
+      message: VALIDATE.REQUIRED
+current_visitors_bucket:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&CURRENT_VISITOR_BUCKET"
+      message: VALIDATE.REQUIRED
+dashboard_refresh:
+  validators:
+    numeric:
+      message: "Invalid Number"
+lat:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LAT"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+lon:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LON"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+heatmap_min_zoom:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&HEATMAP_MIN_ZOOM"
+      message: VALIDATE.REQUIRED
+heatmap_max_zoom:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&HEATMAP_MAX_ZOOM"
+      message: VALIDATE.REQUIRED
+heatmap_init_zoom:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&HEATMAP_INIT_ZOOM"
+      message: VALIDATE.REQUIRED
+heatmap_radius:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&HEATMAP_RADIUS"
+      message: VALIDATE.REQUIRED
+dt_threshold_1:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&DT_THRESHOLD_1"
+      message: VALIDATE.REQUIRED
+dt_threshold_2:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&DT_THRESHOLD_2"
+      message: VALIDATE.REQUIRED
+dt_threshold_3:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&DT_THRESHOLD_3"
+      message: VALIDATE.REQUIRED
+dt_threshold_4:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&DT_THRESHOLD_4"
+      message: VALIDATE.REQUIRED
+dt_threshold_5:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&DT_THRESHOLD_5"
+      message: VALIDATE.REQUIRED
+dt_level_1_label:
+  validators:
+    length:
+      label: "&DT_LEVEL_1_LABEL"
+      min: 5
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&DT_LEVEL_1_LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&DT_LEVEL_1_LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+dt_level_2_label:
+  validators:
+    length:
+      label: "&DT_LEVEL_2_LABEL"
+      min: 5
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&DT_LEVEL_2_LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&DT_LEVEL_2_LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+dt_level_3_label:
+  validators:
+    length:
+      label: "&DT_LEVEL_3_LABEL"
+      min: 5
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&DT_LEVEL_3_LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&DT_LEVEL_3_LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+dt_level_4_label:
+  validators:
+    length:
+      label: "&DT_LEVEL_4_LABEL"
+      min: 5
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&DT_LEVEL_4_LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&DT_LEVEL_4_LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+dt_level_5_label:
+  validators:
+    length:
+      label: "&DT_LEVEL_5_LABEL"
+      min: 5
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&DT_LEVEL_5_LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&DT_LEVEL_5_LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+dt_skipped_label:
+  validators:
+    length:
+      label: "&DT_SKIPPED_LABEL"
+      min: 5
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&DT_SKIPPED_LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&DT_SKIPPED_LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+sankey_max_route_length:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&SANKEY_MAX_ROUTE_LENGTH"
+      message: VALIDATE.REQUIRED
+locale:
+  validators:
+    required:
+      label: "&LOCALE"
+      message: VALIDATE.REQUIRED
+country_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+region_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+area_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+population:
+  validators:
+    numeric:
+      message: "Invalid Number"
+
+
+
+
+
+
+
+
+

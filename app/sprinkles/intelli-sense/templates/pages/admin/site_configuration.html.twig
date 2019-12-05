@@ -1,0 +1,136 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title" : "Site Configuration",
+        "description" : "Global configuration settings for the GEO-Sense application that apply to all venues."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Site Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="settings-alerts"></div>
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="form-alerts" id="top-alerts-page"></div>
+
+                        <form class='form-horizontal' role='form' name='settings' action='{{site.uri.public}}/admin/site_settings/u' method='post'>
+                            {% include "forms/csrf.html.twig" %}
+                            {% for setting in settings %}
+                            <div class="form-group">
+                                <label for="input_{{setting.name}}" class="col-sm-2 control-label">{{setting.form_label}}</label>
+                                <div class="col-sm-4">
+                                    <input type='text' id="input_{{setting.name}}" class="form-control" name="{{setting.name}}" value="{{setting.value}}" style="width: 100%;"/>
+                                    <p style="font-size: 12px;" class="help-block">{{setting.description}}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </form>
+                    </div>
+                </div>
+
+                <hr>
+                <br>
+
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="form-alerts" id="bottom-alerts-page"></div>
+
+                        <form class='form-horizontal' role='form' id="whitelist_device_vendor_form" name='whitelist_device_vendor_form' action='{{site.uri.public}}/admin/whitelist/device_vendor/update' method='post'>
+                            {% include "forms/csrf.html.twig" %}
+                            <div class="form-group">
+                                <label for="whitelist_vendors" class="col-sm-2 control-label">Whitelisted Vendors</label>
+                                <div class="col-sm-4">
+                                    <select id="input_whitelist_vendors" class='form-control select2' multiple="multiple" name="whitelist_vendors">
+                                        {% for device_vendor in device_vendors %}
+                                            <option value="{{device_vendor.id}}" {% if (device_vendor.id in whitelisted_device_vendors) %}selected{% endif %}>{{device_vendor.description}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type='submit' id="whitelistDeviceVendorSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Submit Whitelisted Vendors</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+    $(document).ready(function() {
+        $('#input_whitelist_vendors').select2();
+        var timer;
+
+        // Autosave text fields
+        $('form[name="settings"] input[type=text]').keyup(function () {
+            clearTimeout(timer); // Clear the timer so we don't end up with dupes.
+            $('#settings-alerts').html('<div class="alert alert-warning">Saving...</div>');
+            timer = setTimeout(function() { // assign timer a new timeout
+                $("form[name='settings']").submit();
+            }, 700);
+        });
+
+        // Autosave switches and selects
+        $('form[name="settings"] input[type=checkbox]').on('change', function () {
+            $('#settings-alerts').html('<div class="alert alert-warning">Saving...</div>');
+            $('form[name="settings"]').submit();
+        });
+
+        $('form[name="settings"] select').on("change", function () {
+            $('#settings-alerts').html('<div class="alert alert-warning">Saving...</div>');
+            $('form[name="settings"]').submit();
+        });
+
+        // Process form
+        $('form[name="settings"]').ufForm({
+            validator: {},
+            msgTarget: $("#top-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            $('#settings-alerts').html('<div class="alert alert-success">'
+                + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                + '    <span aria-hidden="true" style="display: table-cell;vertical-align: top;"><i class="fa fa-times"></i></span>'
+                + '</button>'
+                + 'All settings have been saved'
+                + '</div>');
+        });
+        
+        $('#whitelist_device_vendor_form').ufForm({
+            validator: {},
+            msgTarget: $("#bottom-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+    });
+</script>
+{% endblock %}

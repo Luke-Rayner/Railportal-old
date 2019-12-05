@@ -1,0 +1,137 @@
+{% extends "pages/elephantwifi/captive_portal/base/layout-captive-portal.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title" : "Splash page",
+        "description" : "Captive portal splash page to initially authorise devices when the basic captive portal version is enabled"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div>
+                {% if unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid != ''  %}
+                    <img src="{{site.uri.public}}/assets-raw/images/captive_portal/custom/logo/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_name}}" class="center-block img-responsive" alt="Logo">
+                {% else %}
+                    <img src="{{site.uri.public}}/assets-raw/images/captive_portal/logo.png" class="center-block img-responsive" alt="Logo">
+                {% endif %}
+            </div>
+
+            <div id="header">
+                <div style="text-align: center">
+                    <h3>{{unifi_venue.venue_wifi.text_labels.heading}}</h3>
+                </div>
+            </div>
+
+            <div style="text-align: center">
+                <p>{{unifi_venue.venue_wifi.text_labels.basic_sub_heading}}</p>
+            </div>
+
+            <div>
+                <div id="userfrosting-alerts">
+                    {% for alert in page.alerts %}
+                    <div class="alert alert-{{alert.type}} alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" style="display: table-cell;vertical-align: top;"><i class="fas fa-times"></i></span>
+                        </button>
+                        {{alert.message}}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="{{alerts_id | default('update_form-alerts')}}"></div>
+                <form class="form-horizontal" id="authorisation_form" action="{{site.uri.public}}/captive_portal/basic/register_device/{{portal_session}}/" method="POST"  accept-charset="ISO-8859-1">
+                    {% include "forms/csrf.html.twig" %}
+                    <input type="hidden" name="{{csrf_key}}" value="{{csrf_token}}">
+                    <button type="submit" id="formSubmit" class="btn btn-block btn-{{unifi_venue.venue_wifi.text_labels.basic_connect_button_class | default('primary')}} btn-lg disabled">{{unifi_venue.venue_wifi.text_labels.basic_connect_button_label}}</button>
+                </form>
+            </div>
+
+            {% if unifi_venue.venue_wifi.is_sponsored == '1' %}
+            <br>
+            <div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+                <div style="text-align: center">
+                   <p>Powered by</p>
+                </div>
+                <img src="{{site.uri.public}}/images/artofwifi-logo-507x120.png" class="center-block img-responsive" alt="Art of WiFi Logo" />
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title" style="text-align:center"><i class="fas fa-file-contract"></i> {{unifi_venue.venue_wifi.text_labels.tos_title}}</h3>
+        </div>
+        <div class="panel-body">
+            <p style="text-align:center">{{unifi_venue.venue_wifi.text_labels.tos_pre_link_label}}&nbsp;<a href="#" data-toggle="modal" data-target="#termsmodal">{{unifi_venue.venue_wifi.text_labels.tos_title}}</a>&nbsp;{{unifi_venue.venue_wifi.text_labels.tos_post_link_label}}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade termsmodal" tabindex="-1" role="dialog" aria-labelledby="termsmodal" aria-hidden="false" id="termsmodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title"><i class="fas fa-file-contract"></i> {{unifi_venue.venue_wifi.text_labels.tos_title}}</h4>
+            </div>
+            <div class="modal-body">
+                {{unifi_venue.venue_wifi.text_labels.tos_modal_content|raw}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">{{unifi_venue.venue_wifi.text_labels.tos_modal_dismiss_button_label}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+/**
+ * place in seperate js file when done (these should be loaded as last)
+ * - leave a small bit of code in this template that loads the variables/arrays from twig variables
+ */
+$(document).ready(function() {
+    /**
+     * enable the submit button upon page ready
+     */
+    $("#formSubmit").removeClass("disabled");
+
+    /**
+     * Load the validator rules for this form
+     * - no validators required on this page
+     */
+    var validators = {};
+
+    /**
+     * Load the data required in the js for this page into variables for later use
+     * NOTE: take care not to load sensitive data here!
+     */
+    var site_uri_public = '{{site.uri.public | raw}}';
+    var portal_session = '{{portal_session | raw}}';
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data through AJAX
+     * - ufFormSubmit processes a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     *
+     * example usage: ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback)
+     */
+    $('#authorisation_form').ufForm({
+        validator: validators,
+        msgTarget: $("#update_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        // successCallback function
+        $("#formSubmit").addClass("disabled");
+
+        /**
+         * Redirect the user on success
+         */
+        window.location.href = site_uri_public + '/captive_portal/redirecting/' + portal_session;
+    });
+});
+</script>
+{% endblock %}

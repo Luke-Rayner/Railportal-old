@@ -1,0 +1,496 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Repeat Visitor Report</p>
+        <br>
+        <p>The figures below are based on the date range selected when downloading the PDF</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_total_new_visitors"></span>
+                    </div>
+                    <div class="desc"> Total / New Visitors </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_less_than_7_days"></span>
+                    </div>
+                    <div class="desc"> Less than 7 days </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" style="background-color: #324068" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_between_7_14_days"></span>
+                    </div>
+                    <div class="desc"> Between 7 and 14 days ago </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" style="background-color: #526088" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_between_14_30_days"></span>
+                    </div>
+                    <div class="desc"> Between 14 and 30 days ago </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" style="background-color: #7280a8" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_between_30_90_days"></span>
+                    </div>
+                    <div class="desc" style="color: #324068"> Between 30 and 90 days ago </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" style="background-color: #92a0c8" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_between_90_180_days"></span>
+                    </div>
+                    <div class="desc" style="color: #324068"> Between 90 and 180 days ago </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="custom-row">
+        <div class="donut left">
+            <a class="dashboard-stat blue-soft" style="background-color: #b2c0e8" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_between_180_365_days"></span>
+                    </div>
+                    <div class="desc" style="color: #324068"> Between 180 and 365 days ago </div>
+                </div>
+            </a>
+        </div>
+        <div class="donut right">
+            <a class="dashboard-stat blue-soft" style="background-color: #d2e0ff" href="#">
+                <div class="visual">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div class="donut-details">
+                    <div class="number bold">
+                        <span id="pdf_repeat_visitor_report_longar_than_365_days"></span>
+                    </div>
+                    <div class="desc" style="color: #324068"> Longer than 365 days ago </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Page 2 -->
+    <div class="custom-row before">
+        <p>The graph below shows a bar graph for the date range selected showing the repeat visitor breakdown per day. The second chart is a full numerical breakdown per day showing the repeat visitor breakdown for each day.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_repeat_visitor_breakdown" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <div class="custom-row left">
+        <br>
+        <table id="table_repeat_visitor_breakdown">
+            <thead>
+                <tr>
+                    <th>DateTime</th>
+                    <th>New Visitors</th>
+                    <th>Less than 7 days</th>
+                    <th>Between 7 and 14 days</th>
+                    <th>Between 14 and 30 days</th>
+                    <th>Between 30 and 90 days</th>
+                    <th>Between 90 and 180 days</th>
+                    <th>Between 180 and 365 days</th>
+                    <th>Longer than 365 days</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd = {{end_date}};
+
+/**
+ * function to generate shades of blue for the returning visitors breakdown
+ */
+var barColors = (function () {
+    var colors = [],
+        base = '#1c2746',
+        i;
+
+    for (i = 0; i < 7; i += 1) {
+        // Start out with a darkened base color (negative brighten), and end
+        // up with a much brighter color
+        colors.push(Highcharts.Color(base).brighten(i / 8).get());
+    }
+    return colors;
+}());
+
+$(document).ready(function() {
+    /**
+     * 
+     */
+    $.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/repeat_visitor_report/repeat_visitors/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onPdf_RepeatVisitorReport_ThisPeriod_DataReceived
+    });
+
+    /**
+     *
+     */
+    var chart_repeatVisitorReport_repeatVisitorBreakdown_Options = {
+        chart: {
+            renderTo: 'chart_repeat_visitor_breakdown',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            },
+            series: {
+                cursor: 'pointer'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     *
+     */
+    function onPdf_RepeatVisitorReport_ThisPeriod_DataReceived(data) {
+        /**
+         * do something with the data
+         */
+        var seriesoptions = [
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: '#e25826',
+                name: 'new visitors',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[0],
+                name: 'less than 7 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[1],
+                name: 'between 7 and 14 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[2],
+                name: 'between 14 and 30 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[3],
+                name: 'between 30 and 90 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[4],
+                name: 'between 90 and 180 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[5],
+                name: 'between 180 and 365 days ago',
+                stack: 'visitors'
+            },
+            {
+                type: 'column', // default chart type
+                lineWidth: 2,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineWidth: 2
+                    }
+                },
+                color: barColors[6],
+                name: 'longer than 365 days ago',
+                stack: 'visitors'
+            }
+        ];
+
+        /**
+         * when date range is longer than 6 weeks we switch to area chart instead of column
+         */
+        if (typeof data.new !== 'undefined' && data.new.length > 6*7) {
+            seriesoptions[0].type = 'area';
+            seriesoptions[1].type = 'area';
+        }
+
+        chart_repeatVisitorReport_repeatVisitorBreakdown_Options.series = seriesoptions;
+        chart_repeatVisitorReport_repeatVisitorBreakdown = new Highcharts.Chart(chart_repeatVisitorReport_repeatVisitorBreakdown_Options);
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[0].setData(noGapsDataArray(data.new, 86400));
+
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[1].setData(noGapsDataArray(data.rv_level_1, 86400));
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[2].setData(noGapsDataArray(data.rv_level_2, 86400));
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[3].setData(noGapsDataArray(data.rv_level_3, 86400));
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[4].setData(noGapsDataArray(data.rv_level_4, 86400));
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[5].setData(noGapsDataArray(data.rv_level_5, 86400));
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[6].setData(noGapsDataArray(data.rv_level_6, 86400));
+        chart_repeatVisitorReport_repeatVisitorBreakdown.series[7].setData(noGapsDataArray(data.rv_level_7, 86400));
+
+        chart_repeatVisitorReport_repeatVisitorBreakdown.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        var total_count = 0;
+
+        var new_count = 0;
+        $.each(data.new, function (key, value) {
+            new_count += value[1];
+        });
+
+        var rv_level_1_count = 0;
+        $.each(data.rv_level_1, function (key, value) {
+            rv_level_1_count += value[1];
+        });
+        var rv_level_1_html = 'N/A';
+        if (rangeEnd - rangeStart < 604800000) {
+            rv_level_1_html = rv_level_1_count;
+        }
+
+        var rv_level_2_count = 0;
+        $.each(data.rv_level_2, function (key, value) {
+            rv_level_2_count += value[1];
+        });
+        var rv_level_2_html = 'N/A';
+        if (rangeEnd - rangeStart < 1209600000) {
+            rv_level_2_html = rv_level_2_count;
+        }
+
+        var rv_level_3_count = 0;
+        $.each(data.rv_level_3, function (key, value) {
+            rv_level_3_count += value[1];
+        });
+        var rv_level_3_html = 'N/A';
+        if (rangeEnd - rangeStart < 2592000000) {
+            rv_level_3_html = rv_level_3_count;
+        }
+
+        var rv_level_4_count = 0;
+        $.each(data.rv_level_4, function (key, value) {
+            rv_level_4_count += value[1];
+        });
+        var rv_level_4_html = 'N/A';
+        if (rangeEnd - rangeStart < 7776000000) {
+            rv_level_4_html = rv_level_4_count;
+        }
+
+        var rv_level_5_count = 0;
+        $.each(data.rv_level_5, function (key, value) {
+            rv_level_5_count += value[1];
+        });
+        var rv_level_5_html = 'N/A';
+        if (rangeEnd - rangeStart < 15552000000) {
+            rv_level_5_html = rv_level_5_count;
+        }
+
+        var rv_level_6_count = 0;
+        $.each(data.rv_level_6, function (key, value) {
+            rv_level_6_count += value[1];
+        });
+        var rv_level_6_html = 'N/A';
+        if (rangeEnd - rangeStart < 31536000000) {
+            rv_level_6_html = rv_level_6_count;
+        }
+
+        var rv_level_7_count = 0;
+        $.each(data.rv_level_7, function (key, value) {
+            rv_level_7_count += value[1];
+        });
+        var rv_level_7_html = rv_level_7_count;
+
+        var total_count = new_count + rv_level_1_count + rv_level_2_count + rv_level_3_count + rv_level_4_count + rv_level_5_count + rv_level_6_count + rv_level_7_count;
+
+        $('#pdf_repeat_visitor_report_total_new_visitors').html(total_count.toLocaleString() + ' / <span style="color: #e15910">' + new_count.toLocaleString() + '</span>');
+        $('#pdf_repeat_visitor_report_less_than_7_days').html(rv_level_1_html.toLocaleString());
+        $('#pdf_repeat_visitor_report_between_7_14_days').html(rv_level_2_html.toLocaleString());
+        $('#pdf_repeat_visitor_report_between_14_30_days').html(rv_level_3_html.toLocaleString());
+        $('#pdf_repeat_visitor_report_between_30_90_days').html('<span style="color: #324068">' + rv_level_4_html.toLocaleString() + '</span>');
+        $('#pdf_repeat_visitor_report_between_90_180_days').html('<span style="color: #324068">' + rv_level_5_html.toLocaleString() + '</span>');
+        $('#pdf_repeat_visitor_report_between_180_365_days').html('<span style="color: #324068">' + rv_level_6_html.toLocaleString() + '</span>');
+        $('#pdf_repeat_visitor_report_longar_than_365_days').html('<span style="color: #324068">' + rv_level_7_html.toLocaleString() + '</span>');
+
+        var combinedArray = [];
+        var timestampIndices = [];
+
+        $.each(data['new'], function(key, value) {
+            var datetime = moment(value[0]).format('DD/MM/YYYY')
+            combinedArray.push([datetime, value[1]]);
+            timestampIndices.push(value[0]);
+        });
+
+        $.each(data['rv_level_1'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['rv_level_2'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['rv_level_3'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['rv_level_4'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['rv_level_5'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['rv_level_6'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        $.each(data['rv_level_7'], function(key, value) {
+            let index = timestampIndices.indexOf(value[0]);
+            combinedArray[index].push(value[1]);
+        });
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + '</td><td>' + value[4] + '</td><td>' + value[5] + '</td><td>' + value[6] + '</td><td>' + value[7] + '</td><td>' + value[8] + '</td></tr>';
+        });
+
+        $('#table_repeat_visitor_breakdown tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+<div id='addNewEventModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-tags fa-fw fa-lg"></i> Add a new Event</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+
+                <form class="form-horizontal" id="addEvent" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="name" class="col-sm-offset-1 col-sm-3 control-label">Name</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="name" name="name" placeholder="Event name" value="{{target_event.name}}" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes" class="col-sm-offset-1 col-sm-3 control-label">Notes</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <textarea class="form-control" maxlength="2500" id="notes" name="notes" placeholder="Event notes" rows="3" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>{{target_event.notes}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event_category_id" class="col-sm-offset-1 col-sm-3 control-label">Category</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <select id="event_category_id" class="form-control" name="event_category_id" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>
+                                    <option value="N/A">No category selected</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.id}}" {% if (target_event.event_category_id == category.id) %}selected{% endif %}>{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="start_date" class="col-sm-offset-1 col-sm-3 control-label">Start Date</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" id="start_date" name="start_date" class="form-control" value="{{target_event.start_date}}" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end_date" class="col-sm-offset-1 col-sm-3 control-label">End Date</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" id="end_date" name="end_date" class="form-control" value="{{target_event.end_date}}" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" hidden>
+                        <label for="recurring" class="col-sm-offset-1 col-sm-3 control-label">Recurring</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <select id="recurring" class="form-control" name="recurring" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>
+                                    <option value="0">None</option>
+                                    <option value="1" {% if (target_event.recurring == 1) %}selected{% endif %}>Weekly</option>
+                                    <option value="2" {% if (target_event.recurring == 2) %}selected{% endif %}>Monthly</option>
+                                    <option value="3" {% if (target_event.recurring == 3) %}selected{% endif %}>Yearly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" {% if checkAccess('uri_site_admin') == false %}hidden{% endif %}>
+                        <label for="admin_event" class="col-sm-offset-1 col-sm-3 control-label">Hidden event</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <input id="admin_event" type="checkbox" value="{{target_event.admin_event}}" name="admin_event" data-on-text="on" data-off-text="off" data-on="success" data-off="primary" {% if target_event.admin_event == 1 %} checked="checked"{% endif %} {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" {% if checkAccess('uri_site_admin') == false %}hidden{% endif %}>
+                        <label for="admin_notes" class="col-sm-offset-1 col-sm-3 control-label">Admin Notes</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <textarea class="form-control" maxlength="2500" id="admin_notes" name="admin_notes" placeholder="Admin notes" rows="3" {% if mode == 'edit' %}{% if target_event.can_delete == 0 or (target_event.event_category.admin_category == 1 and checkAccess('uri_site_admin') == false) %}disabled{% endif %}{% endif %}>{{target_event.admin_notes}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-7">
+                            {% if mode == 'edit' %}
+                            {% if target_event.event_category.admin_category == 0 or checkAccess('uri_site_admin') %}
+                                <button type='button' id="deleteEvent" name="deleteEvent" class="btn btn-danger btn-sm"><i class="fa fa-ban"></i> Delete Event</button>
+                            {% endif %}
+                            {% endif %}
+
+                            {% if target_event.event_category.admin_category == 0 or checkAccess('uri_site_admin') %}
+                            <button type='submit' id="EventSubmit" name="EventSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+var start_date = moment().format('DD-MM-YYYY');
+var end_date = moment().format('DD-MM-YYYY');
+
+{% if mode == 'edit' %}
+var target_event = {{target_event | raw}};
+start_date = moment.unix($('#start_date').val()).format('DD-MM-YYYY');
+end_date   = moment.unix($('#end_date').val()).format('DD-MM-YYYY');
+{% endif %}
+
+/**
+ * display the timestamp in human-readable format
+ * TODO:
+ * - fix this not working after switching between edit/create usage of this form on the same page
+ */
+
+$('#start_date').daterangepicker({
+        locale: {
+          format: 'DD-MM-YYYY'
+        },
+        singleDatePicker:   true,
+        startDate:          start_date,
+        minDate:            moment().subtract(5, 'years')
+    }, function(start, end, label) {
+        // we are done here
+});
+
+/**
+ * display the timestamp in human-readable format
+ * TODO:
+ * - fix this not working after switching between edit/create usage of this form on the same page
+ */
+$('#end_date').daterangepicker({
+        locale: {
+          format: 'DD-MM-YYYY'
+        },
+        singleDatePicker:   true,
+        startDate:          end_date,
+        minDate:            moment().subtract(5, 'years')
+    }, function(start, end, label) {
+        // we are done here
+});
+
+$('#deleteEvent').click(function(){
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site.uri.public + '/admin/event/delete/' + target_event.id,
+        success:    onDeleteSuccess,
+        error:      onDeleteError
+    });
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        window.location.reload(true);
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        window.location.reload(true);
+    }
+});
+
+$('#admin_event').bootstrapSwitch();
+$('#admin_event').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+</script>

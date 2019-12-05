@@ -1,0 +1,264 @@
+{% extends "pages/elephantwifi/captive_portal/base/layout-captive-portal.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Splash page Email checker",
+        "description" : "Captive portal splash page for checking existing users"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div>
+                {% if unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid != '' %}
+                    <img src="{{site.uri.public}}/assets-raw/images/captive_portal/custom/logo/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_name}}" class="center-block img-responsive" alt="Logo">
+                {% else %}
+                    <img src="{{site.uri.public}}/assets-raw/images/captive_portal/logo.png" class="center-block img-responsive" alt="Logo">
+                {% endif %}
+            </div>
+            <div id="header">
+                <div style="text-align: center">
+                    <h3>{{unifi_venue.venue_wifi.text_labels.heading}}</h3>
+                </div>
+            </div>
+            <div style="text-align: center">
+               <p>{{unifi_venue.venue_wifi.text_labels.social_auth_sub_heading}}</p>
+            </div>
+
+            <div class="tab-content">
+                {% if purpose != 'marketing' %}
+                <div class="tab-pane" id="privacy_policy">
+                    <div style="border: 2px solid rgb(247, 247, 247); padding: 15px;">
+                        <div style="border: 2px solid rgb(247, 247, 247); padding: 10px; background-color: rgba(247, 247, 247, 0.8)">
+                            <div style="height: 200px; overflow-y: auto;" class="text-center">
+                                <h3>Data Consent</h3>
+                                <p style="white-space: pre-line;">{{unifi_venue.venue_wifi.free_access_settings.data_consent_text}}</p>
+
+                                {% if unifi_venue.venue_wifi.free_access_settings.license_agreement_file_name != '' and unifi_venue.venue_wifi.free_access_settings.license_agreement_file_uuid != '' and unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_name != '' and unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_uuid != '' %}
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/license_agreement/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.free_access_settings.license_agreement_file_uuid}}/{{unifi_venue.free_access_settings.license_agreement_file_name}}" target="_blank">End User License Agreement</a>
+                                    <br>
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/privacy_policy/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_uuid}}/{{unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_name}}" target="_blank">Privacy Policy</a>
+                                {% elseif unifi_venue.venue_wifi.free_access_settings.license_agreement_file_name != '' and unifi_venue.venue_wifi.free_access_settings.license_agreement_file_uuid != '' and unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_name == '' and unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_uuid == '' %}
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/license_agreement/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.free_access_settings.license_agreement_file_uuid}}/{{unifi_venue.venue_wifi.free_access_settings.license_agreement_file_name}}" target="_blank">End User License Agreement</a>
+                                    <br>
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/privacy_policy/End_User_Privacy_Policy.pdf" target="_blank">Privacy Policy</a>
+                                {% elseif unifi_venue.venue_wifi.free_access_settings.license_agreement_file_name == '' and unifi_venue.venue_wifi.free_access_settings.license_agreement_file_uuid == '' and unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_name != '' and unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_uuid != '' %}
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/license_agreement/End_User_License_Agreement.pdf" target="_blank">End User License Agreement</a>
+                                    <br>
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/privacy_policy/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_uuid}}/{{unifi_venue.venue_wifi.free_access_settings.privacy_policy_file_name}}" target="_blank">Privacy Policy</a>
+                                {% else %}
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/license_agreement/End_User_License_Agreement.pdf" target="_blank">End User License Agreement</a>
+                                    <br>
+                                    <a href="{{site.uri.public}}/assets-raw/images/captive_portal/custom/pdf/privacy_policy/End_User_Privacy_Policy.pdf" target="_blank">Privacy Policy</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <input id="data_consent" type="checkbox" name="data_consent" data-on-text="on" data-off-text="off" data-on="success" data-off="primary" required="true"> Yes, I accept the Terms & Conditions
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-success btn-outline-rounded next hidden" id="privacyNextButton" style="float:right; margin-left:10px; background-color: #1c2746;"> Next <i class="fas fa-forward"></i></button>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if purpose != 'terms' %}
+                <div class="tab-pane" id="marketing">
+                    <div style="border: 2px solid rgb(247, 247, 247); padding: 15px;">
+                        <div style="border: 2px solid rgb(247, 247, 247); padding: 10px; background-color: rgba(247, 247, 247, 0.8)">
+                            <div style="height: 200px; overflow-y: auto;" class="text-center">
+                                <h3>Marketing</h3>
+                                <p style="white-space: pre-line;">{{unifi_venue.venue_wifi.free_access_settings.marketing_consent_text}}</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                {% for marketing_type in marketing_types %}
+                                    <div class="col-sm-offset-1 col-sm-10" style="margin-top:4px;">
+                                        <div class="input-group">
+                                            <input type="checkbox" name="marketing_types" id="marketing_type_{{marketing_type.id}}" data-id="{{marketing_type.id}}" data-on-text="on" data-off-text="off" data-on="success" data-off="primary" required="true"> {{marketing_type.text}}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-success btn-outline-rounded next hidden" id="marketingNextButton" style="float:right; margin-left:10px; background-color: #1c2746;"> Next <i class="fas fa-forward"></i></button>
+                        <button type="button" class="btn btn-warning btn-outline-rounded back" id="marketingPrevButton" style="float:left;"><i class="fas fa-backward"></i> Back </button>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if unifi_venue.tracking_venue == 1 %}
+                {% if unifi_venue.venue_wifi.free_access_settings.required_location_consent == 1 %}
+                <div class="tab-pane" id="location">
+                    <div style="border: 2px solid rgb(247, 247, 247); padding: 15px;">
+                        <div style="border: 2px solid rgb(247, 247, 247); padding: 10px; background-color: rgba(247, 247, 247, 0.8)">
+                            <div style="height: 200px; overflow-y: auto;" class="text-center">
+                                <h3>Location</h3>
+                                <p style="white-space: pre-line;">{{unifi_venue.venue_wifi.free_access_settings.location_consent_text}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-success btn-outline-rounded next" id="locationNextButton" style="float:right; margin-left:10px; background-color: #1c2746;"> Next <i class="fas fa-forward"></i></button>
+                        <button type="button" class="btn btn-warning btn-outline-rounded back" id="locationPrevButton" style="float:left;"><i class="fas fa-backward"></i> Back </button>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <div class="tab-pane" id="email_checker">
+                    <div style="border: 2px solid rgb(247, 247, 247); padding: 15px;">
+                        <div style="border: 2px solid rgb(247, 247, 247); padding: 10px; background-color: rgba(247, 247, 247, 0.8)">
+                            <div style="height: 200px; overflow-y: auto; overflow-x: hidden;" class="text-center">
+                                <p>Please enter your email address as you may already have an account at another ElephantWiFi managed venue.</p>
+                                <div id="{{alerts_id | default('update_form-alerts')}}"></div>
+                                <form class="form-horizontal" id="email_checker_form" action="{{site.uri.public}}/captive_portal/email_checker/{{portal_session}}/1000" method="POST" accept-charset="ISO-8859-1">
+                                    {% include "forms/csrf.html.twig" %}
+                                    <div class="form-group">
+                                        <label for="email_address" class="col-sm-4 control-label"></label>
+                                        <div class="col-sm-7">
+                                            <input type="email" class="form-control" id="email_address" name="email_address" placeholder="{{unifi_venue.venue_wifi.text_labels.email_placeholder}}">
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="formSubmit" class="hidden">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-success btn-outline-rounded next hidden" id="emailCheckerSubmitButton" style="float:right; margin-left:10px; background-color: #1c2746;"> Submit <i class="fas fa-forward"></i></button>
+                        <button type="button" class="btn btn-warning btn-outline-rounded back" id="emailCheckerPrevButton" style="float:left;"><i class="fas fa-backward"></i> Back </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+/**
+ * place in seperate js file when done (these should be loaded as last)
+ * - leave a small bit of code in this template that loads the variables/arrays from twig variables
+ */
+$(document).ready(function() {
+    /**
+     * Load the validator rules for this form
+     */
+    var validators  = {{validators | raw}};
+
+    /**
+     * Load the data required in the js for this page into variables for later use
+     * NOTE: take care not to load sensitive data here!
+     */
+    var site_uri_public = '{{site.uri.public | raw}}';
+    var portal_session = '{{portal_session | raw}}';
+    var unifi_venue = '{{unifi_venue | raw}}';
+    var purpose = '{{purpose | raw}}';
+
+    // pick the active tab
+    if (purpose == 'marketing') {
+        $('#marketing').addClass('active');
+    } else {
+        $('#privacy_policy').addClass('active');
+    }
+
+    $('#data_consent').click(function() {
+        if($('#data_consent').is(':checked')) {
+            $('#privacyNextButton').removeClass('hidden');
+        } else {
+            $('#privacyNextButton').addClass('hidden');
+        }
+    });
+
+    $("input[name='marketing_types']").click(function() {
+        // disable checkbox if another one is ticked
+        if(!$('#marketing_type_1000').is(':checked')) {
+            $('#marketing_type_1000').attr("disabled", true);
+        }
+
+        // undisable checkbox when nothing is ticked
+        if(!$("input[name='marketing_types']").is(':checked')) {
+            $('#marketing_type_1000').attr("disabled", false);
+        }
+
+        if($("input[name='marketing_types']").is(':checked')) {
+            $('#marketingNextButton').removeClass('hidden');
+        } else {
+            $('#marketingNextButton').addClass('hidden');
+        }
+    });
+
+    $('#email_address').on('input', function() {
+        if($('#email_address').val() != '') {
+            $('#emailCheckerSubmitButton').removeClass('hidden');
+        } else {
+            $('#emailCheckerSubmitButton').addClass('hidden');
+        }
+    });
+
+    $('#marketingNextButton').click(function() {
+        var marketing_types = [];
+
+        $("input[name='marketing_types']").each(function() {
+            if ($(this).is(':checked')) {
+                marketing_types.push($(this).data('id'));
+            }
+        });
+
+        $('#email_checker_form').attr('action', '{{site.uri.public}}/captive_portal/email_checker/{{portal_session}}/' + marketing_types);
+    })
+
+    $('#emailCheckerSubmitButton').click(function() {
+        $('#formSubmit').click();
+    }); 
+
+    $('.next').click(function() {
+        var current_tab = $('.tab-content .tab-pane.active');
+        var next_tab = current_tab.next();
+
+        current_tab.removeClass('active');
+        next_tab.addClass('active');
+    });
+
+    $('.back').click(function() {      
+        var current_tab = $('.tab-content .tab-pane.active');
+        var prev_tab = current_tab.prev();
+
+        current_tab.removeClass('active');
+        prev_tab.addClass('active');
+    });
+
+    $('#email_checker_form').ufForm({
+        validator: validators,
+        msgTarget: $("#update_form-alerts")
+    }).on("submitSuccess.ufForm", function(event, data, textStatus, jqXHR) {
+        /**
+         * successCallback function
+         */
+        $("#formSubmit").addClass("disabled");
+
+        /**
+         * Redirect the user on success
+         */
+        // subUrl = jqXHR.getResponseHeader('Location');
+        // console.log(subUrl);
+        console.log(data);
+        window.location.href = site_uri_public + data.sub_url + portal_session;
+    });
+});
+
+</script>
+{% endblock %}

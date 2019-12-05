@@ -1,0 +1,37 @@
+{% block subject %}
+    Welcome to {{wifi_venue.name}} Free WiFi
+{% endblock %}
+
+{% block body %}
+<p>
+    Dear {{user.first_name}},
+</p>
+<p>
+    This venue is supported and managed by {{site.site_title}}. You already have an account on the ElephantWiFi Portal due to logging in at the following venue(s)
+</p>
+<ul>
+    {% for venue in user.getWiFiUserVenues() %}
+        <li>{{venue.name}}</li>
+    {% endfor %}
+</ul>
+<p>
+    Your account can be accessed using the following link: <a href="{{site.uri.public}}">WiFi User Portal</a>
+</p>
+<p>
+    If you are unable to remember your login password please use the following link to reset it: <a href="{{site.uri.public}}/account/forgot-password">Reset Password</a>
+</p>
+<p>
+    <font color="red">Please Note</font>:- The password reset link will be emailed you to shortly. This link is created specifically for your account and as a security measure will expire 24 hours from receipt of this email. After 24 hours the link will expire and a new password reset will need to be requested.
+</p>
+<p>
+    You are reminded that your username and password must not be shared with anyone.
+</p>
+<p>
+    With regards, <br>
+    The {{site.site_title}} Support Team
+</p>
+<p>
+    ElephantWiFi are the providers for the Free WiFi system you connected to at {{wifi_venue.name}}. <a href='http://www.elephantwifi.co.uk'>www.elephantwifi.co.uk</a>
+</p>
+
+{% endblock %}

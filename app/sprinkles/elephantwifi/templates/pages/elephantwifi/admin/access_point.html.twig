@@ -1,0 +1,240 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Access Points",
+        "description" : "manage APs"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">AP Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="access_points" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>Name</th>
+                            <th>Mac</th>
+                            <th>Zone</th>
+                            <th>Venue</th>
+                            <th>Uptime</th>
+                            <th>Model</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                </table>
+                <a href="{{site.uri.public}}/system/cron/60mins/SHWI5DC1A2JVP6RJ9GQ1" id="updateList" class="btn btn-primary">Update Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateAPModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fas fa-globe-europe fa-fw fa-lg"></i> Update Access Point</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+
+                <form class="form-horizontal" id="updateAccessPoint" action="{{site.uri.public}}/admin/elephantwifi/access_points/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="zone_id" class="col-sm-offset-2 col-sm-3 control-label">Zone</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag fa-fw fa-lg"></i></span>
+                                <select id="zone_id" name="zone_id" class="form-control">
+                                    {% for zone in zones %}
+                                        <option value="{{ zone.id }}">{{ zone.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fas fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="accessPointSubmit" name="accessPointSubmit" class="btn btn-primary btn-sm"><i class="fas fa-cloud-upload-alt"></i> Update AP</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="access_point_id" name="id">
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+/**
+ * Load the validator rules for the form in the modal
+ */
+var validators = {{validators | raw}};
+
+
+$(document).ready(function() {
+    var aps_table = $('#access_points').on('error.dt', flashToasts).DataTable({
+        order: [
+            [0, 'asc']
+        ],
+        processing: true,
+        scrollX: true,
+        'rowCallback': function(row, data, index){
+            if(data[4] == 'N/A'){
+                $(row).find('td:eq(3)').css('color', 'red');
+            }
+        },
+        ajax: {
+            url: site.uri.public + '/elephantwifi/api/list/access_points',
+            dataSrc: function(json) {
+                console.log(json.rows);
+                return json.rows;
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name',
+                render: function(data, type, full, meta) {
+                    ap_config = full.ap_configs[full.ap_configs.length - 1];
+                    
+                    if (typeof ap_config !== 'undefined') {
+                        return ap_config.name;
+                    }
+                }
+            },
+            {data: 'mac'},
+            {data: 'zone',
+                render: function(data, type, full, meta) {
+                    if (full.zone != null) {
+                        zone_name = full.zone.name;
+                    } else {
+                        zone_name = '<span class="label label-danger">UNASSIGNED</span>';
+                    }
+
+                    return zone_name;
+                }
+            },
+            {data: 'zone.venue',
+                render: function(data, type, full, meta) {
+                    if (full.zone != null) {
+                        venue_name = full.zone.venue.name;
+                    } else {
+                        venue_name = '<span class="label label-danger">UNASSIGNED</span>';
+                    }
+
+                    return venue_name;
+                }
+            },
+            {data: 'uptime',
+                render: function(data, type, full, meta) {
+                    ap_config = full.ap_configs[full.ap_configs.length - 1];
+                    
+                    if (typeof ap_config !== 'undefined') {
+                        return ap_config.uptime;
+                    }
+                }
+            },
+            {data: 'model'},
+            {data: 'ap_configs',
+                render: function(data, type, full, meta) {
+                    if (full.ap_configs.length > 0) {
+                        ip_address = full.ap_configs[full.ap_configs.length - 1]['ip_address'];
+                    }
+                    else {
+                        ip_address = 'N/A';
+                    }
+
+                    return ip_address;
+                }
+            }
+        ],
+        fnDrawCallback: function(row, data, displayIndex) {
+            $('#datatables_refresh').prop('disabled', false);
+            $('#datatables_refresh').find('i').removeClass().addClass('fas fa-sync fa-fw fa-lg');
+        }
+    });
+
+    /**
+     * function for refreshing datatables contents
+     */
+    $('body').on('click', '#datatables_refresh', function(e) {
+        e.preventDefault();
+
+        /**
+         * Reload the datatables data using ajax
+         */
+        aps_table.ajax.reload();
+    });
+
+    /**
+     * open the Modal to update the venue upon tap/click on a row in the venues table
+     */
+    $('body').on('click touchstart', '#access_points tbody tr', function(e) {
+        e.preventDefault();
+        var thisAp = aps_table.row(this).data();
+        $('#access_point_id').val(thisAp.id);
+
+        if (thisAp.zone_id != null) {
+            $('#zone_id').val(thisAp.zone_id);
+        }
+
+        $('#updateAPModal').modal('show');
+    });
+
+    $('#updateAccessPoint').ufForm({
+        validator: validators,
+        msgTarget: $("#alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    $('#updateList').click(function(e) {
+        // prevent the default action, in this case the following of a link
+        e.preventDefault();
+        // capture the href attribute of the a element
+        var url = $(this).attr('href');
+        // perform a get request using ajax to the captured href value
+        $.get(url, function() {
+            console.log("Called URL successfully");
+            aps_table.ajax.reload();
+        });
+
+        aps_table.ajax.reload();
+    });
+});
+</script>
+{% endblock %}

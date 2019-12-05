@@ -1,0 +1,276 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <!-- Page 1 -->
+    <div class="custom-row left">
+        <p class="header">Dwell Detail Report</p>
+        <br>
+        <p>The following charts show a more detailed graphical view of each dwell time category in their associated colour categories.</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Visits lasting less than 5 minutes</p>
+        <br>
+        <p>These visits are categorised as people passing through the venue and therefore not included in the standard Dwell summaries.</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_cat1_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Visits lasting between 5 and 30 minutes </p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_cat2_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Visits lasting between 30 and 60 minutes </p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_cat3_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <!-- Page 3 -->
+    <div class="custom-row left before">
+        <p class="sub-header">Visits lasting between 60 and 90 minutes </p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_cat4_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Visits lasting between 90 and 120 minutes </p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_cat5_area" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Visits lasting + 120 minutes </p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_daily_dwell_information_cat6_area" class="full_width_chart"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+$(document).ready(function() {
+
+    /**
+     * 
+     */
+    $.ajax({
+        url:        '{{site.uri.public}}/geo-sense/api/stats/venue/visitors_durations/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type:       'GET',
+        dataType:   'json',
+        success:    onPdf_Month_DailyDwellInformation_DataReceived
+    });
+
+    var chart_dailyDwellInformationArea_cat1_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_cat1_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_cat1_Options.chart.zoomType  = 'x';
+
+    var chart_dailyDwellInformationArea_cat2_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_cat2_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_cat2_Options.chart.zoomType  = 'x';
+
+    var chart_dailyDwellInformationArea_cat3_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_cat3_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_cat3_Options.chart.zoomType  = 'x';
+
+    var chart_dailyDwellInformationArea_cat4_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_cat4_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_cat4_Options.chart.zoomType  = 'x';
+
+    var chart_dailyDwellInformationArea_cat5_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_cat5_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_cat5_Options.chart.zoomType  = 'x';
+
+    var chart_dailyDwellInformationArea_cat6_Options = dwell_time_analysis_options;
+    chart_dailyDwellInformationArea_cat6_Options.xAxis.plotBands = weekends;
+    chart_dailyDwellInformationArea_cat6_Options.chart.zoomType  = 'x';
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onPdf_Month_DailyDwellInformation_DataReceived(data) {
+        /**
+         * cat 1
+         */
+        var seriesoptions_cat1 = [
+            {
+                type: 'area',
+                name: '<5 mins',
+                color: '#e58e92'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_cat1_Options.series = seriesoptions_cat1;
+        chart_dailyDwellInformationArea_cat1_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_cat1_Options.chart.renderTo  = 'chart_daily_dwell_information_cat1_area';
+        chart_dailyDwellInformationArea_cat1 = new Highcharts.Chart(chart_dailyDwellInformationArea_cat1_Options);
+        chart_dailyDwellInformationArea_cat1.series[0].setData(noGapsDataArray(data['dt_skipped'], 86400));
+        
+        chart_dailyDwellInformationArea_cat1.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * cat 2
+         */
+        var seriesoptions_cat2 = [
+            {
+                type: 'area',
+                name: '5-30 mins',
+                color: '#e9825c'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_cat2_Options.series = seriesoptions_cat2;
+        chart_dailyDwellInformationArea_cat2_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_cat2_Options.chart.renderTo  = 'chart_daily_dwell_information_cat2_area';
+        chart_dailyDwellInformationArea_cat2 = new Highcharts.Chart(chart_dailyDwellInformationArea_cat2_Options);
+        chart_dailyDwellInformationArea_cat2.series[0].setData(noGapsDataArray(data['dt_level_1'], 86400));
+        
+        chart_dailyDwellInformationArea_cat2.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * cat 3
+         */
+        var seriesoptions_cat3 = [
+            {
+                type: 'area',
+                name: '30-60 mins',
+                color: '#4e5977'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_cat3_Options.series = seriesoptions_cat3;
+        chart_dailyDwellInformationArea_cat3_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_cat3_Options.chart.renderTo  = 'chart_daily_dwell_information_cat3_area';
+        chart_dailyDwellInformationArea_cat3 = new Highcharts.Chart(chart_dailyDwellInformationArea_cat3_Options);
+        chart_dailyDwellInformationArea_cat3.series[0].setData(noGapsDataArray(data['dt_level_2'], 86400));
+        
+        chart_dailyDwellInformationArea_cat3.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * cat 4
+         */
+        var seriesoptions_cat4 = [
+            {
+                type: 'area',
+                name: '60-90 mins',
+                color: '#6eb553'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_cat4_Options.series = seriesoptions_cat4;
+        chart_dailyDwellInformationArea_cat4_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_cat4_Options.chart.renderTo  = 'chart_daily_dwell_information_cat4_area';
+        chart_dailyDwellInformationArea_cat4 = new Highcharts.Chart(chart_dailyDwellInformationArea_cat4_Options);
+        chart_dailyDwellInformationArea_cat4.series[0].setData(noGapsDataArray(data['dt_level_3'], 86400));
+        
+        chart_dailyDwellInformationArea_cat4.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * cat 5
+         */
+        var seriesoptions_cat5 = [
+            {
+                type: 'area',
+                name: '90-120 mins',
+                color: '#5a5a5a'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_cat5_Options.series = seriesoptions_cat5;
+        chart_dailyDwellInformationArea_cat5_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_cat5_Options.chart.renderTo  = 'chart_daily_dwell_information_cat5_area';
+        chart_dailyDwellInformationArea_cat5 = new Highcharts.Chart(chart_dailyDwellInformationArea_cat5_Options);
+        chart_dailyDwellInformationArea_cat5.series[0].setData(noGapsDataArray(data['dt_level_4'], 86400));
+        
+        chart_dailyDwellInformationArea_cat5.xAxis[0].update({
+            plotBands: weekends
+        });
+
+        /**
+         * cat 6
+         */
+        var seriesoptions_cat6 = [
+            {
+                type: 'area',
+                name: '120+ mins',
+                color: '#949898'
+            }
+        ];
+
+        chart_dailyDwellInformationArea_cat6_Options.series = seriesoptions_cat6;
+        chart_dailyDwellInformationArea_cat6_Options.plotOptions.series.marker.enabled = false;
+        chart_dailyDwellInformationArea_cat6_Options.chart.renderTo  = 'chart_daily_dwell_information_cat6_area';
+        chart_dailyDwellInformationArea_cat6 = new Highcharts.Chart(chart_dailyDwellInformationArea_cat6_Options);
+        chart_dailyDwellInformationArea_cat6.series[0].setData(noGapsDataArray(data['dt_level_5'], 86400));
+        
+        chart_dailyDwellInformationArea_cat6.xAxis[0].update({
+            plotBands: weekends
+        });
+    }
+});
+</script>
+{% endblock %}

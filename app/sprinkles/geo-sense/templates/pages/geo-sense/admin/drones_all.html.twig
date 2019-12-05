@@ -1,0 +1,11 @@
+{% extends "pages/geo-sense/admin/drones.html.twig" %}
+
+{% block drones_ajax_url %}'{{site.uri.public}}/geo-sense/api/drones/all'{% endblock %}
+
+{% block content %}
+    {% set page = page | merge({
+        "title" : "All Drones across all Venues"
+    }) %}
+
+    {{ parent() }}
+{% endblock %}

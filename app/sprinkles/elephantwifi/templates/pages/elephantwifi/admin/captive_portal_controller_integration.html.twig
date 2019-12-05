@@ -1,0 +1,236 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Controller Integration",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">UniFi controller integration checks for the captive portal</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form" id="form_portlet_body">
+                <div class="note note-info">
+                    The integration between our captive portal function and the Ubiquiti UniFi Controller, enables the redirect of clients to the captive portal when they connect to the guest WiFi network for authorisation.
+                    <br><br>
+                    The information and results of various checks shown below, provide information on the status of the integration. If any changes need to be applied, these will be shown below.
+                </div>
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">UniFi controller name</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {{unifi_venue.venue_wifi.controller.name}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">UniFi controller URL</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {{unifi_venue.venue_wifi.controller.url}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Site id on UniFi controller</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {{unifi_venue.venue_wifi.controller_venue_id}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">UniFi controller version</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {{unifi_venue.venue_wifi.controller.version}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Role for credentials used</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {{self[0].site_role}}
+                                {% if self[0].site_role == 'admin' %}
+                                    &nbsp;<i class="fas fa-check font-green-jungle fa-lg" aria-hidden="true"></i>
+                                {% else %}
+                                    &nbsp;<i class="fas fa-exclamation-circle font-red fa-lg" aria-hidden="true"></i>
+                                   (for the portal function, credentials with an admin role are required)
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Wireless Guest network(s)</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {% if guest_wlans|length == 0 %}
+                                    no <i class="fas fa-exclamation-circle font-red fa-lg" aria-hidden="true"></i>
+                                (please apply Guest Policy to one of your Wireless networks)
+                                {% else %}
+                                    {% for object in guest_wlans %}{{object.name}} <i class="fas fa-check font-green-jungle fa-lg" aria-hidden="true"></i><br>{% endfor %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Portal enabled?</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {% if guest_control_settings.portal_enabled == true %}
+                                    yes <i class="fas fa-check font-green-jungle fa-lg" aria-hidden="true"></i>
+                                {% else %}
+                                    no <i class="fas fa-exclamation-circle font-red fa-lg" aria-hidden="true"></i>
+                                    (please enable Guest Portal in your UniFi controller Guest Control Settings)
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Custom portal enabled?</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {% if guest_control_settings.portal_customized == true %}
+                                    yes <i class="fas fa-check font-green-jungle fa-lg" aria-hidden="true"></i>
+                                {% else %}
+                                    no <i class="fas fa-exclamation-circle font-red fa-lg" aria-hidden="true"></i>
+                                    (please enable portal customization in your UniFi controller Guest Control Settings)
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Captive portal server accessible for clients?</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                {% if allowed_subnet_ok.value == "false" %}
+                                    no <i class="fas fa-exclamation-circle font-red fa-lg" aria-hidden="true"></i>
+                                    {% if unifi_venue.venue_wifi.controller.version >= 5.4.14 %}
+                                        {% if server_url == public_ip_address %}
+                                        (please add <b>{{public_ip_address}}/32</b> to the Pre-Authorization Access list in the Access Control section of your UniFi controller Guest Control Settings)
+                                        {% else %}
+                                        (please add <b>{{server_url}}</b> {% if public_ip_address != '' %}or <b>{{public_ip_address}}/32</b> {% endif %}to the Pre-Authorization Access list in the Access Control section of your UniFi controller Guest Control Settings)
+                                        {% endif %}
+                                    {% else %}
+                                        (please add <b>{{public_ip_address}}/32</b> to allowed subnets in your UniFi controller Guest Control Settings)
+                                    {% endif %}
+                                {% else %}
+                                    yes <i class="fas fa-check font-green-jungle fa-lg" aria-hidden="true"></i>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label text-muted">Code to install on UniFi controller</label>
+                        <div class="col-sm-8">
+                            <p class="form-control-static">
+                                <i class="fas fa-cloud-download-alt clickable fa-lg" aria-hidden="true" id="show_index_code" data-toggle="modal" data-target="#indexCodeModal"></i>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='indexCodeModal' class="modal bs-modal-lg fade" tabindex="-1" role="basic" aria-hidden="true" data-width="1200">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="indexCodeModalTitle" id="indexCodeModalTitle"><i class="far fa-file-code fa-fw"></i> Code to install on UniFi controller</h4>
+            </div>
+            <div class="modal-body">
+                <div class="note note-info">
+                    <h4>Instructions</h4>
+                    Save the content from the section below or download it as a file, and copy it to your UniFi controller's file system as:<br>
+                    <ul>
+                        <li><b>/var/lib/unifi/sites/{{unifi_venue.venue_wifi.controller_venue_id}}/portal/index.html</b> (on most Linux servers)</li>
+                        <li><b>/usr/lib/unifi/sites/{{unifi_venue.venue_wifi.controller_venue_id}}/portal/index.html</b> (on other Linux servers)</li>
+                        <li><b>%userprofile%/Ubiquiti Unifi/sites/{{unifi_venue.venue_wifi.controller_venue_id}}/portal/index.html</b> (on Windows servers)</li>
+                        <li><b>/Applications/UniFi.app/Contents/Resources/sites/{{unifi_venue.venue_wifi.controller_venue_id}}/portal/index.html</b> (on Macs)</li>
+                    </ul>
+                    <br>
+                    This code will redirect connecting clients to the correct URL on the captive portal.
+                    <br>
+                </div>
+                <div class="note note-danger">
+                    Please make a backup of your original index.html file before replacing it with the content below!
+                </div>
+                <textarea class="form-control" rows="10" maxlength="60" id="index_html_content" name="index_html_content" style="font-family:monospace;">
+                </textarea>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn red" data-dismiss="modal"><i class="fas fa-times-circle fa-lg"></i> Close</button>
+                            <button type="button" class="btn blue" id="file_download"><i class="fas fa-cloud-download-alt fa-lg"></i> Download as file</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src='{{ assets.url("assets://js/FileSaver.min.js") }}'></script>
+<script type="text/javascript" class="init">
+/**
+ * global variables required
+ */
+var local_venue_id = '{{unifi_venue.venue_wifi.local_venue_id}}';
+
+$(document).ready(function() {
+    /**
+     * contents for index.html file
+     */
+    var line01 = '<!DOCTYPE html>';
+    var line02 = '\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">';
+    var line03 = '\n<head>';
+    var line04 = '\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+    var line05 = '\n<meta http-equiv="refresh" content="0;url=' + site.uri.public + '/captive_portal/init/' + local_venue_id + '/<unifi var="mac" />/<unifi var="ap_mac" />">';
+    var line06 = '\n</head>';
+    var line07 = '\n<body>';
+    var line08 = '\n</body>';
+    var line09 = '\n</html>';
+
+    var index_file_content = line01 + line02 + line03 + line04 + line05 + line06 + line07 + line08 + line09;
+
+    $('#index_html_content').text(index_file_content);
+
+    /**
+     * function for download of index.html content as file
+     */
+    $('#file_download').click(function() {
+        var file = new File([line01, line02, line03, line04, line05, line06, line07, line08, line09], "index.html", {type: "text/plain;charset=utf-8"});
+        saveAs(file);
+    });
+});
+</script>
+{% endblock %}

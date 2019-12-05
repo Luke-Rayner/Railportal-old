@@ -1,0 +1,647 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "PDF Report Generation Page",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered" id="saved_preset_section">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Saved Report Presets</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"></span>
+                                    <select id="pdf_saved_schedule_list" name="pdf_saved_schedule_list" class="form-control">
+                                        <option value="placeholder" disabled selected>Saved Reports</option>
+                                        <!-- <option value="1">Summary Report</option>
+                                        <option value="2">Full Detailed Report</option>
+                                        <option value="3">Zone Detailed Report</option>
+                                        <option value="4">National Stats Report</option> -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered" id="module_section">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Modules</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="validation_message"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div id="pdf_module_section"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered" id="daterange_section">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Report Date Range</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="page-toolbar">
+                                    <div id="pdf-report-generation-range" data-display-range="1" class="tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame" style="width: 100%;">
+                                        <i class="icon-calendar"></i>&nbsp;
+                                        <span class="thin uppercase hidden-xs"></span>&nbsp;
+                                        <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+                                        <i class="fa fa-angle-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn blue pull-right" id="pdf_report_download_button" style="width: 100%; font-size: 50px;">Run Report</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered" id="indepth_option_section">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">In-Depth Options</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="zone_selection_area" hidden>
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <h4>Select zones you wish to include in the report</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="zones_list" class="col-xs-12" align="center" style="line-height: 22px;"></div>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+
+                        <div id="comparison_month_selection_area" hidden>
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <h4>Select the month you wish to compare</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select class="form-control" id="comparison_month_selection">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered" id="create_preset_section">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Create Preset</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <button type="button" class="btn blue pull-right" id="pdf_save_preset_button">Save Preset</button>
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                            <input type="text" class="form-control" maxlength="50" id="pdf_preset_name_input" name="pdf_preset_name_input" placeholder="Preset Name">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light bordered" id="report_scheduler_section">
+                    <div class="portlet-title tabbable-line" id="notification_portlet">
+                        <div class="caption ">
+                            <span class="caption-subject font-blue-sharp bold uppercase">Report Scheduler</span>
+                            <span class="caption-helper"></span>
+                        </div>
+                        <!-- <button type="button" class="btn blue pull-right" id="pdf_reports_schedule_button">Save Schedule</button>
+                        <button type="button" class="btn red pull-right" name="clear_pdf_options" style="margin-right: 5px;">Delete Schedule</button> -->
+                    </div>
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <!-- <form class="form-horizontal" id="pdf_save_schedule" action="{{form_action}}" method="post">
+                                    <div id="{{alerts_id | default('form-alerts')}}"></div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="50" id="pdf_schedule_name" name="name" placeholder="Schedule Name">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-calendar fa-fw fa-lg"></i></span>
+                                                <select id="pdf_preset_schedule_date_list" name="pdf_preset_schedule_date_list" class="form-control">
+                                                    <option value="placeholder" disabled selected>Schedule Date</option>
+                                                    <option value="1">Monthly Report</option>
+                                                    <option value="2">Weekly Report</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form> -->
+
+                                <h1><b>Coming Soon</b></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+var pdf_modules = $.parseJSON('{{pdf_modules | raw}}');
+var pdf_presets = $.parseJSON('{{pdf_presets | raw}}');
+var selected_pdf_modules = [];
+
+var rangeStart = moment().subtract(7, "days").startOf('day');
+var rangeEnd = moment().startOf('day');
+
+/**
+ * get the allowed zones for this user
+ */
+$.ajax({
+    url: '{{site.uri.public}}/api/list/allowed_zones',
+    type: 'GET',
+    dataType: 'json',
+    success: onZonesDataReceived
+});
+
+var all_zones = [];
+var zone_ids  = [];
+function onZonesDataReceived(data) {
+    $.each(data, function(key, value) {
+        $('#zones_list').append('<span id="zone_' + value.id + '" class="tag label label-info" style="margin-right: 5px; background-color: #4CAF50; display: inline-block;"><span>' + value.name + '</span><a style="padding-left: 3px; color: white;" onclick="zone_list_change(' + value.id + ')"><i class="remove glyphicon glyphicon-remove-sign glyphicon-white"></i></a></span>');
+
+        zone_ids.push(value.id);
+        all_zones.push(value.id);
+    });
+}
+
+function zone_list_change(zone_id) {
+    if ($('#zone_' + zone_id).hasClass('label-info')) {
+        $('#zone_' + zone_id).removeClass('label-info').addClass('label-danger').css('background-color', '#D9534F').find('i').removeClass('glyphicon-remove-sign').addClass('glyphicon-ok-sign');         
+
+        zone_ids = $.grep(zone_ids, function(value) {
+            return value != zone_id;
+        });
+    }
+    else {
+        $('#zone_' + zone_id).removeClass('label-danger').addClass('label-info').css('background-color', '#4CAF50').find('i').removeClass('glyphicon-ok-sign').addClass('glyphicon-remove-sign');
+
+        zone_ids.push(zone_id);
+    } 
+}
+
+$(document).ready(function() {
+
+    /**
+     * Load the users pdf presets in the dropdown
+     */
+    $.each(pdf_presets, function(index, value) {
+        $('#pdf_saved_schedule_list').append('<option value="' + value.id + '">' + value.name + '</option>');
+    })
+
+    /**
+     * Load the selected preset
+     */
+    $('#pdf_saved_schedule_list').change(function(){
+        var option_id = this.selectedOptions[0].value;
+
+        // Uncheck all checkboxes
+        $('input[name=pdf_page_checkbox]').prop("checked", false).trigger("change");
+        zone_ids = all_zones;
+
+        $.each(pdf_presets, function(pdf_preset_key, pdf_preset_value) {
+            if(pdf_preset_value.id == option_id) {
+                $.each(pdf_preset_value.pdf_modules, function(pdf_module_key, pdf_module_value) {
+                    $('#' + pdf_module_value.checkbox_id).prop("checked", true).trigger("change");
+                });
+
+                if (pdf_preset_value.zones.length > 0) {
+                    /**
+                     * Disable all zones
+                     */
+                    $.each(zone_ids, function(zone_key, zone_value) {
+                        if ($('#zone_' + zone_value).hasClass('label-info')) {
+                            $('#zone_' + zone_value).removeClass('label-info').addClass('label-danger').css('background-color', '#D9534F').find('i').removeClass('glyphicon-remove-sign').addClass('glyphicon-ok-sign');
+                        }
+
+                        zone_ids = $.grep(zone_ids, function(value) {
+                            return value != zone_value;
+                        });
+                    });
+
+                    /**
+                     * Enabled the zones stored in this pdf preset
+                     */
+                    $.each(pdf_preset_value.zones, function(zone_key, zone_value) {
+                        if (!$('#zone_' + zone_value.id).hasClass('label-info')) {
+                            $('#zone_' + zone_value.id).removeClass('label-danger').addClass('label-info').css('background-color', '#4CAF50').find('i').removeClass('glyphicon-ok-sign').addClass('glyphicon-remove-sign');
+                        }
+
+                        zone_ids.push(zone_value.id);
+                    });
+
+                    console.log(zone_ids);
+                }
+            }
+        });
+    }); 
+
+    /**
+     * Create the PDF Module checkboxes
+     */
+    $.each(pdf_modules, function(index, value) {
+        $('#pdf_module_section').append(`
+            <div class="col-md-4">
+                <div class="checkbox-customised checkbox-customised-success">
+                    <input id="` + value.checkbox_id + `" name="pdf_page_checkbox" type="checkbox" data-value="` + value.data_value + `" data-id="` + value.id + `">
+                    <label for="` + value.checkbox_id + `">
+                        ` + value.name + `
+                    </label>
+                </div>
+            </div>
+        `);
+    });
+
+    $('#zone_detailed_report').change(function() {
+        if (this.checked == true) {
+            $('#zone_selection_area').show();
+        }
+        else {
+            $('#zone_selection_area').hide();
+        }
+    });
+
+    $('#comparison_information').change(function() {
+        if (this.checked == true) {
+            $('#comparison_month_selection_area').show();
+        }
+        else {
+            $('#comparison_month_selection_area').hide();
+        }
+    });
+
+    /**
+     * Disable dates in comparison dropdown
+     */
+    $('#comparison_month_selection').filter(function() {
+        return parseInt(this.value,10) < 10;
+    });
+
+    for (var i = moment().format("M") - 1; i <= 11; i++) {
+        $('#comparison_month_selection option[value="' + i + '"]').remove();
+    }
+
+    /***************************************************************
+    * daterangepicker and ajax loading of all the data from here
+    ****************************************************************/    
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /*
+    functions to display the "active" custom date range and the picker for current page
+    */
+    $('#pdf-report-generation-range').daterangepicker({
+        showISOWeekNumbers:     true,
+        locale: {
+            format: "DD/MM/YYYY",
+            firstDay: 1
+        },
+        ranges: {
+           'Current Day':               [moment().startOf('day'), moment()],
+           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+           'Past 7 Days':               [rangeStart, rangeEnd], //default value for the page
+           'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
+           'All Time':                  ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:    moment(),
+        opens:      'left'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        rangeStart = start;
+        rangeEnd   = end;
+
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        if (end.diff(start) === 0) {
+            console.log('we have difference between start and end of zero: we will add 1 hour to end');
+            end.add(1, 'hour');
+        }
+
+        console.log(start + ':' + end);
+
+        /**
+         * update the weekend plotbands
+         */
+        weekends = weekendAreasDaily(start, end);
+    }
+
+    /***************************************************************
+     * end of daterangepicker and ajax data loading
+     ***************************************************************/
+
+    $('#pdf_report_download_button').click(function() {
+        // Empty thr pdf container incase content is already loaded in.
+        $('#pdf_report_container').show();
+        $('#pdf_report_container').html('');
+
+        var modules = $('input[name=pdf_page_checkbox]');
+        var input_checked = 0;
+
+        $.each(modules, function(key, value) {
+            if(value.checked == true) {
+                input_checked = 1;
+            }
+        })
+
+        if (input_checked == 0) {
+            $('#validation_message').html('<div class="alert alert-danger" role="alert">Please choose at least one module before running the report</div>');
+            return false;
+        }
+
+        $('#validation_message').html('');
+
+        /**
+         * Add the loading icon to show that the download is processing
+         */
+        // $('#pdf_summary_loading').append('<i class="fa fa-lg fa-spinner fa-spin" style="margin-left: 10px"></i>');
+
+        /**
+         * Initilize url array
+         */
+        var url_array = [];
+
+        /**
+         * Add the first page to the url_array
+         */
+        var url_header = "{{site.uri.public}}/pdf/pdf_templates/header/" + rangeStart + '/' + rangeEnd;
+        url_array.push(url_header);
+
+        /**
+         * Fetch and render the html for the pdf
+         */
+        $("input[name=pdf_page_checkbox]:checkbox:checked").each(function() {
+            console.log(this);
+            var data_value = this.dataset.value;
+
+            var pdf_page_url;
+            if (data_value == 'zone_detailed_report') {
+                /**
+                 * Push the page url for each zone into the url_array
+                 */
+                $.each(zone_ids, function(key, value) {
+                    pdf_page_url = '{{site.uri.public}}/pdf/pdf_templates/single_zone_detailed_report/' + rangeStart + '/' + rangeEnd + '/' + value;
+                    url_array.push(pdf_page_url);
+                });                
+            }
+            else if (data_value == 'comparison_information') {
+                pdf_page_url = '{{site.uri.public}}/pdf/pdf_templates/comparison_information/' + $('#comparison_month_selection').val();
+                url_array.push(pdf_page_url);
+            }
+            else {
+                pdf_page_url = '{{site.uri.public}}/pdf' + data_value + rangeStart + '/' + rangeEnd;
+                url_array.push(pdf_page_url);
+            }
+        });
+
+        console.log(url_array);
+
+        var pages = [];
+        var counter = 0;
+        $.each(url_array, function(key, value) {
+            $.ajax({
+                async: false,
+                type: "GET",
+                url: value,
+                cache: false
+            })
+            .done(function(result) {
+                $('#pdf_report_container').append(result)
+                var pdf_report_container = document.getElementById("pdf_report_container");
+
+                var page = $('#pdf_report_container').find('.pdf-page-content:eq(' + counter + ')');
+
+                pages.push(page[0]);
+                counter++;
+            });
+        });
+
+        // genSummaryPDF(pdf_report_container);
+        window.setTimeout( function() {
+            genSummaryPDF(pages)
+        }, 5000);
+    });
+
+    function genSummaryPDF(pages) {
+        var opt = {
+            margin:       [70, 26],
+            filename:     'pdf_summary.pdf',
+            image:        { type: 'jpeg', quality: 1 },
+            html2canvas:  { scale: 1 },
+            jsPDF:        { unit: 'mm', format: ['420', '594'], orientation: 'p' }
+        };
+
+        // https://github.com/eKoopmans/html2pdf.js/issues/19
+        var worker = html2pdf().set(opt).from(pages[0]).toPdf();
+        pages.slice(1).forEach(function (page) {
+            worker = worker.get('pdf').then(function (pdf) {
+                pdf.addPage();
+            }).from(page).toContainer().toCanvas().toPdf().get('pdf');
+        });
+
+        worker = worker.then(function (pdfObject) {
+            totalPages = pdfObject.internal.getNumberOfPages();
+            for (var i = 1; i <= totalPages; i++) {
+                pdfObject.setPage(i)
+                pages.push(pdfObject.setPage(i));
+
+                pdfObject.setFontSize(15);
+                pdfObject.setTextColor(150);
+                pdfObject.text('Page ' + i + ' of ' + totalPages, 40, pdfObject.internal.pageSize.getHeight() - 20);
+                pdfObject.text('Report generated on ' + moment().format("DD-MM-YYYY"), pdfObject.internal.pageSize.getWidth() - 120, pdfObject.internal.pageSize.getHeight() - 20);
+                pdfObject.text('Data provided by ElephantWiFi incorporating the Intelli-Sense place management portal', 100, pdfObject.internal.pageSize.getHeight() - 45);
+                pdfObject.text('www.elephantwifi.co.uk', 180, pdfObject.internal.pageSize.getHeight() - 35);
+
+                pdfObject.setFontSize(50);
+                pdfObject.setTextColor('#ff5818');
+                pdfObject.text('Intelli-Sense Analytics', pdfObject.internal.pageSize.getWidth() - 211, 50);
+
+                pdfObject.setFontSize(20);
+                pdfObject.setTextColor('#ff5818');
+                pdfObject.text('Powered by GEO-Sense', pdfObject.internal.pageSize.getWidth() - 117, 60);
+            }
+        }).save();
+        // $('#pdf_summary_loading').empty();
+
+        $('#pdf_report_container').hide();
+    }
+
+
+
+
+
+
+
+
+
+    $('input[name=pdf_page_checkbox]').click(function() {
+        var pdf_module_id = this.dataset.id;
+
+        if(this.checked == true) {
+            selected_pdf_modules.push(pdf_module_id);
+        }
+        else {
+            selected_pdf_modules = $.grep(selected_pdf_modules, function(value) {
+                return value != pdf_module_id;
+            });
+        }
+    });
+
+    $('#pdf_save_preset_button').click(function () {
+        var csrf_token = $("meta[name=csrf_token]").attr("content");
+
+        var selected_zones = [];
+        if ($('#zone_detailed_report').prop("checked") == true)
+            selected_zones = zone_ids;
+        else 
+            selected_zones = [];
+
+        var params = {
+            'name' : $('#pdf_preset_name_input').val(), 
+            'pdf_modules' : selected_pdf_modules, 
+            'zones' : selected_zones
+        };
+        params[site.csrf.keys.name] = site.csrf.name;
+        params[site.csrf.keys.value] = site.csrf.value;
+
+        $.ajax({
+            url: site.uri.public + '/pdf/pdf_preset/save',
+            data: params,
+            type: 'POST',
+            cache: false,
+            success: function () {
+                location.reload(); 
+            },
+            error: function (xhr) {
+                location.reload(); 
+            }
+        });
+    });
+});
+
+</script>
+{% endblock %}

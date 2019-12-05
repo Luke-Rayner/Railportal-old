@@ -1,0 +1,9 @@
+---
+zone_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"

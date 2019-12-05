@@ -1,0 +1,143 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "View Alert Notifications",
+        "description" : "Lists the active and past notifications"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Message Center</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="active_portlet_body">
+                <table id="activeNotifications" class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Set Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="viewNotificationModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" id="modal_title"><i class="fa fa-question-circle fa-lg fa-fw"></i>Information</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modal_description"></p>
+                <a href="" id="modal_link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+var alerts = {{alerts | raw}};
+console.log(alerts);
+
+$(document).ready(function() {
+
+	var activeNotificationstable = $('#activeNotifications').on('error.dt', flashToasts).DataTable({
+        order: [],
+        processing: true,
+        scrollX: true,
+        searching: false,
+        data: alerts,
+        bFilter: false,
+        bInfo: false,
+        paging: false,
+        aaSorting: false,
+        rowCallback: function(row, data, index){
+            if (data.read == 0) {
+                $('td', row).css('background-color', 'rgba(225, 89, 16, 0.2)');
+                $('td:hover', row).css('background-color', 'rgba(225, 89, 16, 0.2)');
+            }
+        },
+        columns: [
+            {data: 'title'},
+            {data: 'message',
+                render: function(data, type, full) {
+                    if (full.link != '') {
+                        return data + ' - ' + full.link;
+                    }
+                    return data;
+                }
+            },
+            {data: 'set_date',
+                render: function(data, type, full, meta) {
+                	if(data > 0) {
+						return moment.unix(data).format("D MMM YYYY, HH:mm");
+                	}
+                	else {
+                		return 'N/A';
+                	}
+                }
+            },
+            {data: null,
+                render: function(data, type, full) {
+                    if (full.read == 1) {
+                        var html = ``;
+                    }
+                    else {
+                        var html = `
+                            <button type="button" onclick="acknowledgeMessage(` + full.id + `)" class="btn btn-primary">Acknowledge</button>
+                        `;
+                    }
+                    
+                    return html;
+                }
+            }
+        ]
+    });
+});
+
+function acknowledgeMessage(alert_id) {
+    // Get CSRF token
+    var params = {};
+    params[site.csrf.keys.name] = site.csrf.name;
+    params[site.csrf.keys.value] = site.csrf.value;
+        
+    $.ajax({
+        type: 'POST',
+        url: "{{site.uri.public}}/alert_seen/" + alert_id,
+        dataType: 'json',
+        data: params,
+        success: function (data) { window.location.reload(); },
+        error: function (jqXHR, textStatus, errorThrown) { window.location.reload(); }
+    });
+}    
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <div class="custom-row left">
+        <p class="header">Weather Overview </p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_monthly_weather_overview" class="full_width_chart"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var pdfRangeStart = {{start_date}};
+var pdfRangeEnd   = {{end_date}};
+
+var weather_icons_array = [];
+
+$(document).ready(function() {
+
+	/**
+	 *
+	 */
+	$.ajax({
+        url: '{{site.uri.public}}/geo-sense/api/visitor_report/weather_daily/' + pdfRangeStart + '/' + pdfRangeEnd,
+        type: 'GET',
+        dataType: 'json',
+        success: onChart_monthlyWeatherOverview_DataReceived
+    });
+
+	var chart_monthlyWeatherOverview_Options = {
+	    chart: {
+	        renderTo: 'chart_monthly_weather_overview',
+	        backgroundColor: '#FFFFFF',
+	        zoomType: 'x'
+	    },
+	    xAxis: {
+	        type: 'datetime',
+	        plotBands: weekends	   
+	    },
+	    yAxis: [
+	        {
+	            floor: null,
+	            minPadding: 0.1,
+	            maxPadding: 0.2,
+	            labels: {
+	                format: '{value}°'
+	            }
+	        },
+	        {
+	            floor: null,
+	            labels: {
+	                format: '{value} mm'
+	            },
+	            opposite: true
+	        }
+	    ],
+	    plotOptions: {
+	        column: {
+	            borderWidth: 0//,
+	            //pointPlacement: 'between'
+	        },
+	        line: {
+	            pointPlacement: 'between'
+	        },
+	        series: {
+	            marker: {
+	                enabled: false,
+	                symbol: 'circle',
+	                radius: 2,
+	                states: {
+	                    hover: {
+	                        enabled: true
+	                    }
+	                }
+	            }
+	        }
+	    },
+	    legend: {
+	        enabled: true
+	    }
+	};
+
+	function onChart_monthlyWeatherOverview_DataReceived(data) {
+	    /**
+	     * define the series and their options
+	     */
+	    var seriesoptions = [
+	        {
+	            type: 'column',
+	            //pointWidth: 100,
+	            states: {
+	                hover: {
+	                    enabled: false
+	                }
+	            },
+	            color: '#C6D4FC',
+	            name: 'precipitation',
+	            pointRange: 24 * 3600 * 1000,
+	            connectNulls: false,
+	            yAxis: 1
+	        },
+	        {
+	            type: 'spline',
+	            lineWidth: 2,
+	            states: {
+	                hover: {
+	                    enabled: true,
+	                    lineWidth: 2
+	                }
+	            },
+	            color: '#DD686E',
+	            name: 'max temperature',
+	            pointRange: 24 * 3600 * 1000,
+	            connectNulls: false
+	        },
+	        {
+	            type: 'spline',
+	            lineWidth: 2,
+	            states: {
+	                hover: {
+	                    enabled: true,
+	                    lineWidth: 2
+	                }
+	            },
+	            color: '#132149',
+	            name: 'min temperature',
+	            pointRange: 24 * 3600 * 1000,
+	            connectNulls: false
+	        }
+	    ];
+
+	    chart_monthlyWeatherOverview_Options.series = seriesoptions;
+	    chart_monthlyWeatherOverview = new Highcharts.Chart(chart_monthlyWeatherOverview_Options);
+	    chart_monthlyWeatherOverview.series[0].setData(noGapsDataArray(data.precipitation, 24*60*60));
+	    chart_monthlyWeatherOverview.series[2].setData(noGapsDataArray(data.temp_min, 24*60*60));
+	    chart_monthlyWeatherOverview.series[1].setData(noGapsDataArray(data.temp_max, 24*60*60));
+	    chart_monthlyWeatherOverview.xAxis[0].update({
+	        plotBands: weekends
+	    });
+	}
+});
+</script>
+{% endblock %}

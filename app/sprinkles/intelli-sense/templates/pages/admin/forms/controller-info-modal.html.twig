@@ -1,0 +1,236 @@
+<div id='{{box_id}}' class='modal fade' tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header  tabbable-line">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class='modal-title'><i class="icon-globe"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+                        
+                <div class="form-alerts" id="alerts-page"></div>
+
+                <form class="form-horizontal" id="controllerForm" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="form_controller_name" class="col-sm-offset-1 col-sm-4 control-label">Controller name</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="60" id="form_controller_name" name="name" value="{{target_controller.name}}" placeholder="Controller name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_url" class="col-sm-offset-1 col-sm-4 control-label">Controller URL</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                        title="The Controller URL, including the https:// prefix and :8443 suffix"></i>
+                                </span>
+                                <input type="text" class="form-control" maxlength="60" id="form_controller_url" name="url" value="{{target_controller.url}}" placeholder="Controller URL">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_shared" class="col-sm-offset-1 col-sm-4 control-label">Shared</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                        title="Is the Controller shared?"></i>
+                                </span>
+                                {# <input type="text" class="form-control" maxlength="60" id="form_controller_shared" name="shared" value="{{target_controller.shared}}" placeholder="Shared?"> #}
+                                <select id="form_controller_shared" class="form-control select2" name="shared">
+                                    <option value="0" {% if (target_controller.shared == 0) %}selected{% endif %}>No</option>
+                                    <option value="1" {% if (target_controller.shared == 1) %}selected{% endif %}>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_user_name" class="col-sm-offset-1 col-sm-4 control-label">User name</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                        title="If Controller is shared: the user name"></i>
+                                </span>
+                                <input type="text" class="form-control" maxlength="60" id="form_controller_user_name" name="user_name" value="{{target_controller.user_name}}" placeholder="User name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_password" class="col-sm-offset-1 col-sm-4 control-label">Password</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                        title="If Controller is shared: the password for the user name"></i>
+                                </span>
+                                <input type="password" autocomplete="new-password" class="form-control" maxlength="60" id="form_controller_password" name="password" value="{{target_controller.password}}" placeholder="Password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_contact" class="col-sm-offset-1 col-sm-4 control-label">Contact</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                        title="If Controller is shared: the contact email address"></i>
+                                </span>
+                                <input type="text" class="form-control" maxlength="60" id="form_controller_contact" name="contact" value="{{target_controller.contact}}" placeholder="Contact email address">
+                            </div>
+                        </div>
+                    </div>
+                    {% if (modal_mode == "edit") %}
+                    <div class="form-group">
+                        <label for="form_controller_version" class="col-sm-offset-1 col-sm-4 control-label">Version</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <p class="form-control-static">{{target_controller.version}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_controller_version_last_check" class="col-sm-offset-1 col-sm-4 control-label">Version last checked</label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <p class="form-control-static">{% if (target_controller.version_last_check == 0) %}Never{% else %}{{target_controller.version_last_check | date}}{% endif %}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-times-circle fa-fw"></i> Cancel</button>
+                            {% if (modal_mode == "edit") %}
+                            <button id="deleteControllerButton" type="button" class="btn red" onclick="showConfirmModal(this);" data-controller_id="{{target_controller.id}}"><i class="fa fa-trash fa-fw"></i> Delete</button>
+                            {% endif %}
+                            <button type='submit' id="controllerSubmit" name="controllerSubmit" class="btn blue"><i class="fa fa-cloud-upload fa-fw"></i> {{submit_button}}</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="id" value="{{target_controller.id}}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% if (modal_mode == "edit") %}
+<!-- start confirmation modal -->
+<div id="confirmModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="confirmModalHeader" id="confirmModalHeader"><i class="fa fa-question-circle fa-lg fa-fw"></i>Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Are you really sure you wish to permanently remove this controller?
+                    {% if target_controller.sites|length == 1 %}
+                        This controller is used by a site!
+                    {% elseif target_controller.sites|length > 1 %}
+                        <br>This controller is used by <b>{{target_controller.sites|length}}</b> sites!
+                    {% endif %}
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> Cancel
+                            </button>
+                            <button type='submit' id="confirmModalSubmit" name="confirmModalSubmit" class="btn blue">
+                                <i class="fa fa-cloud-upload fa-fw"></i> Delete
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end confirmation modal -->
+{% endif %}
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+
+{% if (modal_mode == "edit") %}
+var selected_controller;
+
+/**
+ * function to open the confirmation modal in edit mode
+ */
+function showConfirmModal(d) {
+    selected_controller = d.getAttribute("data-controller_id");
+    /**
+     * close calling modal and open confirmation modal
+     */
+    $('#{{box_id}}').modal('hide');
+    $('#confirmModal').modal('show');
+}
+
+/**
+ * process controller delete request from the confirmation modal
+ */
+$('#confirmModalSubmit').click(function(){
+    $('#confirmModalSubmit').prop('disabled', true);
+    $('#confirmModalSubmit').find('i').removeClass().addClass('fa fa-spinner fa-fw fa-spin');
+
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type:       'GET',
+        url:        site.uri.public + '/admin/controllers/delete/' + selected_controller,
+        success:    onDeleteSuccess,
+        error:      onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onDeleteError(d) {
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload(true);
+        }, 500);
+    }
+});
+
+{% endif %}
+
+/**
+ * enable Bootstrap tooltips on this page
+ */
+$(function () {
+    $("[data-toggle='tooltip']").tooltip();
+});
+
+/**
+ * initialise the select2 class elements and destroy any old ones that might still exist
+ */
+$('#{{box_id}} .select2').select2('destroy');
+$('#{{box_id}} .select2').select2({
+    selectOnClose: true
+});
+</script>

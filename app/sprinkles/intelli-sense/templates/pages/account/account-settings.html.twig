@@ -1,0 +1,105 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {# By putting this in a special block, we ensure that it will be set AFTER the default values are set in the parent template,
+    but BEFORE the page itself is rendered. #}
+    {% set page = page | merge({
+        "title"       : "Account Settings",
+        "description" : "Update your account settings, including email, display name, and password."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Manage your account settings</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form" id="form_portlet_body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
+
+                        <div class="form-alerts" id="alerts-page"></div>
+
+                        <form class='form-horizontal' autocomplete=”off” role='form' name='settings' action='{{site.uri.public}}/account/settings' method='post'>
+                            {% include "forms/csrf.html.twig" %}
+                            <!-- Prevent browsers from trying to autofill the password field.  See http://stackoverflow.com/a/23234498/2970321 (does not work with Mobile Safari on IOS 10+) -->
+                            <input type="text" style="display:none">
+                            <input type="password" style="display:none">
+
+                            {% if checkAccess('update_account_setting', {('user'): current_user, ('property'): 'email'}) %}
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Email Address</label>
+                                <div class="col-sm-8">
+                                    <input type='text' autocomplete="off" class="form-control" name="email" value='{{current_user.email}}'>
+                                    <p class="help-block">Your email address</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if checkAccess('update_account_setting', {('user'): current_user, ('property'): 'password'}) %}
+                            <div class="form-group">
+                                <label for="input_password" class="col-sm-4 control-label">New Password</label>
+                                <div class="col-sm-8">
+                                    <input type='password' autocomplete="off" id="input_password" class="form-control" name="password" placeholder="8-50 characters">
+                                    <p class="help-block">Optional.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="input_passwordc" class="col-sm-4 control-label">Confirm New Password</label>
+                                <div class="col-sm-8">
+                                    <input type='password' autocomplete="off" id="input_passwordc" class="form-control" name="passwordc" placeholder="8-50 characters">
+                                    <p class="help-block">Required only if selecting a new password</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <label for="input_passwordcheck" class="col-sm-4 control-label">Current Password</label>
+                                <div class="col-sm-8">
+                                    <input type='password' autocomplete="off" id="input_passwordcheck" class="form-control" name="passwordcheck" placeholder="Confirm your current password to make changes.">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button type="submit" class="btn blue pull-right">Update Account</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript">
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+
+$(document).ready(function() {
+    $("form[name='settings']").ufForm({
+        validator: validators,
+        msgTarget: $("#alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        // Forward to login page on success
+        window.location.replace(site.uri.public);
+    });
+});
+</script>
+{% endblock %}

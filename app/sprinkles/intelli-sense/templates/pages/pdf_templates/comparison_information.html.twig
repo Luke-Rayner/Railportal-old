@@ -1,0 +1,250 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<style>
+    #table_current_month_comparison td, #table_current_year_comparison td {
+        font-size: 16px !important;
+    }
+</style>
+
+<div class="pdf-page-content">
+	<div class="custom-row left">
+        <p class="header">Comparison Information</p>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Current Month Comparison</p>
+        <br>
+        <p>Comparison of this month, compared to last month and the same month the year before ( based on GEO-Sense being live for more than 12 months )</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_current_month_comparison_column" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_current_month_comparison">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Repeat</th>
+                    <th>New</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+    <br>
+
+    <div class="custom-row left">
+        <p class="sub-header">Current year to date comparison</p>
+    </div>
+
+    <br>
+
+    <div class="custom-row">
+        <div class="chart-container left">
+            <div id="chart_current_year_comparison_column" class="full_width_chart"></div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="custom-row left">
+        <table id="table_current_year_comparison">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Repeat</th>
+                    <th>New</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var common_plot_options = {
+    column: {
+        stacking: 'normal'
+    },
+    series: {
+        stacking: 'normal',
+        animation: {
+            duration: 500,
+            easing: 'easeInOutQuart'
+        },
+        dataLabels: {
+            enabled: true,
+            allowOverlap: true,
+            formatter: function() {
+                if (this.y != 0) {
+                  return this.series.name;
+                } else {
+                  return null;
+                }
+            },
+            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+            style: {
+                textShadow: '0 0 3px black'
+            }
+        }
+    }
+};
+
+$(document).ready(function() {
+
+    /**
+     * define start and end
+     */
+    var pdfRangeEnd   = moment().set('month', '{{month}}').endOf('month');
+    var pdfRangeStart = moment().set('month', '{{month}}').startOf('month');
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/current_month_compared/incl_prev_year/" + pdfRangeStart + "/" + pdfRangeEnd,
+        type: "GET",
+        dataType: "json",
+        success: chart_currentMonthComparisonColumn_DataReceived
+    });
+
+    var chart_currentMonthComparisonColumn_Options = {
+        chart: {
+            renderTo: 'chart_current_month_comparison_column',
+            backgroundColor: '#FFFFFF',
+            type: 'column'
+        },
+        xAxis: {
+            type: 'category',
+            categories: [moment().set('month', '{{month}}').subtract(1, 'year').format('MMMM YYYY'), moment().set('month', '{{month}}').subtract(1, 'month').format('MMMM'), moment().set('month', '{{month}}').format('MMMM')]
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: common_plot_options
+    };
+
+    function chart_currentMonthComparisonColumn_DataReceived(data) {
+        var newVisitors    = data['new'];
+        var repeatVisitors = data['repeat'];
+
+        var chart_currentMonthComparisonColumn = new Highcharts.Chart(chart_currentMonthComparisonColumn_Options);
+        chart_currentMonthComparisonColumn.hideLoading();
+
+        chart_currentMonthComparisonColumn.addSeries({
+            name: 'new',
+            data: [{color: '#3E9C1A', y: newVisitors[0]}, {color: '#132149', y: newVisitors[1]}, {color: '#e25826', y: newVisitors[2]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_currentMonthComparisonColumn.addSeries({
+            name: 'repeat',
+            data: [{color: '#b6d1b7', y: repeatVisitors[0]}, {color: '#b3bbd2', y: repeatVisitors[1]}, {color: '#e2ab97', y: repeatVisitors[2]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_currentMonthComparisonColumn.redraw();
+
+        var combinedArray = [];
+        combinedArray.push([moment().set('month', '{{month}}').subtract(1, 'year').format('MMMM YYYY'), newVisitors[0] + repeatVisitors[0], repeatVisitors[0], newVisitors[0]]);
+        combinedArray.push([moment().set('month', '{{month}}').subtract(1, 'month').format('MMMM'), newVisitors[1] + repeatVisitors[1], repeatVisitors[1], newVisitors[1]]);
+        combinedArray.push([moment().set('month', '{{month}}').format('MMMM'), repeatVisitors[2] + newVisitors[2], repeatVisitors[2], newVisitors[2]]);
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + '</td></tr>';
+        });
+
+        $('#table_current_month_comparison tbody').append(html);
+    }
+
+    /**
+     * define start and end
+     */
+    var pdfRangeEnd   = moment();
+    var pdfRangeStart = moment().startOf('year');
+
+
+    /**
+     * 
+     */
+    $.ajax({
+        url: "{{site.uri.public}}/geo-sense/api/stats/venue/unique_visitors/current_year_compared/incl_prev_year/" + pdfRangeStart + "/" + pdfRangeEnd,
+        type: "GET",
+        dataType: "json",
+        success: chart_currentYearComparisonColumn_DataReceived
+    });
+
+    var chart_currentYearComparisonColumn_Options = {
+        chart: {
+            renderTo: 'chart_current_year_comparison_column',
+            backgroundColor: '#FFFFFF',
+            type: 'column'
+        },
+        xAxis: {
+            type: 'category',
+            categories: [moment().subtract(1, 'year').format('YYYY'), moment().format('YYYY')]
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: common_plot_options
+    };
+
+    function chart_currentYearComparisonColumn_DataReceived(data) {
+        var newVisitors    = data['new'];
+        var repeatVisitors = data['repeat'];
+
+        var chart_currentYearComparisonColumn = new Highcharts.Chart(chart_currentYearComparisonColumn_Options);
+        chart_currentYearComparisonColumn.hideLoading();
+
+        chart_currentYearComparisonColumn.addSeries({
+            name: 'new',
+            data: [{color: '#3E9C1A', y: newVisitors[0]}, {color: '#e25826', y: newVisitors[1]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_currentYearComparisonColumn.addSeries({
+            name: 'repeat',
+            data: [{color: '#b6d1b7', y: repeatVisitors[0]}, {color: '#e2ab97', y: repeatVisitors[1]}],
+            stack: 'visitors'
+        }, false);
+
+        chart_currentYearComparisonColumn.redraw();
+
+        var combinedArray = [];
+        combinedArray.push([moment().subtract(1, 'year').format('YYYY'), newVisitors[0] + repeatVisitors[0], repeatVisitors[0], newVisitors[0]]);
+        combinedArray.push([moment().format('YYYY'), newVisitors[1] + repeatVisitors[1], repeatVisitors[1], newVisitors[1]]);
+
+        var html = '';
+        $.each(combinedArray, function(key, value) {
+            html += '<tr><td>' + value[0] + '</td><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + '</td></tr>';
+        });
+
+        $('#table_current_year_comparison tbody').append(html);
+    }
+});
+</script>
+{% endblock %}

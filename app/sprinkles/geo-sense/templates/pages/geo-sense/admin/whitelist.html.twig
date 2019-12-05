@@ -1,0 +1,557 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Device whitelist",
+        "description" : "Displays whitelisted devices by MAC address and their labels."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Drone Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab1primary" data-toggle="tab"><i class="fa fa-unlock-alt fa-fw fa-lg"></i> Whitelisted devices</a></li>
+                    <li><a href="#tab2primary" data-toggle="tab"><i class="fa fa-search fa-fw fa-lg"></i> Whitelist candidates top 20</a></li>
+                    <span id="panel_info" class="pull-right" name="panel_info" style="padding: 10px 10px;"
+                        data-toggle="tooltip" data-placement="top" title="Overview of whitelisted devices. Probe requests for devices where whitelisted is set to yes are discarded. The second tab shows candidates for the whitelist."><i class="fa fa-question-circle fa-fw fa-lg"></i></span>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="tab1primary">
+                        <table id="whitelist_entries" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>MAC address</th>
+                                    <th>Device UUID</th>
+                                    <th>Vendor</th>
+                                    <th>Label</th>
+                                    <th>Whitelisted</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="tab2primary">
+                        <table id="candidates" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>Device UUID</th>
+                                    <th>Vendor</th>
+                                    <th>Number of probe requests (past 24 hours)</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-success" id="addNewWhiteListEntry">
+          <i class="fa fa-plus-square"></i> Add new whitelist entry
+        </button>
+    </div>
+</div>
+
+<div id='addNewWhiteListEntryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-laptop fa-fw fa-lg"></i> Add a new whitelist entry</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="addWhiteListEntry" action="{{site.uri.public}}/admin/geo-sense/whitelist" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('form-alerts')}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="label" class="col-sm-offset-2 col-sm-3 control-label">Device label</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="label" name="label" placeholder="Device label">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mac" class="col-sm-offset-2 col-sm-3 control-label">MAC address</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-barcode fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="17" id="mac" name="mac" placeholder="Device MAC address">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="whitelist" class="col-sm-offset-2 col-sm-3 control-label">Whitelist?</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-thumbs-o-up fa-fw fa-lg"></i></span>
+                                <select id="whitelist" name="whitelist" class="form-control">
+                                    <option value="0">no</option>
+                                    <option value="1" selected>yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="macSubmit" name="macSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save new whitelist entry</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="venue_id" name="venue_id" value="{{current_user.primary_venue_id}}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateWhiteListEntryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-laptop fa-fw fa-lg"></i> Edit whitelist entry</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="updateWhiteListEntry" action="{{site.uri.public}}/admin/geo-sense/whitelist/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('update_form-alerts')}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="label" class="col-sm-offset-2 col-sm-3 control-label">Device label</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_label" name="label" placeholder="Device label">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_candidate_modal_device_uuid" class="col-sm-offset-2 col-sm-3 control-label">Device vendor</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tablet fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="128" id="update_device_vendor_dummy" name="device_vendor_dummy" placeholder="Device vendor ID" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mac" class="col-sm-offset-2 col-sm-3 control-label">MAC address</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-barcode fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="17" id="update_mac" name="mac" placeholder="Device MAC address">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="whitelist" class="col-sm-offset-2 col-sm-3 control-label">Whitelist?</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-thumbs-o-up fa-fw fa-lg"></i></span>
+                                <select id="update_whitelist" name="whitelist" class="form-control">
+                                    <option value="0">no</option>
+                                    <option value="1">yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="macSubmit" name="macSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_mac_id" name="id">
+                    <input type="hidden" id="venue_id" name="venue_id" value="{{current_user.primary_venue_id}}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateWhiteListEntryNoMacModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-laptop fa-fw fa-lg"></i> Edit whitelist entry</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="updateWhiteListEntryNoMac" action="{{site.uri.public}}/admin/geo-sense/whitelist/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('update_form_no_mac-alerts')}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="label" class="col-sm-offset-2 col-sm-3 control-label">Device label</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_no_mac_label" name="label" placeholder="Device label">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="whitelist" class="col-sm-offset-2 col-sm-3 control-label">Whitelist?</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-thumbs-o-up fa-fw fa-lg"></i></span>
+                                <select id="update_no_mac_whitelist" name="whitelist" class="form-control">
+                                    <option value="0">no</option>
+                                    <option value="1">yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="macSubmit" name="macSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_no_mac_mac_id" name="id">
+                    <input type="hidden" id="venue_id" name="venue_id" value="{{current_user.primary_venue_id}}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addCandidateModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-laptop fa-fw fa-lg"></i> Add candidate to whitelist</h4>
+            </div>
+            <div class='modal-body'>
+                <form class="form-horizontal" id="addCandidate" action="{{site.uri.public}}/admin/geo-sense/whitelist/add_by_device_uuid/" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div id="{{alerts_id | default('form-alerts')}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="label" class="col-sm-offset-2 col-sm-3 control-label">Device label</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="add_candidate_modal_label" name="label" placeholder="Device label">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_candidate_modal_device_uuid" class="col-sm-offset-2 col-sm-3 control-label">Device UUID</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-barcode fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="32" id="add_candidate_modal_device_uuid" name="device_uuid" placeholder="Device UUID" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_candidate_modal_device_uuid" class="col-sm-offset-2 col-sm-3 control-label">Device vendor</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tablet fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="128" id="add_candidate_modal_device_vendor_dummy" name="device_vendor_dummy" placeholder="Device vendor ID" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="candidateSubmit" name="macSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Add to whitelist</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="add_candidate_modal_device_vendor_id" name="device_vendor_id" value="">
+                    <input type="hidden" id="add_candidate_modal_venue_id" name="venue_id" value="{{current_user.primary_venue_id}}">
+                    <input type="hidden" id="add_candidate_modal_whitelist" name="whitelist" value="1">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+$(document).ready(function() {
+    var whitelisttable = $('#whitelist_entries').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/geo-sense/api/whitelist",
+            dataSrc: function(json) {
+                console.log(json['rows']);
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'mac'},
+            {data: 'device_uuid'},
+            {data: 'device_vendor.description',
+                render: function(data, type, full, meta) {
+                    if (typeof data !== 'undefined') {
+                        if (type === "display" || type === 'filter') {
+                            if (data == '') {
+                                return full.device_vendor.name
+                            } else {
+                                return data;
+                            }
+                        }
+                        return data;
+                    }
+                    return 'unknown';
+                }
+            },
+            {data: 'label'},
+            {data: 'whitelist',
+                render: function(data, type, full, meta) {
+                    if (typeof data !== 'undefined') {
+                        if (type === "display") {
+                            if (data === 0) {
+                                return 'no';
+                            }
+                            if (data === 1) {
+                                return 'yes';
+                            }
+                        }
+                        return data;
+                    }
+                    return data;
+                }
+            }
+        ],
+    });
+
+    var candidatestable = $('#candidates').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/geo-sense/api/whitelist/candidates",
+            dataSrc: function(json) {
+                return json['rows'];
+            }
+        },
+        order: [[ 2, "desc" ]],
+        columns: [
+            {data: 'device_uuid'},
+            {data: 'device_vendor.description',
+                render: function(data, type, full, meta) {
+                    if (type === "display" || type === 'filter') {
+                        if (data == '') {
+                            return full.device_vendor.name
+                        } else {
+                            return data;
+                        }
+                    }
+                    return data;
+                }
+            },
+            {data: 'probe_count',
+                render: function(data, type, full, meta) {
+                    if (type === "display" || type === 'filter') {
+                        return data.toLocaleString();
+                    }
+                    return data;
+                }
+            }
+        ],
+    });
+
+    /**
+     * Load the validator rules for the form in the modal
+     */
+    var validators = {{validators | raw}};
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data:
+     * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+     */
+    $('#addWhiteListEntry').ufForm({
+        validator: validators,
+        msgTarget: $("#form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    $('#updateWhiteListEntry').ufForm({
+        validator: validators,
+        msgTarget: $("#update_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    $('#updateWhiteListEntryNoMac').ufForm({
+        validator: validators,
+        msgTarget: $("#update_form_no_mac-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    $('#addCandidate').ufForm({
+        validator: validators,
+        msgTarget: $("#update_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    /**
+     * open the addNewWhiteListEntryModal upon click on the button
+     */
+    $('#addNewWhiteListEntry').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        $('#addNewWhiteListEntryModal').modal('show');
+    });
+
+    /**
+     * open the addNewWhiteListEntryModal upon tap/click on a row in the candidates table
+     */
+    $('body').on('click touchstart', '#candidates tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this whitelist entry
+         */
+        var thisCandidate = candidatestable.row(this).data();
+
+        if (thisCandidate.device_vendor.description != '') {
+            var device_vendor_label = thisCandidate.device_vendor.description;
+        } else {
+            var device_vendor_label = thisCandidate.device_vendor.name;
+        }
+
+        $('#add_candidate_modal_device_uuid').val(thisCandidate.device_uuid);
+        $('#add_candidate_modal_device_uuid_span').html(thisCandidate.device_uuid);
+        $('#add_candidate_modal_device_vendor_dummy').val(device_vendor_label);
+        $('#add_candidate_modal_device_vendor_id').val(thisCandidate.device_vendor_id);
+
+        /**
+         * show the modal
+         */
+        $('#addCandidateModal').modal('show');
+    });
+
+    $('.modal').on('hidden.bs.modal', function(e) {
+        // whatever we want to do when the modal gets hidden
+        $('#add_candidate_modal_label').val(null);
+        $('#add_candidate_modal_device_uuid').val(null);
+        $('#add_candidate_modal_device_uuid_span').html(null);
+    });
+    /**
+     * end of addNewWhiteListEntryModal
+     */
+
+    /**
+     * open the updateWhiteListEntryModal upon tap/click on a row in the mac table
+     */
+    $('body').on('click touchstart', '#whitelist_entries tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this whitelist entry
+         */
+        var thisWhiteListEntry = whitelisttable.row( this ).data();
+
+        if (thisWhiteListEntry.device_vendor.description != '') {
+            var device_vendor_label = thisWhiteListEntry.device_vendor.description;
+        } else {
+            var device_vendor_label = thisWhiteListEntry.device_vendor.name;
+        }
+
+        if (thisWhiteListEntry.mac != '') {
+            $('#update_label').val(thisWhiteListEntry.label);
+            $('#update_mac').val(thisWhiteListEntry.mac);
+            $('#update_whitelist').val(thisWhiteListEntry.whitelist);
+            $('#update_mac_id').val(thisWhiteListEntry.id);
+            $('#update_device_vendor_dummy').val(device_vendor_label);
+
+            /**
+             * show the modal
+             */
+            $('#updateWhiteListEntryModal').modal('show');
+        } else {
+            console.log('we have no MAC');
+
+            $('#update_no_mac_label').val(thisWhiteListEntry.label);
+            $('#update_no_mac_whitelist').val(thisWhiteListEntry.whitelist);
+            $('#update_no_mac_mac_id').val(thisWhiteListEntry.id);
+
+            $('#updateWhiteListEntryNoMacModal').modal('show');
+        }
+    });
+    /**
+     * end of updateWhiteListEntryModal
+     */
+
+    /**
+     * what we want to do when the modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $(".modal").on('shown', function() {
+        //
+    });
+
+    /**
+     * table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(whitelisttable.draw, 100);
+    });
+});
+
+</script>
+{% endblock %}

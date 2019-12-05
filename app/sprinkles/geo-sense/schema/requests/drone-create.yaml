@@ -1,0 +1,56 @@
+---
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 5
+      max: 100
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+execute_command:
+  validators:
+drone_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+state:
+  validators:
+    numeric:
+      message: "Invalid Number"
+rssi_threshold:
+  validators:
+delay_period:
+  validators:
+zone_id:
+  validators:
+    numeric: 
+      message: "Invalid Number"
+    required:
+      label: "&ZONE_ID"
+      message: VALIDATE.REQUIRED
+lat:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LAT"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+lon:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LON"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE

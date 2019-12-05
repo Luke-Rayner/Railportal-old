@@ -1,0 +1,118 @@
+<div id='{{box_id}}' id='create_zone' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+                
+                <form class="form-horizontal" id="addZone" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="drone_name" class="col-sm-offset-2 col-sm-3 control-label">Drone name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="drone_name" value="{{target_drone.name}}" name="name" placeholder="Drone name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_drone_state" class="col-sm-offset-2 col-sm-3 control-label">State</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-toggle-on fa-fw fa-lg"></i></span>
+                                <select id="new_drone_state" name="state" class="form-control">
+                                    <option value="0" {% if (target_drone.state == 0) %}selected{% endif %}>inactive</option>
+                                    <option value="1" {% if (target_drone.state == 1) %}selected{% endif %}>active</option>
+                                    <option value="2" {% if (target_drone.state == 2) %}selected{% endif %}>calibrating</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_zone_id" class="col-sm-offset-2 col-sm-3 control-label">located in Zone</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-folder fa-fw fa-lg"></i></span>
+                                <select id="new_zone_id" name="zone_id" class="form-control">
+                                    {% for zone in zones %}
+                                        <option value="{{ zone.id }}" {% if (target_drone.zone_id == zone.id) %}selected{% endif %}>{{ zone.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="drone_rssi_threshold" class="col-sm-offset-2 col-sm-3 control-label">RSSI threshold</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-level-up fa-fw fa-lg"></i></span>
+                                <input type="number" class="form-control" maxlength="4" id="drone_rssi_threshold" value="{{target_drone.rssi_threshold}}" name="rssi_threshold" placeholder="RSSI threshold">
+                                <span class="input-group-addon">dBm</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="drone_delay_period" class="col-sm-offset-2 col-sm-3 control-label">Delay period</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-level-up fa-fw fa-lg"></i></span>
+                                <input type="number" class="form-control" maxlength="4" id="drone_delay_period" value="{{target_drone.delay_period}}" name="delay_period" placeholder="Delay period">
+                                <span class="input-group-addon">Sec</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="drone_lat" class="col-sm-offset-2 col-sm-3 control-label">Lat position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="drone_lat" name="lat" value="{{target_drone.lat}}" placeholder="Lat position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="drone_lon" class="col-sm-offset-2 col-sm-3 control-label">Long position</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="20" id="drone_lon" name="lon" value="{{target_drone.lon}}" placeholder="Long position">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="update_command" class="col-sm-offset-2 col-sm-3 control-label">Command to execute</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-terminal fa-fw fa-lg"></i></span>
+                                <select id="update_drone_execute_command" name="execute_command" class="form-control">
+                                    <option value="">none</option>
+                                    <option value="reboot" {% if (target_drone.execute_command == 'reboot') %}selected{% endif %}>Reboot</option>
+                                    <option value="update" {% if (target_drone.execute_command == 'update') %}selected{% endif %}>Update software</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="droneSubmit" name="droneSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load the validator rules for this form
+var validators  = {{validators | raw}};
+
+</script>

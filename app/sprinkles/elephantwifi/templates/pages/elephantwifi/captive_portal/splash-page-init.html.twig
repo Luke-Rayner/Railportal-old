@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-80178753-3"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'UA-80178753-3');
+</script>
+</head>
+<body>
+
+<!-- Include modernizr for browser feature detection  -->
+<script src="{{ assets.url("assets://js/modernizr.localstorage.js") }}"></script>
+<script type="text/javascript" class="init">
+/**
+ * Load the data required in the js for this page into variables for later use
+ * NOTE: take care not to load sensitive data here!
+ */
+var site_uri_public = '{{site.uri.public | raw}}';
+var portal_session = '{{portal_session | raw}}';
+
+/**
+ * following the suggestion below, we detect whether the browser supports localstorage using Modernizr
+ * http://stackoverflow.com/questions/32950326/is-it-possible-to-detect-the-android-captive-portal-browser
+ * NOTE: we only run this test for Android devices
+ */
+var limited_browser = 0;
+
+function getMobileOperatingSystem() {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) ) {
+        return 'iOS';
+    } else if( userAgent.match( /Android/i )) {
+        return 'Android';
+    } else {
+        return 'unknown';
+    }
+}
+
+/**
+ * redirect the user to the next stage
+ */
+window.location.href = site_uri_public + '/captive_portal/intro/' + portal_session + '/' + limited_browser;
+</script>
+</body>
+</html>

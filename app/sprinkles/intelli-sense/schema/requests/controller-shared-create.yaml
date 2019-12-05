@@ -1,0 +1,59 @@
+---
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 5
+      max: 60
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+url:
+  validators:
+    required:
+      label: "&URL"
+      message: VALIDATE.REQUIRED
+    uri:
+      message: VALIDATE.URI
+shared:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&SHARED"
+      message: VALIDATE.REQUIRED
+user_name:
+  validators:
+    no_leading_whitespace:
+      label: "&USER_NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&USER_NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&USER_NAME"
+      message: VALIDATE.REQUIRED
+password:
+  validators:
+    required:
+      label: "&PASSWORD"
+      message: VALIDATE.REQUIRED
+contact:
+  validators:
+    length:
+      label: "&CONTACT"
+      min: 1
+      max: 128
+      message: VALIDATE.LENGTH_RANGE
+    required:
+      label: "&CONTACT"
+      message: VALIDATE.REQUIRED
+    email:
+      message: Please provide a valid email address.

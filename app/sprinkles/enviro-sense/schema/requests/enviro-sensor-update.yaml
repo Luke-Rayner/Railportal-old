@@ -1,0 +1,67 @@
+---
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 5
+      max: 30
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+serial_id:
+  validators:
+    length:
+      label: "&SERIAL_ID"
+      min: 1
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&SERIAL_ID"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&SERIAL_ID"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&SERIAL_ID"
+      message: VALIDATE.REQUIRED
+venue_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&VENUE_ID"
+      message: VALIDATE.REQUIRED
+connection_type:
+  validators:
+    required:
+      label: "&CONNECTION_TYPE"
+      message: VALIDATE.REQUIRED
+lat:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LAT"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+lon:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    length:
+      label: "&LON"
+      min: 2
+      max: 20
+      message: VALIDATE.LENGTH_RANGE
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"

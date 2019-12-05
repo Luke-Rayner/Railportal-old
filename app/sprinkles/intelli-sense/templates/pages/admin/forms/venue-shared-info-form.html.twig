@@ -1,0 +1,535 @@
+<div id='{{box_id}}' class='modal fade' tabindex="-1" role="basic" aria-hidden="true" data-width="1000">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class='modal-title'><i class="icon-globe"></i> {{box_title}}</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="alerts-page"></div>
+                
+                {# we need to make the url selectable with a twig variable sent along with the twig template #}
+                <form class="form-horizontal" id="venueForm" action="{{form_action}}" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                        <div id="exTab2" class="">
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a  href="#{{box_id}}_tab_1" data-toggle="tab">General</a>
+                                </li>
+                                <li>
+                                    <a href="#{{box_id}}_tab_2" data-toggle="tab">Heatmap</a>
+                                </li>
+                                <li>
+                                    <a href="#{{box_id}}_tab_3" data-toggle="tab">Dwelltime</a>
+                                </li>
+                                <li>
+                                    <a href="#{{box_id}}_tab_4" data-toggle="tab">Journey</a>
+                                </li>
+                                <li>
+                                    <a href="#{{box_id}}_tab_5" data-toggle="tab">Classification</a>
+                                </li>
+                                <li>
+                                    <a href="#{{box_id}}_tab_6" data-toggle="tab">Tags</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content ">
+                                <div class="tab-pane active" id="{{box_id}}_tab_1"> {# REMINDER: remember to give dynamic elements ids that are unique to the instance of the form or else things will go hayware! #}
+                                    <br>
+                                    <div class="form-group">
+                                        <label for="form_venue_name" class="col-sm-offset-1 col-sm-4 control-label">Venue name</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="60" id="form_venue_name" name="name" value="{{target_venue.name}}" placeholder="Venue name">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="current_visitors_bucket" class="col-sm-offset-1 col-sm-4 control-label">Venue current visitors bucket</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-filter fa-fw fa-lg"></i></span>
+                                                <select id="current_visitors_bucket" name="current_visitors_bucket" class="form-control">
+                                                    <option value="300" {% if (target_venue.current_visitors_bucket == 300) %}selected{% endif %}>5 minutes</option>
+                                                    <option value="3600" {% if (target_venue.current_visitors_bucket == 3600) %}selected{% endif %}>1 hour</option>
+                                                    <option value="7200" {% if (target_venue.current_visitors_bucket == 7200) %}selected{% endif %}>2 hours</option>
+                                                    <option value="14400" {% if (target_venue.current_visitors_bucket == 14400) %}selected{% endif %}>4 hours</option>
+                                                    <option value="28800" {% if (target_venue.current_visitors_bucket == 28800) %}selected{% endif %}>8 hours</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="update_venue_locale" class="col-sm-offset-1 col-sm-4 control-label">Venue locale</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                        title="The default language, primarily for captive portal messages"></i>
+                                                </span>
+                                                <select id="update_venue_locale" class="form-control select2" name="locale">
+                                                    {% for option, label in locales %}
+                                                    <option value="{{option}}" {% if (option == target_venue.locale) %}selected{% endif %}>{{label}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="venue_time_zone" class="col-sm-offset-1 col-sm-4 control-label">Venue time zone</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                        title="The time zone for this venue"></i>
+                                                </span>
+                                                <select id="update_venue_time_zone" class="form-control select2" name="time_zone">
+                                                    {% for time_zone in time_zones %}
+                                                        <option value="{{ time_zone }}" {% if time_zone == target_venue.time_zone %}selected{% endif %}>{{ time_zone }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="form_local_venue_id" class="col-sm-offset-1 col-sm-4 control-label">Local venue id</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top" title="This value should be different in case the UniFi controller venue id has a value of default, will be corrected automatically if necessary when saving the venue."></i></span>
+                                                <input type="text" class="form-control" maxlength="10" id="form_local_venue_id" name="local_venue_id" value="{{target_venue.local_venue_id}}" placeholder="Local venue id" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="enviro_venue" class="col-sm-5 control-label">Enviro venue</label>
+                                        <div class="col-sm-2" style="margin-top:4px;">
+                                             <div class="input-group">
+                                                 <input id="enviro_venue" type="checkbox" name="enviro_venue" value="{{target_venue.enviro_venue}}" data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if target_venue.enviro_venue == 1 %} checked="checked"{% endif %}>
+                                             </div>
+                                         </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="{{box_id}}_tab_2">
+                                    <br>
+                                    <div class="form-group">
+                                        <label for="lat" class="col-sm-offset-1 col-sm-4 control-label">Venue latitude position</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="lat" name="lat" value="{{target_venue.lat}}" placeholder="Venue latitude position">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lon" class="col-sm-offset-1 col-sm-4 control-label">Venue longitude position</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="lon" name="lon" value="{{target_venue.lon}}" placeholder="Venue longitude position">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="heatmap_min_zoom" class="col-sm-offset-1 col-sm-4 control-label">Heatmap min zoom level</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-search-minus fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="heatmap_min_zoom" name="heatmap_min_zoom" value="{{target_venue.heatmap_min_zoom}}" placeholder="15 recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="heatmap_max_zoom" class="col-sm-offset-1 col-sm-4 control-label">Heatmap max zoom level</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-search-plus fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="heatmap_max_zoom" name="heatmap_max_zoom" value="{{target_venue.heatmap_max_zoom}}" placeholder="18 recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="heatmap_init_zoom" class="col-sm-offset-1 col-sm-4 control-label">Heatmap zoom level on load</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-search fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="heatmap_init_zoom" name="heatmap_init_zoom" value="{{target_venue.heatmap_init_zoom}}" placeholder="15 recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="heatmap_radius" class="col-sm-offset-1 col-sm-4 control-label">Heatmap point radius</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-dot-circle-o fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="heatmap_radius" name="heatmap_radius" value="{{target_venue.heatmap_radius}}" placeholder="Heatmap point radius">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="{{box_id}}_tab_3">
+                                    <br>
+                                    <div class="form-group">
+                                        <label for="footfall_bucket" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime bucket size (distance)</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-filter fa-fw fa-lg"></i></span>
+                                                <select id="footfall_bucket" name="footfall_bucket" class="form-control">
+                                                    <option value="300" {% if (target_venue.footfall_bucket == 300) %}selected{% endif %}>5 minutes</option>
+                                                    <option value="3600" {% if (target_venue.footfall_bucket == 3600) %}selected{% endif %}>1 hour</option>
+                                                    <option value="7200" {% if (target_venue.footfall_bucket == 7200) %}selected{% endif %}>2 hours</option>
+                                                    <option value="14400" {% if (target_venue.footfall_bucket == 14400) %}selected{% endif %}>4 hours</option>
+                                                    <option value="28800" {% if (target_venue.footfall_bucket == 28800) %}selected{% endif %}>8 hours</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_skipped_label" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime label for short stay</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_skipped_label" name="dt_skipped_label" value="{{target_venue.dt_skipped_label}}" placeholder="short stay label">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_threshold_1" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime threshold #1 (secs)</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_threshold_1" name="dt_threshold_1" value="{{target_venue.dt_threshold_1}}" placeholder="300 seconds recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_level_1_label" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime level #1 label</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_level_1_label" name="dt_level_1_label" value="{{target_venue.dt_level_1_label}}" placeholder="level #1 label">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_threshold_2" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime threshold #2 (secs)</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_threshold_2" name="dt_threshold_2" value="{{target_venue.dt_threshold_2}}" placeholder="1800 seconds recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_level_2_label" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime level #2 label</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_level_2_label" name="dt_level_2_label" value="{{target_venue.dt_level_2_label}}" placeholder="level #2 label">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_threshold_3" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime threshold #3 (secs)</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_threshold_3" name="dt_threshold_3" value="{{target_venue.dt_threshold_3}}" placeholder="3600 seconds recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_level_3_label" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime level #3 label</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_level_3_label" name="dt_level_3_label" value="{{target_venue.dt_level_3_label}}" placeholder="level #3 label">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_threshold_4" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime threshold #4 (secs)</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_threshold_4" name="dt_threshold_4" value="{{target_venue.dt_threshold_4}}" placeholder="5400 seconds recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_level_4_label" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime level #4 label</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_level_4_label" name="dt_level_4_label" value="{{target_venue.dt_level_4_label}}" placeholder="level #4 label">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_threshold_5" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime threshold #5 (secs)</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_threshold_5" name="dt_threshold_5" value="{{target_venue.dt_threshold_5}}" placeholder="7200 seconds recommended">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dt_level_5_label" class="col-sm-offset-1 col-sm-5 control-label">Dwelltime level #5 label</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="dt_level_5_label" name="dt_level_5_label" value="{{target_venue.dt_level_5_label}}" placeholder="level #5 label">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="{{box_id}}_tab_4">
+                                    <br>
+                                    <div class="form-group">
+                                        <label for="sankey_max_route_length" class="col-sm-offset-1 col-sm-4 control-label">Max number of segments to report on in Journey Report</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="sankey_max_route_length" name="sankey_max_route_length" value="{{target_venue.sankey_max_route_length}}" placeholder="Max segments">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane" id="{{box_id}}_tab_5">
+                                    <div class="form-group">
+                                        <label for="category_id" class="col-sm-offset-1 col-sm-4 control-label">Category</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                                <select id="category_id" name="category_id" class="form-control">
+                                                    <option value="0" selected disabled>Select a category</option>
+                                                {% for category in categories %}
+                                                    <option value="{{ category.id }}" {% if category.id ==  target_venue.category.id %}selected{% endif %}>{{ category.name }}</option>
+                                                {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="venue_sub_categories" class="col-sm-offset-1 col-sm-4 control-label">Sub-categories</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-tags fa-fw fa-lg"></i></span>
+                                                <select id="venue_sub_categories" class="form-control select2 ufformsubmit_skip_serialise" multiple="multiple" name="sub_categories">
+                                                    {% for sub_category in sub_categories %}
+                                                    <option value="{{sub_category.id}}" {% if sub_category.id in target_venue.getSubCategoryIds() %}selected{% endif %}>{{sub_category.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="population" class="col-sm-offset-1 col-sm-4 control-label">Population</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-users fa-fw fa-lg"></i></span>
+                                                <input type="text" class="form-control" maxlength="12" id="population" name="population" value="{{target_venue.population}}" placeholder="10000">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+                                    <a href="https://en.wikipedia.org/wiki/Nomenclature_of_Territorial_Units_for_Statistics" class="icon-block" target="_new">
+                                        <i class="fa fa-info-circle fa-lg"></i> NUTS classification
+                                    </a>
+                                    <br>
+                                    <br>
+
+                                    <div class="form-group">
+                                        <label for="country_id" class="col-sm-offset-1 col-sm-4 control-label">Country</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                                <select id="country_id" name="country_id" class="form-control">
+                                                    <option value="0" selected disabled>Select a country</option>
+                                                {% for country in countries %}
+                                                    <option value="{{ country.id }}" {% if country.id == target_venue.country_id %}selected{% endif %}>{{ country.name }}</option>
+                                                {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="region_id" class="col-sm-offset-1 col-sm-4 control-label">Region (NUTS 1)</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                                <select id="region_id" name="region_id" class="form-control">
+                                                    <option value="0" selected disabled>Select a region</option>
+                                                {% for region in regions %}
+                                                    {% if region.country_id == target_venue.country_id %}
+                                                    <option value="{{ region.id }}" {% if region.id ==  target_venue.region_id %}selected{% endif %}>{{ region.name }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="area_id" class="col-sm-offset-1 col-sm-4 control-label">Area (NUTS 2)</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-globe fa-fw fa-lg"></i></span>
+                                                <select id="area_id" name="area_id" class="form-control">
+                                                    <option value="0" selected disabled>Select an area</option>
+                                                {% for area in areas %}
+                                                    {% if area.region_id == target_venue.region_id %}
+                                                    <option value="{{ area.id }}" {% if area.id ==  target_venue.area_id %}selected{% endif %}>{{ area.name }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane" id="{{box_id}}_tab_6">
+                                    <div class="form-group">
+                                        <label for="venue_tags" class="col-sm-offset-1 col-sm-4 control-label">Tags</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-tags fa-fw fa-lg"></i></span>
+                                                <select id="venue_tags" class="form-control select2 ufformsubmit_skip_serialise" multiple="multiple" name="associated_tags">
+                                                    {% for tag in tags %}
+                                                    <option value="{{tag.id}}" {% if tag.id in target_venue.getTagIds() %}selected{% endif %}>{{tag.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    {% if current_venue.id == target_venue.id %}
+                                    <div class="alert alert-info col-xs-offset-1 col-xs-10">
+                                        Active venue cannot be deleted
+                                    </div>
+                                    {% endif %}
+                                    <div class="col-sm-offset-5 col-sm-7">
+                                        <button type="button" class="btn blue" data-dismiss="modal"><i class="fa fa-times-circle fa-fw"></i> Cancel</button>
+                                        <button type='submit' id="venueSubmit" name="venueSubmit" class="btn orange"><i class="fa fa-cloud-upload fa-fw"></i> {{submit_button}}</button>
+                                    </div>
+                                    <div class="col-sm-offset-5 col-sm-7" style="padding-top: 1%">
+                                        {% if (modal_mode == "edit") and current_venue.id != target_venue.id %}
+                                        <button id="deleteVenueButton" type="button" class="btn red" onclick="showConfirmModal(this);" data-venue_id="{{target_venue.id}}"><i class="fa fa-trash fa-fw"></i> Delete</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="id" value="{{target_venue.id}}">
+                                <input type="hidden" name="local_venue_id" value="{{target_venue.local_venue_id}}">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Load the validator rules for this form
+var validators = {{validators | raw}};
+var regions = [
+{% for region in regions %}
+    {
+        id: {{ region.id }},
+        country_id: {{ region.country_id }},
+        name: '{{ region.name }}'
+    },
+{% endfor %}
+];
+var areas = [
+{% for area in areas %}
+    {
+        id: {{ area.id }},
+        country_id: {{ area.region.country_id }},
+        region_id: {{ area.region_id }},
+        name: '{{ area.name }}'
+    },
+{% endfor %}
+];
+
+$(document).ready(function() {
+    $('#venue_tags').select2();
+    $('#venue_sub_categories').select2();
+});
+
+$(document).ready(function() {
+    /**
+     * listen to change in country
+     */
+    $('#country_id').on('change', function() {
+        var selected = $(this).val();
+        console.log(selected);
+
+        var filtered_regions = _.filter(regions, { 'country_id': parseInt(selected) });
+        var filtered_areas = _.filter(areas, { 'country_id': parseInt(selected) });
+
+        var regions_options = '<option value="0" selected disabled>Select a region</option>';
+
+        $.each(filtered_regions, function (index, value) {
+            regions_options += '<option value="' + value.id + '">' + value.name + '</option>';
+        });
+
+        $('#region_id').empty().append(regions_options);
+
+
+        var areas_options = '<option value="0" selected disabled>Select an area</option>';
+
+        $.each(filtered_areas, function (index, value) {
+            areas_options += '<option value="' + value.id + '">' + value.name + '</option>';
+        });
+
+        $('#area_id').empty().append(areas_options);
+    });
+
+    /**
+     * listen to change in region
+     */
+    $('#region_id').on('change', function() {
+        var selected = $(this).val();
+        console.log(selected);
+
+        var filtered_areas = _.filter(areas, { 'region_id': parseInt(selected) });
+
+        var areas_options = '<option value="0" selected disabled>Select an area</option>';
+
+        $.each(filtered_areas, function (index, value) {
+            areas_options += '<option value="' + value.id + '">' + value.name + '</option>';
+        });
+
+        $('#area_id').empty().append(areas_options);
+    });
+
+    /**
+     * enable Bootstrap tooltips on the modal
+     */
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger : 'hover'
+        });
+    });
+});
+
+/**
+ * initialise the select2 class elements and destroy any old ones that might still exist
+ */
+$('#{{box_id}} .select2').select2('destroy');
+$('#{{box_id}} .select2').select2({
+    selectOnClose: true
+});
+
+$('#enviro_venue').bootstrapSwitch();
+$('#enviro_venue').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+</script>

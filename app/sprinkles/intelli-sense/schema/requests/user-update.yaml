@@ -1,0 +1,78 @@
+---
+user_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: ACCOUNT_USER_CHAR_LIMIT
+    no_leading_whitespace:
+      message: ACCOUNT_USER_NO_LEAD_WS
+    no_trailing_whitespace:
+      message: ACCOUNT_USER_NO_TRAIL_WS
+    required:
+      message: ACCOUNT_SPECIFY_USERNAME
+  sanitizers:
+    raw: {}
+first_name:
+  validators:
+    length:
+      min: 1
+      max: 50
+      message: ACCOUNT_DISPLAY_CHAR_LIMIT
+  sanitizers:
+    raw: ''
+company_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+email:
+  validators:
+    length:
+      min: 1
+      max: 150
+      message: ACCOUNT_EMAIL_CHAR_LIMIT
+    email:
+      message: ACCOUNT_INVALID_EMAIL
+  sanitizers:
+    raw: ''
+title:
+  validators:
+    length:
+      min: 1
+      max: 150
+      message: ACCOUNT_TITLE_CHAR_LIMIT
+locale:
+  validators: {}
+group_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+groups:
+  validators:
+    array:
+      message: VALIDATE_ARRAY
+primary_venue_id:
+  validators:
+    integer:
+      message: VALIDATE_INTEGER
+flag_enabled:
+  validators:
+    member_of:
+      values:
+      - '0'
+      - '1'
+      message: VALIDATE_BOOLEAN
+flag_verified:
+  validators:
+    member_of:
+      values:
+      - '0'
+      - '1'
+      message: VALIDATE_BOOLEAN
+flag_password_reset:
+  validators:
+    member_of:
+      values:
+      - '0'
+      - '1'
+      message: VALIDATE_BOOLEAN

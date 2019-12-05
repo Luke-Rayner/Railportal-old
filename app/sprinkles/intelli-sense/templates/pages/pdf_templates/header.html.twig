@@ -1,0 +1,38 @@
+{% extends "pages/pdf_templates/layouts/main-layout.html.twig" %}
+
+{% block content %}
+<div class="pdf-page-content">
+    <div class="custom-row header-container center">
+        <p class="header">GEO-Sense Report</p>
+        <p class="header">{{venue.name}}</p>
+        <p>Date range selected: {{start_date}} - {{end_date}}</p>
+    </div>
+
+    <div class="custom-row left">
+        <p class="header text-orange"><u>Definitions</u></p>
+        <br>
+        <p>Below is an explanation of terms used within this document</p>
+        <br>
+        <ul>
+            <li>Visit - A visit is a unique visit to the venue during a 24 hour period. For more information please view the visit report</li>
+            <li>Visitor - A visitor is a unique individual counted only once during a 24 hour period or a specific range of hours if selected.</li>
+            <li>New - A visitor that is new to the venue and has not been seen prior to the first day captured</li>
+            <li>Repeat - A visitor that has been to the venue before the day of capture</li>
+        </ul>
+    </div>
+
+    <div class="custom-row left">
+        <p class="header text-orange"><u>Sensor Map</u></p>
+        <br>
+        <p>Each red dot indicates the location of a sensor along with its location ID.</p>
+    </div>
+
+    <br>
+
+    <!-- <div id="pdf_heatmap_container" style="width:100%; height:500px;"></div> -->
+
+    {% if venue.venue_tracking.custom_map_file_uuid != '' %}
+        <img src="{{site.uri.public}}/assets-raw/images/venue/geo-sense/maps/{{venue.id}}/{{venue.venue_tracking.custom_map_file_uuid}}/{{venue.venue_tracking.custom_map_file_name}}" alt="Logo" height="900" width="1300">
+    {% endif %}
+</div>
+{% endblock %}

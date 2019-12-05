@@ -1,0 +1,389 @@
+{# This is the base layout template for "dashboard" style pages (basically, all authenticated pages). #}
+
+{# Default page properties.  You can override these in your child templates. #}
+{% set page = page | default({}) | merge({
+    "title"       : "New Dashboard Page",
+    "description" : "This page has not yet been configured.",
+    "author"      : site.author,
+    "alerts"      : getAlerts()
+}) %}
+
+{% block page %}
+<!DOCTYPE html>
+<html lang="en">
+    {% block head %}
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="{{page.description}}">
+        <meta name="author" content="Art of WiFi" >
+        <meta name="{{csrf_key}}" content="{{csrf_token}}">
+        <meta name="current_venue" content="{{current_user.primary_venue_id}}">
+        <meta name="base_url" content="{{site.uri.public}}">
+
+        <title>{{site.site_title}} | {{page.title}}</title>
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="{{ assets.url('assets://css/favicon.ico') }}" />
+
+        <!-- BEGIN GLOBAL MANDATORY STYLES -->
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
+        {# <link href="{{ assets.url("assets://metronic/assets/global/plugins/font-awesome/css/font-awesome.min.css") }}" rel="stylesheet" type="text/css" /> #}
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+        
+        <link href="{{ assets.url("assets://metronic/assets/global/plugins/simple-line-icons/simple-line-icons.min.css") }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://metronic/assets/global/plugins/bootstrap/css/bootstrap.min.css") }}" rel="stylesheet" type="text/css" />
+
+        <!--  BEGIN FULLCALENDAR STYLES -->
+        <link href="{{ assets.url("assets://metronic/assets/global/plugins/fullcalendar-4.2.0/packages/core/main.css") }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://metronic/assets/global/plugins/fullcalendar-4.2.0/packages/daygrid/main.css") }}" rel="stylesheet" type="text/css" />
+        <!-- END FULLCALENDAR STYLES -->
+
+        <link href="{{ assets.url("assets://css/bootstrap-switch.css") }}" rel="stylesheet" type="text/css" >
+        <link href="{{ assets.url("assets://css/bootstrap-tour.min.css") }}" rel="stylesheet" type="text/css" >
+        <link href="{{ assets.url("assets://css/datatables/datatables.bundled.min.css") }}" rel="stylesheet" type="text/css" >
+        <link href="{{ assets.url("assets://css/select2/select2.css") }}" rel="stylesheet" type="text/css" >
+        <link href="{{ assets.url("assets://css/select2/select2-bootstrap.css") }}" rel="stylesheet" type="text/css" >
+        <link href="{{ assets.url("assets://css/bootstrapradio.css") }}" rel="stylesheet" type="text/css" >
+        <link href="{{ assets.url("assets://metronic/assets/global/plugins/bootstrap-toastr/toastr.min.css") }}" rel="stylesheet" type="text/css" />
+        <!-- END GLOBAL MANDATORY STYLES -->
+
+        <!-- BEGIN PAGE LEVEL PLUGINS -->
+        <link href="{{ assets.url("assets://metronic/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css") }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://css/fine-uploader/fine-uploader-new.min.css") }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://css/bootstrap-colorpicker/bootstrap-colorpicker.min.css") }}" rel="stylesheet" type="text/css" />
+        <!-- END PAGE LEVEL PLUGINS -->
+
+        <!-- BEGIN THEME GLOBAL STYLES -->
+        <link href="{{ assets.url("assets://metronic/assets/global/css/components.min.css") }}" rel="stylesheet" id="style_components" type="text/css" />
+        <link href="{{ assets.url("assets://metronic/assets/global/css/plugins.min.css") }}" rel="stylesheet" type="text/css" />
+        <!-- END THEME GLOBAL STYLES -->
+
+        <!-- BEGIN THEME LAYOUT STYLES -->
+        <link href="{{ assets.url("assets://metronic/assets/layouts/layout4/css/layout.min.css") }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://metronic/assets/layouts/layout4/css/themes/default.min.css") }}" rel="stylesheet" type="text/css" id="style_color" />
+        <link href="{{ assets.url("assets://metronic/assets/layouts/layout4/css/custom.min.css") }}" rel="stylesheet" type="text/css" />
+        <!-- END THEME LAYOUT STYLES -->
+
+        <!-- Page stylesheets -->
+        <link rel="stylesheet" href="{{ assets.url("assets://css/heatmap/leaflet.css") }}" type="text/css" >
+        <link rel="stylesheet" href="{{ assets.url("assets://css/heatmap/leaflet.awesome-markers.css") }}" type="text/css" >
+        <link rel="stylesheet" href="{{ assets.url("assets://css/bootstrap-slider.min.css") }}" type="text/css" >
+
+        <!-- Theme stylesheet -->
+        <link rel="stylesheet" href='{{ assets.url("assets://css/theme.css") }}' type="text/css" >
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <!-- Load the qq template for uploading files -->
+        {% include 'pages/layouts/components/qq-template.html.twig' %}
+
+        <!-- Header javascript (not recommended) -->
+        
+
+    </head>
+    {% endblock %}
+
+    <body class="page-container-bg-solid page-header-fixed">
+
+        {% include 'pages/layouts/components/nav-account.html.twig' %}
+
+        <!-- BEGIN HEADER & CONTENT DIVIDER -->
+        <div class="clearfix"> </div>
+        <!-- END HEADER & CONTENT DIVIDER -->
+        <!-- BEGIN PAGE CONTAINER -->
+        <div class="page-container">
+
+        {% include 'pages/layouts/components/sidebar.html.twig' %}
+
+        <div id="page-wrapper">
+            <!-- BEGIN PAGE CONTENT -->
+            <div class="page-content-wrapper">
+                <!-- BEGIN CONTENT BODY -->
+                {% if checkAccess('uri_dashboard') == true %}
+                <div class="page-content">
+                {% else %}
+                <div class="page-content" style="margin:0px;">
+                {% endif %}
+                {% block content %}{% endblock %}
+                </div>
+                <!-- END CONTENT BODY -->
+            </div>
+            <!-- END PAGE CONTENT -->
+            <!-- BEGIN PRINT FOOTER -->
+            <div class="visible-print-block">
+                website: http://www.elephantwifi.co.uk<br>
+                email address: support@elephantwifi.co.uk<br>
+                report time: {{ date().format('j F, Y, G:i (T)') }}<br>
+                <br>
+                <br>
+            </div>
+            <!-- END PRINT FOOTER -->
+            <!-- BEGIN FOOTER -->
+            <div class="page-footer">
+                <div class="page-footer-inner col-xs-12 text-center">
+                    Copyright © <a href="http://elephantwifi.co.uk/" title="ElephantWiFi" target="_blank">ElephantWiFi</a>, {{ "now"|date("Y") }} All Rights Reserved
+                </div>
+                <div class="scroll-to-top">
+                    <i class="icon-arrow-up"></i>
+                </div>
+            </div>
+            <div id="pdf_report_container" hidden></div>
+            <!-- END FOOTER -->
+        </div>
+        <!-- END PAGE CONTAINER -->
+
+        {# This block is for dynamic fragments of code that lie outside of the main DOM #}
+        {% block fragments %}{% endblock %}
+
+        <!-- Javascript configuration -->
+        <script>
+        {% include "pages/partials/config.js.twig" %}
+        </script>
+
+        <!-- BEGIN FULLCALENDAR SCRIPTS -->
+        <script src='{{ assets.url("assets://metronic/assets/global/plugins/fullcalendar-4.2.0/packages/core/main.js") }}'></script>
+        <script src='{{ assets.url("assets://metronic/assets/global/plugins/fullcalendar-4.2.0/packages/daygrid/main.js") }}'></script>
+        <!-- END FULLCALENDAR SCRIPTS -->
+
+        <!-- BEGIN CORE PLUGINS -->
+        <script src="{{ assets.url("assets://metronic/assets/global/plugins/jquery.min.js") }}" type="text/javascript"></script>
+        <script src="{{ assets.url("assets://metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js") }}" type="text/javascript"></script>
+        <script src="{{ assets.url("assets://metronic/assets/global/plugins/js.cookie.min.js") }}" type="text/javascript"></script>
+        <script src="{{ assets.url("assets://metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js") }}" type="text/javascript"></script>
+        <script src="{{ assets.url("assets://metronic/assets/global/plugins/bootstrap-toastr/toastr.min.js") }}" type="text/javascript"></script>
+
+        <script src="{{ assets.url("assets://js/bootstrap-switch.js") }}" ></script>
+        <script src="{{ assets.url("assets://js/select2/select2.min.js") }}" ></script>
+        <script src="{{ assets.url("assets://js/bootstrapradio.js") }}" ></script>
+        <!-- END CORE PLUGINS -->
+
+        <script src='{{ assets.url("assets://js/jqueryValidation/jquery.validate.js") }}' ></script>
+        <script src='{{ assets.url("assets://js/jqueryValidation/additional-methods.js") }}' ></script>
+        <script src='{{ assets.url("assets://js/jqueryValidation/jqueryvalidation-methods-fortress.js") }}' ></script>
+
+        <script src='{{ assets.url("assets://js/tablesorter/jquery.tablesorter.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/tablesorter/tables.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/tablesorter/jquery.tablesorter.pager.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/tablesorter/jquery.tablesorter.widgets.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/tablesorter/widgets/widget-sort2Hash.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/bootstrap-tour.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/datatables/datatables.bundled.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/Highcharts-5.0.7/js/highcharts.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/highcharts-export-csv/export-csv.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/lodash.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/fine-uploader/fine-uploader.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/bootstrap-colorpicker/bootstrap-colorpicker.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/sankey/d3.v3.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/sankey/sankeyv4.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/sankey/colorbrewer.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/heatmap/leaflet.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/heatmap/heatmap.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/heatmap/plugins/leaflet-heatmap.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/heatmap/leaflet.awesome-markers.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/heatmap/TileLayer.Grayscale.js") }}' type="text/javascript"></script>
+        <script src='https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key=3JBfx6nBerTYuuOP97zt1izn4N8evLct' type="text/javascript"></script>
+
+        <script src='{{ assets.url("assets://js/moment/moment-with-locales.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/moment/moment-timezone-with-data-2010-2020.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://js/moment/moment-duration-format.js") }}' type="text/javascript"></script>
+
+        <!-- BEGIN PAGE LEVEL PLUGINS -->
+        <script src='{{ assets.url("assets://metronic/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js") }}' type="text/javascript"></script>
+        <!-- END PAGE LEVEL PLUGINS -->
+
+        <!-- BEGIN THEME GLOBAL SCRIPTS -->
+        <script src='{{ assets.url("assets://metronic/assets/global/scripts/app.js") }}' type="text/javascript"></script>
+        <!-- END THEME GLOBAL SCRIPTS -->
+
+        <!-- BEGIN PAGE LEVEL SCRIPTS -->
+        <script src='{{ assets.url("assets://js/jqueryValidation/jquery.validate.js") }}'></script>
+        <script src='{{ assets.url("assets://js/jqueryValidation/additional-methods.js") }}'></script>
+        <script src='{{ assets.url("assets://js/jqueryValidation/jqueryvalidation-methods-fortress.js") }}'></script>
+        <!-- END PAGE LEVEL SCRIPTS -->
+
+        <!-- BEGIN THEME LAYOUT SCRIPTS -->
+        <script src='{{ assets.url("assets://metronic/assets/layouts/layout4/scripts/layout.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://metronic/assets/layouts/global/scripts/quick-sidebar.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://metronic/assets/layouts/global/scripts/quick-nav.min.js") }}' type="text/javascript"></script>
+        <!-- END THEME LAYOUT SCRIPTS -->
+
+        <script type="text/javascript">
+        if (typeof toastr !== "undefined") {
+
+            /**
+             * here we define the default options for the toastr messages
+             */
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "positionClass": "toast-bottom-right",
+                "onclick": null,
+                "showDuration": "1000",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut",
+                "preventDuplicates": true
+            }
+
+            {% for alert in page.alerts %}
+                /**
+                 * here we cycle through any alerts we may have and create a toastr message for each
+                 */
+                var alert_type = '{{alert.type}}';
+                var alert_message = '{{alert.message}}';
+
+                if (alert_type == 'success'){
+                    toastr['success'](alert_message);
+                } else if (alert_type == 'warning'){
+                    toastr['warning'](alert_message);
+                } else  if (alert_type == 'info'){
+                    toastr['info'](alert_message);
+                } else if (alert_type == 'danger'){
+                    toastr['error'](alert_message);
+                }
+            {% endfor %}
+        }
+        </script>
+
+        <script type="text/javascript">
+            var wifi_menu = $('#wifi_platform_menu').children('.nav-item');
+            var geo_sense_menu = $('#geo_sense_menu').children('.nav-item');
+            var enviro_menu = $('#enviro_menu').children('.nav-item');
+            var retail_menu = $('#retail_menu').children('.nav-item');
+            var intelli_sense_menu = $('#intelli_sense_menu').children('.nav-item');
+            var management_menu = $('#management_menu').children('.nav-item');
+
+            // geo_sense_menu.hide();
+            // $('#geo_sense_menu').children('.heading').hide();
+
+            intelli_sense_menu.hide();
+            $('#intelli_sense_menu').children('.heading').hide();
+
+            $('#wifi_platform_header').click(function(e) {
+                if (wifi_menu.is(':visible') === true) {
+                    wifi_menu.hide();
+                    $('#wifi_platform_menu').children('.heading').hide();
+                } else {
+                    wifi_menu.show();
+                    $('#wifi_platform_menu').children('.heading').show();
+                }
+            });
+
+            $('#geo_sense_header').click(function(e) {
+                if (geo_sense_menu.is(':visible') === true) {
+                    geo_sense_menu.hide();
+                    $('#geo_sense_menu').children('.heading').hide();
+                } else {
+                    geo_sense_menu.show();
+                    $('#geo_sense_menu').children('.heading').show();
+                }
+            });
+
+            $('#enviro_header').click(function(e) {
+                if (enviro_menu.is(':visible') === true) {
+                    enviro_menu.hide();
+                    $('#enviro_menu').children('.heading').hide();
+                } else {
+                    enviro_menu.show();
+                    $('#enviro_menu').children('.heading').show();
+                }
+            });
+
+            $('#retail_header').click(function(e) {
+                if (retail_menu.is(':visible') === true) {
+                    retail_menu.hide();
+                    $('#retail_menu').children('.heading').hide();
+                } else {
+                    retail_menu.show();
+                    $('#retail_menu').children('.heading').show();
+                }
+            });
+
+            $('#intelli_sense_header').click(function(e) {
+                if (intelli_sense_menu.is(':visible') === true) {
+                    intelli_sense_menu.hide();
+                    $('#intelli_sense_menu').children('.heading').hide();
+                } else {
+                    intelli_sense_menu.show();
+                    $('#intelli_sense_menu').children('.heading').show();
+                }
+            });
+
+            $('#management_header').click(function(e) {
+                if (management_menu.is(':visible') === true) {
+                    management_menu.hide();
+                    $('#management_menu').children('.heading').hide();
+                } else {
+                    management_menu.show();
+                    $('#management_menu').children('.heading').show();
+                }
+            });
+
+            var device_width = document.body.clientWidth;
+            if (device_width < 1000) {
+                $('.page-sidebar-wrapper').removeClass('absoluteClass');
+                $('.page-sidebar').css('float: left');
+            }
+            else {
+                $('.page-sidebar-wrapper').addClass('absoluteClass');
+                $('.page-sidebar').css('float: none');
+            };
+
+            $(window).on('resize', function() {
+                if(device_width < 1000) {
+                    $('.page-sidebar-wrapper').removeClass('absoluteClass');
+                    $('.page-sidebar').css('float: left');
+                }
+                else {
+                    $('.page-sidebar-wrapper').addClass('absoluteClass');
+                    $('.page-sidebar').css('float: none');
+                }
+            });
+        </script>
+
+        <script src='{{ assets.url("assets://js/artofwifi.js") }}' type="text/javascript"></script>
+
+        {# Handlebars template for uf-alerts. #}
+        {% block uf_alerts_template %}
+            {% include "pages/partials/alerts.html.twig" %}
+        {% endblock %}
+
+        <script src="{{ assets.url("assets://vendor/handlebars/dist/handlebars.js") }}"></script>
+        <script src='{{ assets.url("assets://vendor/jquery-slimscroll/jquery.slimscroll.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://vendor/icheck/icheck.min.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://vendor/fastclick/lib/fastclick.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://vendor/select2/dist/js/select2.full.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://vendor/clipboard/dist/clipboard.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/attrchange.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/AdminLTE.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/AdminLTE-custom.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/fortress-jqueryvalidation-methods.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-jqueryvalidation-config.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-alerts.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-form.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-modal.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-copy.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-init.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-table.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/uf-tablesorter-parsers.js") }}' type="text/javascript"></script>
+        <script src='{{ assets.url("assets://userfrosting/js/query-string.js") }}' type="text/javascript"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.0/jspdf.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/rasterizehtml/1.3.0/rasterizeHTML.allinone.js"></script>
+        <script type="text/javascript" src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+        {# This block allows you to create page-specific Javascript in a child template #}
+        {% block page_scripts %}{% endblock %}
+    </body>
+</html>
+{% endblock %}

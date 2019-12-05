@@ -1,0 +1,73 @@
+{#
+TODO:
+- add errors placeholder div to page
+- add csrf token to page in head
+- break these twig templates down into head/body/footer
+- add page category
+- define default (base) css and js files to be included for this category
+#}
+{# This is the base layout template for "captive portal" style pages (basically, these are all unauthenticated pages). #}
+{# Default page properties.  You can override these in your child templates. #}
+{% set page = page | default({}) | merge({
+    "title" : "Captive Portal",
+    "description" : "Captive portal page",
+    "author" : site.author,
+    "alerts" : getAlerts()
+}) %}
+{% set page_group = "captive_portal" %}
+{% block page %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    {% block head %}
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+{# this defines the default zoom level; we also wish to prevent users from (accidentally) zooming in or out #}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="{{csrf_key}}" content="{{csrf_token}}">
+        <meta name="description" content="{{page.description}}">
+{# NOTE: place fontawesome above bootstrap to avoid alignment issues #}
+        <!-- Page stylesheets -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://css/bootstrap-3.3.6.min.css") }}" rel="stylesheet" type="text/css">
+        <link href="{{ assets.url("assets://css/bootstrap-social.css") }}" rel="stylesheet" type="text/css">
+        <link href="{{ assets.url("assets://css/captive-portal.css") }}" rel="stylesheet" type="text/css">
+        <link href="{{site.uri.public}}/captive_portal/css/{{unifi_venue.id}}/venue-custom.css" rel="stylesheet" type="text/css">
+        <title>{{unifi_venue.text_labels.page_title}}</title>
+
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-80178753-3"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'UA-80178753-3');
+        </script>
+    </head>
+    {% endblock %}
+    <br>
+    {% block content %}
+    {% endblock %}
+{# This block is for dynamic fragments of code that lie outside of the main DOM #}
+    {% block fragments %}
+    {% endblock %}
+    <script>
+        {% include "pages/partials/config.js.twig" %}
+    </script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{{ assets.url("assets://js/jquery-2.2.1.min.js") }}"></script>
+    <script src="{{ assets.url("assets://js/bootstrap-3.3.6.min.js") }}"></script>
+    <script src="{{ assets.url("assets://js/jqueryValidation/jquery.validate.js") }}" ></script>
+    <script src="{{ assets.url("assets://js/jqueryValidation/additional-methods.js") }}" ></script>
+    <script src="{{ assets.url("assets://js/jqueryValidation/jqueryvalidation-methods-fortress.js") }}" ></script>
+    <script src="{{ assets.url("assets://js/moment/moment-2.11.2.min.js") }}" ></script>
+    <script src="{{ assets.url("assets://js/moment/moment-timezone-with-data-2010-2020-0.5.1.min.js") }}" ></script>
+    <script src="{{ assets.url("assets://js/captive-portal.js") }}"></script>
+
+    <!-- ufform script -->
+    {{ assets.js('js/main') | raw }}
+{# This block allows you to create page-specific Javascript in a child template #}
+    {% block page_scripts %}
+    {% endblock %}
+</body>
+</html>
+{% endblock %}

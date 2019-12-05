@@ -1,0 +1,596 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Custom Styling",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Manage custom styling of the captive portal</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form" id="form_portlet_body">
+                <div class="row">
+                    <div class="col-md-12 col-lg-7">
+                        <br>
+                        {# available main variables: unifi_venue #}
+                        <form class="form-horizontal" id="update_captive_portal_css" action="{{site.uri.public}}/admin/elephantwifi/captive_portal/custom_css/u" method="post">
+                            {% include "forms/csrf.html.twig" %}
+                            <div id="{{alerts_id | default('update_captive_portal_form-alerts')}}">
+                            </div>
+
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingOne">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                <span class="caption-subject font-blue-sharp bold">General Styling Attributes:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_panel_bg_color" class="col-sm-4 control-label">Panel background color
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div id="input_group_panel_bg_color" class="input-group colorpicker-component">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Panel background color for the captive portal pages, hex values only"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="7" id="update_captive_portal_panel_bg_color" name="panel_bg_color" placeholder="Panel background color"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.panel_bg_color}}">
+                                                        <span class="input-group-addon color-picker-span"><i style="background:#337AB7"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_text_color" class="col-sm-4 control-label">Panel text color
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div id="input_group_panel_text_color" class="input-group colorpicker-component">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Panel text color for the captive portal pages, hex values only"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="7" id="update_captive_portal_text_color" name="text_color" placeholder="Panel text color"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.text_color}}">
+                                                        <span class="input-group-addon color-picker-span"><i style="background:#337AB7"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_text_color" class="col-sm-4 control-label">Hyperlink color
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div id="input_group_panel_hyperlink_color" class="input-group colorpicker-component">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Hyperlink color for the captive portal pages, hex values only"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="7" id="update_captive_portal_text_color" name="hyperlink_color" placeholder="Hyperlink color"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.hyperlink_color}}">
+                                                        <span class="input-group-addon color-picker-span"><i style="background:#337AB7"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_panel_header_bg_color" class="col-sm-4 control-label">Panel header background color
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div id="input_group_panel_header_bg_color" class="input-group colorpicker-component">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Panel header background color for the captive portal pages, hex values only"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="7" id="update_captive_portal_panel_header_bg_color" name="panel_header_bg_color" placeholder="Panel header background color"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.panel_header_bg_color}}">
+                                                        <span class="input-group-addon color-picker-span"><i style="background:#337AB7"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_panel_border_color" class="col-sm-4 control-label">Panel border color
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div id="input_group_panel_border_color" class="input-group colorpicker-component">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Panel border color for the captive portal pages, hex values only"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control" maxlength="7" id="update_captive_portal_panel_border_color" name="panel_border_color" placeholder="Panel border color"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.panel_border_color}}">
+                                                        <span class="input-group-addon color-picker-span"><i style="background:#337AB7"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_border_radius" class="col-sm-4 control-label">Border radius
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Border radius (in px) for all elements on the captive portal pages except buttons"></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="2" id="update_captive_portal_border_radius" name="border_radius" placeholder="Border radius"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.border_radius}}">
+                                                        <span class="input-group-addon">px</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="update_captive_portal_button_radius" class="col-sm-4 control-label">Button radius
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Border radius (in px) for all buttons on the captive portal pages"></i>
+                                                        </span>
+                                                        <input type="number" class="form-control" maxlength="2" id="update_captive_portal_button_radius" name="button_radius" placeholder="Button radius"
+                                                            value="{{unifi_venue.venue_wifi.custom_css.button_radius}}">
+                                                        <span class="input-group-addon">px</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingTwo">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                <span class="caption-subject font-blue-sharp bold">Custom Logo image:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                        <div class="panel-body">
+                                            <div class="note note-info">
+                                                <h4>Logo image file must be:</h4>
+                                                <ul>
+                                                    <li>between 100 and 800 pixels wide</li>
+                                                    <li>between 20 and 500 pixels high</li>
+                                                    <li>PNG or JPEG format</li>
+                                                    <li>maximum size is {{(logo_upload_size_limit/1000) | raw | number_format}}KBytes</li>
+                                                </ul>
+                                            </div>
+                                            <div id="fineuploader-logo-container"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingThree">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                <span class="caption-subject font-blue-sharp bold">Custom Background image:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                                        <div class="panel-body">
+                                            <div class="note note-info">
+                                                <h4>Background image file must be:</h4>
+                                                <ul>
+                                                    <li>between 1 and 2000 pixels wide</li>
+                                                    <li>between 1 and 1000 pixels high</li>
+                                                    <li>PNG or JPEG format</li>
+                                                    <li>maximum size is {{(background_upload_size_limit/1000) | raw | number_format}}KBytes</li>
+                                                </ul>
+                                            </div>
+                                            <div id="fineuploader-background-container"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="headingFour">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                                <span class="caption-subject font-blue-sharp bold">Custom CSS:</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                        <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                                        <div class="panel-body">
+                                            <div class="note note-danger">
+                                                <h4>Use at your own risk!</h4>
+                                                Please take great care when modifying the Custom CSS here. This ability does however offer great flexibility if you have the right level of CSS skills. For example, with the right skills level you are able to create your own custom button classes.
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            <i class="fas fa-question-circle fa-fw fa-lg" data-toggle="tooltip" data-placement="top"
+                                                                title="Custom CSS definitions for the captive portal. NOTE: CSS syntax will not be validated!"></i>
+                                                        </span>
+                                                        <textarea class="form-control" rows="20" maxlength="1000" id="update_venue_styling_css" name="css"
+                                                            placeholder="Custom CSS definitions for the captive portal. Only for expert users: the CSS syntax will not be validated!">{{unifi_venue.venue_wifi.custom_css.css}}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button type='submit' id="cssSubmit" name="cssSubmit" class="btn blue pull-right"><i class="fas fa-cloud-upload-alt fa-lg"></i> Update custom styling</button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="update_venue_id" name="venue_id" value="{{unifi_venue.id}}">
+                            <input type="hidden" id="venue_captive_portal_css_id" name="venue_captive_portal_css_id" value="{{unifi_venue.venue_wifi.custom_css.id}}">
+                        </form>
+                    </div>
+                    {# here we conditionally display the preview when the captive portal has been enabled. when we add more captive portal versions adapt this section #}
+                    {% if unifi_venue.venue_wifi.captive_portal == 'free' %}
+                    <div class="col-md-6 col-lg-5">
+                        <br>
+                        <span class="caption-subject font-blue-sharp bold">Mobile device preview:</span>
+                        <span id="open_preview" class="clickable">
+                            &nbsp;<i class="fas fa-external-link-alt" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Or open the splash page preview in a new browser window. You will need to refresh the new window after applying any changes here."></i>
+                        </span>
+                        <br><br>
+                        <div class="iframe-wrapper">
+                            <!-- <iframe id="splash_iframe" src="{{site.uri.public}}/elephantwifi/captive_portal/preview/splash" height="548" width="100%" frameborder="0"></iframe> -->
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+$(document).ready(function() {
+    /**
+     * Load the validator rules for the form in the modal
+     */
+    var validators = {{validators | raw}};
+
+    /**
+     * initialise the color picker
+     * first we define the general options
+     */
+    $(function() {
+        var color_picker_options = {
+            component: '.color-picker-span',
+            format: 'hex'
+        };
+
+        $('#input_group_panel_bg_color').colorpicker(color_picker_options);
+        $('#input_group_panel_text_color').colorpicker(color_picker_options);
+        $('#input_group_panel_hyperlink_color').colorpicker(color_picker_options);
+        $('#input_group_panel_header_bg_color').colorpicker(color_picker_options);
+        $('#input_group_panel_border_color').colorpicker(color_picker_options);
+    });
+
+    /**
+     * Assign values to the variables we will need later on
+     */
+    var existing_logo_files = {{existing_logo_files_json | raw}};
+    var existing_background_files = {{existing_background_files_json | raw}};
+    var logo_upload_size_limit = {{logo_upload_size_limit | raw}};
+    var background_upload_size_limit = {{background_upload_size_limit | raw}};
+
+    var params = {};
+
+    params[site.csrf.keys.name] = site.csrf.name;
+    params[site.csrf.keys.value] = site.csrf.value;
+
+    /**
+     * configuration of the Fine Uploader library for the logo upload zone
+     */
+    var logoUploader = new qq.FineUploader({
+        element:  document.getElementById('fineuploader-logo-container'),
+        template: 'qq-simple-thumbnails-template-logo',
+        multiple: false,
+        request: {
+            endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/post/logo/{{unifi_venue.id}}',
+            params: params
+        },
+        deleteFile: {
+            enabled:   true,
+            method:   'POST', // IMPORTANT: allows us to submit the CSRF token as required by Slim framework
+            endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/delete/logo/{{unifi_venue.id}}',
+            params: params
+        },
+        chunking: {
+            enabled: false
+        },
+        resume: {
+            enabled: false
+        },
+        retry: {
+            enableAuto: false,
+            showButton: true
+        },
+        callbacks: {
+            onError: function(id, name, errorReason, xhrOrXdr) {
+                $('#logo_upload_feedback_message').html('Upload failed: ' + errorReason);
+            },
+            onComplete: function(id, name, responseJSON, xhr) {
+                if (responseJSON.success) {
+                    $('#logo_upload_feedback_message').html('Upload successful');
+                    $('#logo_dropzone_div').hide();
+                    $('#logo_upload_button_div').hide();
+                    $('#splash_iframe')[0].contentWindow.location.reload(true);
+                }
+            },
+            onDeleteComplete: function(id, xhr, isError) {
+                if (isError == false) {
+                    $('#logo_dropzone_div').show();
+                    $('#logo_upload_button_div').show();
+                    $('#splash_iframe')[0].contentWindow.location.reload(true);
+                    existing_logo_files = [];
+                    logoUploader.addInitialFiles(existing_logo_files);
+                }
+            }
+        },
+        validation: {
+            allowedExtensions: ['jpeg', 'jpg', 'png'],
+            acceptFiles:       'image/jpeg, image/png',
+            sizeLimit:         {{logo_upload_size_limit | raw}},
+            itemLimit:         1,
+            image:             {
+                minHeight: 20,
+                minWidth: 100,
+                maxHeight:500,
+                maxWidth: 800
+            }
+        },
+    });
+
+    if (existing_logo_files.length > 0) {
+        $('#logo_dropzone_div').hide();
+        $('#logo_upload_button_div').hide();
+    }
+
+    /**
+     * inform the uploader instance of any existing files we might wish to display
+     */
+    logoUploader.addInitialFiles(existing_logo_files);
+
+    /**
+     * configuration of the Fine Uploader library for the background image upload zone
+     */
+    var BackgroundUploader = new qq.FineUploader({
+        element:  document.getElementById('fineuploader-background-container'),
+        template: 'qq-simple-thumbnails-template-background',
+        multiple: false,
+        request: {
+            endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/post/background/{{unifi_venue.id}}',
+            params: params
+        },
+        deleteFile: {
+            enabled:  true,
+            method:   'POST', // IMPORTANT: allows us to submit the CSRF token as required by Slim framework
+            endpoint: '{{site.uri.public}}/admin/elephantwifi/captive_portal/file_upload/delete/background/{{unifi_venue.id}}',
+            params: params
+        },
+        chunking: {
+            enabled: false
+        },
+        resume: {
+            enabled: false
+        },
+        retry: {
+            enableAuto: false,
+            showButton: true
+        },
+        callbacks: {
+            onError: function(id, name, errorReason, xhrOrXdr) {
+                $('#background_upload_feedback_message').html('Upload failed: ' + errorReason);
+            },
+            onComplete: function(id, name, responseJSON, xhr) {
+                if (responseJSON.success) {
+                    $('#background_upload_feedback_message').html('Upload successful');
+                    $('#background_dropzone_div').hide();
+                    $('#background_upload_button_div').hide();
+                    $('#splash_iframe')[0].contentWindow.location.reload(true);
+                }
+            },
+            onDeleteComplete: function(id, xhr, isError) {
+                if (isError == false) {
+                    $('#background_dropzone_div').show();
+                    $('#background_upload_button_div').show();
+                    $('#splash_iframe')[0].contentWindow.location.reload(true);
+                    existing_background_files = [];
+                    logoUploader.addInitialFiles(existing_background_files);
+                }
+            }
+        },
+        validation: {
+            allowedExtensions: ['jpeg', 'jpg', 'png'],
+            acceptFiles:       'image/jpeg, image/png',
+            sizeLimit:         {{background_upload_size_limit | raw}},
+            itemLimit:         1,
+            image:             {
+                minHeight: 1,
+                minWidth: 1,
+                maxHeight: 1000,
+                maxWidth: 2000
+            }
+        },
+    });
+
+    if (existing_background_files.length > 0) {
+        $('#background_dropzone_div').hide();
+        $('#background_upload_button_div').hide();
+    }
+
+    /**
+     * inform the uploader instance of any existing files we might wish to display
+     */
+    BackgroundUploader.addInitialFiles(existing_background_files);
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data:
+     * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+     */
+    $('#update_captive_portal_css').ufForm({
+        validator: validators,
+        msgTarget: $("#update_captive_portal_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    /**
+     * open the splash page in a new window
+     */
+    $('#open_preview').click(function(e) {
+        e.preventDefault();
+        window.open(site.uri.public + '/elephantwifi/captive_portal/preview/splash');
+        return false;
+    });
+});
+</script>
+<script type="text/template" id="qq-simple-thumbnails-template-logo">
+    <div class="qq-uploader-selector qq-uploader" qq-drop-area-text="Drop logo file here">
+        <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
+            <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
+        </div>
+        <div id="logo_dropzone_div" class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+            <span class="qq-upload-drop-area-text-selector"></span>
+        </div>
+        <div id="logo_upload_button_div" class="qq-upload-button-selector btn blue">
+            <div><i class="fas fa-cloud-upload-alt fa-fw" aria-hidden="true"></i> Upload a file</div>
+        </div>
+        <span class="qq-drop-processing-selector qq-drop-processing">
+            <span>Processing dropped files...</span>
+            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+        </span>
+        <ul class="qq-upload-list-selector qq-upload-list" aria-live="polite" aria-relevant="additions removals">
+            <li>
+                <div class="qq-progress-bar-container-selector">
+                    <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
+                </div>
+                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                <img class="qq-thumbnail-selector" qq-max-size="200" qq-server-scale>
+                <span class="qq-upload-file-selector qq-upload-file"></span>
+                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon" aria-label="Edit filename"></span>
+                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                <span class="qq-upload-size-selector qq-upload-size"></span>
+                <br>
+                <button type="button" class="qq-upload-cancel-selector btn red"><i class="fas fa-ban" aria-hidden="true"></i> Cancel</button>
+                <button type="button" class="qq-upload-delete-selector btn red"><i class="fas fa-trash fa-fw" aria-hidden="true"></i> Delete</button>
+                <button type="button" class="qq-upload-retry-selector btn blue"><i class="fas fa-sync fa-fw" aria-hidden="true"></i> Retry</button>
+                <span id="logo_upload_feedback_message" class="qq-upload-status-text"></span>
+            </li>
+        </ul>
+
+        <dialog class="qq-alert-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">Close</button>
+            </div>
+        </dialog>
+
+        <dialog class="qq-confirm-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">No</button>
+                <button type="button" class="qq-ok-button-selector">Yes</button>
+            </div>
+        </dialog>
+
+        <dialog class="qq-prompt-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <input type="text">
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">Cancel</button>
+                <button type="button" class="qq-ok-button-selector">Ok</button>
+            </div>
+        </dialog>
+    </div>
+</script>
+<script type="text/template" id="qq-simple-thumbnails-template-background">
+    <div class="qq-uploader-selector qq-uploader" qq-drop-area-text="Drop background file here">
+        <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
+            <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-total-progress-bar-selector qq-progress-bar qq-total-progress-bar"></div>
+        </div>
+        <div id="background_dropzone_div" class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+            <span class="qq-upload-drop-area-text-selector"></span>
+        </div>
+        <div id="background_upload_button_div" class="qq-upload-button-selector btn blue">
+            <div><i class="fas fa-cloud-upload-alt fa-fw" aria-hidden="true"></i> Upload a file</div>
+        </div>
+        <span class="qq-drop-processing-selector qq-drop-processing">
+            <span>Processing dropped files...</span>
+            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+        </span>
+        <ul class="qq-upload-list-selector qq-upload-list" aria-live="polite" aria-relevant="additions removals">
+            <li>
+                <div class="qq-progress-bar-container-selector">
+                    <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
+                </div>
+                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                <img class="qq-thumbnail-selector" qq-max-size="200" qq-server-scale>
+                <span class="qq-upload-file-selector qq-upload-file"></span>
+                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon" aria-label="Edit filename"></span>
+                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                <span class="qq-upload-size-selector qq-upload-size"></span>
+                <br>
+                <button type="button" class="qq-upload-cancel-selector btn red"><i class="fas fa-ban" aria-hidden="true"></i> Cancel</button>
+                <button type="button" class="qq-upload-delete-selector btn red"><i class="fas fa-trash fa-fw" aria-hidden="true"></i> Delete</button>
+                <button type="button" class="qq-upload-retry-selector btn blue"><i class="fas fa-refresh fa-fw" aria-hidden="true"></i> Retry</button>
+                <span id="background_upload_feedback_message" class="qq-upload-status-text"></span>
+            </li>
+        </ul>
+
+        <dialog class="qq-alert-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">Close</button>
+            </div>
+        </dialog>
+
+        <dialog class="qq-confirm-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">No</button>
+                <button type="button" class="qq-ok-button-selector">Yes</button>
+            </div>
+        </dialog>
+
+        <dialog class="qq-prompt-dialog-selector">
+            <div class="qq-dialog-message-selector"></div>
+            <input type="text">
+            <div class="qq-dialog-buttons">
+                <button type="button" class="qq-cancel-button-selector">Cancel</button>
+                <button type="button" class="qq-ok-button-selector">Ok</button>
+            </div>
+        </dialog>
+    </div>
+</script>
+{% endblock %}

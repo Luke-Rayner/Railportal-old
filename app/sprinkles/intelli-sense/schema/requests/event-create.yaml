@@ -1,0 +1,67 @@
+---
+id: 
+  validators:
+    numeric:
+      message: "Invalid Number"
+name:
+  validators:
+    length:
+      label: "&NAME"
+      min: 2
+      max: 30
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&NAME"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+notes:
+  validators:
+    length:
+      label: "&NOTES"
+      min: 1
+      max: 2500
+      message: VALIDATE.LENGTH_RANGE
+    required:
+      label: "&NOTES"
+      message: VALIDATE.REQUIRED
+event_category_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&EVENT_CATEGORY_ID"
+      message: VALIDATE.REQUIRED
+start_date:
+  validators:
+    required:
+      label: "&START_DATE"
+      message: VALIDATE.REQUIRED
+end_date:
+  validators:
+    required:
+      label: "&END_DATE"
+      message: VALIDATE.REQUIRED
+recurring:
+  validators:
+    numeric:
+      message: "Invalid Number"
+admin_event:
+  validators:
+    length:
+      label: "&ADMIN_EVENT"
+      max: 1
+      message: VALIDATE.LENGTH_RANGE
+    numeric:
+      message: "Invalid Number"
+admin_notes:
+  validators:
+    length:
+      label: "&ADMIN_NOTES"
+      min: 1
+      max: 2500
+      message: VALIDATE.LENGTH_RANGE

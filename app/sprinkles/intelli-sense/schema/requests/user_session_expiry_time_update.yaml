@@ -1,0 +1,13 @@
+---
+session_expiry_time:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&SESSION_EXPIRY_TIME"
+      message: VALIDATE.REQUIRED
+    length:
+      label: "&SESSION_EXPIRY_TIME"
+      min: 1
+      max: 5
+      message: VALIDATE.LENGTH_RANGE

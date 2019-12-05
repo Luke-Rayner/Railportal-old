@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+{% block page %}
+<html lang="en">
+    {% block head %}
+    <head>
+        <style>
+            .pdf-page-content {
+                padding: 40px;
+            }
+
+            .pdf-page-content p, .pdf-page-content li {
+                font-size: 22px;
+            }
+
+            .pdf-page-content .custom-row {
+                width: 1300px;
+            }
+
+            .pdf-page-content .header-line {
+                border: 6px solid #e15910; 
+                margin-bottom: 40px
+            }
+
+            .pdf-page-content .text-orange {
+                color: #ff5818;
+            }
+
+            .pdf-page-content .right {
+                float: right;
+            }
+
+            .pdf-page-content .left {
+                float:; left;
+            }
+
+            .pdf-page-content .header-container {
+                min-height: 100px;
+                margin-bottom: 20px;
+            }
+
+            .pdf-page-content .header {
+                font-size: 50px !important;
+                color: #ff5818;
+            }
+
+            .pdf-page-content .sub-header {
+                font-size: 30px !important;
+            }
+
+            .pdf-page-content .center {
+                text-align: center;
+            }
+
+            .pdf-page-content .chart-container {
+                display: inline-block; 
+                /*border: 2px solid #d3d3d3;*/
+            }
+
+            .pdf-page-content .chart-header {
+                height: 60px; 
+                border-bottom: 2px solid #d3d3d3;
+            }
+
+            .pdf-page-content .chart-header-text {
+                font-size: 30px; 
+                padding: 6px;
+            }
+
+            .pdf-page-content .full_width_chart {
+                width: 1300px; 
+                height: 400px; 
+                padding: 20px; 
+                color: black;
+            }
+
+            .pdf-page-content .half_width_chart {
+                width: 600px; 
+                height: 400px; 
+                padding: 20px; 
+                color: black;
+            }
+
+            .pdf-page-content .before {
+                page-break-before: always;
+            }
+
+            .pdf-page-content .after {
+                page-break-after: always;
+            }
+
+            .pdf-page-content .donut {
+                display: inline-block; 
+                padding: 20px; 
+            }
+
+            .pdf-page-content .dashboard-stat {
+                width: 600px;
+                height: 150px;
+                margin: 0px;
+            }
+
+            .pdf-page-content .dashboard-stat .visual > i {
+                line-height: 190px;
+            }
+
+            .pdf-page-content .donut-details {
+                padding-right: 15px;
+            }
+
+            .pdf-page-content .dashboard-stat.blue-soft .donut-details .number {
+                color: #FFF;
+            }
+
+            .pdf-page-content .dashboard-stat.yellow-gold .donut-details .number {
+                color: #FFF;
+            }
+
+            .pdf-page-content .dashboard-stat .donut-details .number {
+                font-size: 40px;
+            }
+
+            .pdf-page-content .dashboard-stat .donut-details .number {
+                padding-top: 25px;
+                text-align: right;
+                letter-spacing: -1px;
+                font-weight: 300;
+            }
+
+            .pdf-page-content .dashboard-stat .donut-details .desc {
+                text-align: right;
+                font-size: 22px;
+                letter-spacing: 0;
+                font-weight: 300;
+                color: #FFF;
+                opacity: 1;
+            }
+
+            .pdf-page-content .half-page {
+                display: inline-block;
+                width: 600px;
+            }
+
+            .pdf-page-content u {
+                text-decoration: none;
+                border-bottom: 2px solid #ff5818;
+            }
+
+            .pdf-page-content table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            .pdf-page-content table td, .pdf-page-content table th {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            .pdf-page-content table td {
+                font-size: 10px;
+            }
+
+            .pdf-page-content table tr:nth-child(even){background-color: #f2f2f2;}
+
+            .pdf-page-content table tr:hover {background-color: #ddd;}
+
+            .pdf-page-content table th {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: left;
+                background-color: #ff5818;
+                color: white;
+                font-size: 18px;
+            }
+        </style>
+    </head>
+    {% endblock %}
+
+    <body>
+        <div id="pdf_report_inner_container">
+            {% block content %}{% endblock %}
+        </div>
+
+        {% block page_scripts %}{% endblock %}
+    </body>
+</html>
+{% endblock %}

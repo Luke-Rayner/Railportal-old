@@ -1,0 +1,606 @@
+{% if checkAccess('uri_dashboard') == true %}
+<!-- BEGIN SIDEBAR WRAPPER -->
+<div class="page-sidebar-wrapper">
+    {% if current_user.primaryVenue.tracking_venue == 1 %}
+    {% if checkAccess('uri_tracking_dashboard') %}
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu" id="geo_sense_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="geo_sense_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/footprint-geo.png") }}" height="38px" width="32px" style="margin-top: 5px"/>
+                <img src="{{ assets.url("assets://images/header-geo.png") }}" height="45" width="140" style="margin-top: 2px; margin-left: 5px" class="wifi-logo-text"/>
+            </div>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/geo-sense/dashboard" class="nav-link ">
+                    <span><i class="fa fa-home"></i></span>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-chart-pie"></i></span>
+                    <span class="title">Charts & Reports</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/visitor_report" class="nav-link ">
+                            <span class="title">Visitor Report</span>
+                        </a>
+                    </li>
+
+                    {% if checkAccess('visitor_report_old') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/visitor_report_old" class="nav-link ">
+                            <span class="title">Visitor Report Old</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/zone_report" class="nav-link ">
+                            <span class="title">Zone Report</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/day_night_report" class="nav-link ">
+                            <span class="title">Day Night Report</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/visit_report" class="nav-link ">
+                            <span class="title">Visit Report</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/repeat_visitor_report" class="nav-link ">
+                            <span class="title">Repeat Visitor Report</span>
+                        </a>
+                    </li>
+
+                    {% if checkAccess('uri_venue_report') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/multi_venue_report" class="nav-link ">
+                            <span class="title">Multi Venue Report</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if checkAccess('uri_device_vendor_report') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/device_vendor_report/venue" class="nav-link ">
+                            <span class="title">Device Vendor Report</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if checkAccess('uri_event_info') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/event_info" class="nav-link ">
+                            <span class="title">Event Info</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if checkAccess('uri_comparison_report') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/national_stats_report" class="nav-link ">
+                            <span class="title">National Stats Report</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="nav-item ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="far fa-chart-bar"></i></span>
+                    <span class="title">Comparison Charts</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/comparison_charts/fixed" class="nav-link ">
+                            <span class="title">Fixed Dates</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/comparison_charts/custom" class="nav-link ">
+                            <span class="title">Custom Dates</span>
+                        </a>
+                    </li>
+                    {% if checkAccess('uri_site_admin') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/geo-sense/comparison_charts/customv2" class="nav-link ">
+                            <span class="title">Custom Dates v2</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/geo-sense/heat_map" class="nav-link ">
+                    <span><i class="fa fa-street-view"></i></span>
+                    <span class="title">Visitor Heatmap</span>
+                </a>
+            </li>
+
+            <!-- Only show journey report if the venue has more then 2 geo-sense zones -->
+            {% set zones_count = 0 %}
+            {% for zone in current_user.primaryVenue.zones %}
+                {% if zone.tracking_zone == 1 %}
+                    {% set zones_count = zones_count + 1 %}
+                {% endif %}
+            {% endfor %}
+
+            {% if zones_count > 1 %}
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/geo-sense/journeys_diagram" class="nav-link ">
+                    <span><i class="fas fa-chart-line"></i></i></span>
+                    <span class="title">Visitor Journeys</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if current_user.primaryVenue.wifi_venue == 1 %}
+    {% if checkAccess('uri_wifi_dashboard') %}
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu" id="wifi_platform_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="wifi_platform_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/WiFi-Logo-Image.png") }}" height="38px" width="38px" style="margin-top: 5px"/>
+                <img src="{{ assets.url("assets://images/WiFi-Logo-Text.png") }}" height="38" width="150" style="margin-top: 7px; margin-left: 5px" class="wifi-logo-text"/>
+            </div>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/elephantwifi/dashboard" class="nav-link ">
+                    <span><i class="far fa-chart-bar"></i></span>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-chart-pie"></i></span>
+                    <span class="title">Charts & Reports</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/wifi-connection-report" class="nav-link ">
+                            <span class="title">WiFi Connection Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/internet-user-report" class="nav-link ">
+                            <span class="title">Internet User Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/location-report" class="nav-link ">
+                            <span class="title">Location Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/comparison-report" class="nav-link ">
+                            <span class="title">Comparison Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/network-report" class="nav-link ">
+                            <span class="title">Network Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/content-filter-report" class="nav-link ">
+                            <span class="title">Content Filter Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/list-of-visitors-report" class="nav-link ">
+                            <span class="title">Visitor Information</span>
+                        </a>
+                    </li>
+                    {% if checkAccess('uri_site_admin') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/users" class="nav-link ">
+                            <span class="title">WiFi Users</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/elephantwifi/wlan-reports/heatmap" class="nav-link ">
+                    <span><i class="fas fa-street-view"></i></span>
+                    <span class="title">User Heatmap</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if checkAccess('uri_retail_dashboard') %}
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu" id="retail_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="retail_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/Retail-Sense-Logo.png") }}" height="38px" width="38px" style="margin-top: 5px;"/>
+                <img src="{{ assets.url("assets://images/Retail-Sense-Text.png") }}" height="40" width="140" style="margin-left: 5px; margin-top: 5px;" class="wifi-logo-text"/>
+            </div>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/retail-sense/retail-report-summary" class="nav-link ">
+                    <span><i class="fas fa-shopping-cart"></i></span>
+                    <span class="title">Retail Report Summary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/retail-sense/food-stores-summary" class="nav-link ">
+                    <span><i class="fas fa-utensils"></i></span>
+                    <span class="title">Food Store Summary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/retail-sense/none-food-store-summary" class="nav-link ">
+                    <span><i class="fas fa-ban"></i></span>
+                    <span class="title">None Food Store Summary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-chart-line"></i></span>
+                    <span class="title">Detailed Retail Reports</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/retail-sense/detailed-report/clothing" class="nav-link ">
+                            <span class="title">Textile, Clothing and Footwear</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/retail-sense/detailed-report/household-goods" class="nav-link ">
+                            <span class="title">Household Goods</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/retail-sense/detailed-report/none-store" class="nav-link ">
+                            <span class="title">None Store</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/retail-sense/detailed-report/fuel" class="nav-link ">
+                            <span class="title">Fuel</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if checkAccess('uri_enviro_user') %}
+    {% if current_user.primaryVenue.enviro_venue == 1 %}
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu" id="enviro_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="enviro_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/Enviro-Sense-Logo.gif") }}" height="38px" width="38px" style="margin-top: 5px;"/>
+                <img src="{{ assets.url("assets://images/Enviro-Sense-Text.gif") }}" height="35" width="140" style="margin-left: 5px;" class="wifi-logo-text"/>
+            </div>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/enviro-sense/venue-overview" class="nav-link ">
+                    <span><i class="fas fa-home"></i></span>
+                    <span class="title">Venue Summary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/enviro-sense/zone-overview" class="nav-link">
+                    <span><i class="fab fa-skyatlas"></i></span>
+                    <span class="title">Zone Overview</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/enviro-sense/detailed-report" class="nav-link">
+                    <span><i class="far fa-chart-bar"></i></span>
+                    <span class="title">Detailed Report</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/enviro-sense/aqi-report" class="nav-link">
+                    <span><i class="fas fa-chart-line"></i></span>
+                    <span class="title">Detailed AQI Report</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <div class="page-sidebar navbar-collapse collapse">
+        <!-- BEGIN SIDEBAR MENU -->
+        <ul class="page-sidebar-menu" id="enviro_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="management_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/cog-icon.png") }}" height="38px" width="38px" style="margin-top: 5px"/>
+                <img src="{{ assets.url("assets://images/Administration-Text.png") }}" height="38" width="150" style="margin-top: 7px; margin-left: 5px" class="wifi-logo-text"/>
+            </div>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/event-calendar" class="nav-link ">
+                    <span><i class="fas fa-calendar"></i></span>
+                    <span class="title">Event Calendar</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/pdf-report-generation" class="nav-link ">
+                    <span><i class="fas fa-download"></i></span>
+                    <span class="title">Geo-Sense PDF Report</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/message-center" class="nav-link ">
+                    <span><i class="fas fa-comments"></i></span>
+                    <span class="title">Message Center</span>
+                </a>
+            </li>
+        </ul>
+        <!-- END SIDEBAR MENU -->
+    </div>
+
+    {% if checkAccess('uri_site_admin') %}
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu" id="management_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="management_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/cog-icon.png") }}" height="38px" width="38px" style="margin-top: 5px"/>
+                <img src="{{ assets.url("assets://images/Configuration-Text.png") }}" height="38" width="150" style="margin-top: 7px; margin-left: 5px" class="wifi-logo-text"/>
+            </div>
+
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/admin/geo-sense/drones/summary" class="nav-link">
+                    <span><i class="fas fa-plane"></i></span>
+                    <span class="title">Drones Summary</span>
+                </a>
+            </li>
+            {% if checkAccess('uri_users') %}
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/users" class="nav-link">
+                    <span><i class="fas fa-users"></i></span>
+                    <span class="title">Manage Users</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="nav-item">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-globe-europe"></i></span>
+                    <span class="title">Venue Administration</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/zones" class="nav-link ">
+                            <span class="title">Zones</span>
+                        </a>
+                    </li>
+                    {% if current_user.primaryVenue.wifi_venue == 1 %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/access_points" class="nav-link ">
+                            <span class="title">Access Points</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.primaryVenue.tracking_venue == 1 %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/drones" class="nav-link ">
+                            <span class="title">Drones</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/drones/activity" class="nav-link ">
+                            <span class="title">Drone Activity History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/whitelist" class="nav-link ">
+                            <span class="title">Device Whitelist</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/events" class="nav-link ">
+                            <span class="title">Events</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-wrench"></i></span>
+                    <span class="title">Site Administration</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/venues" class="nav-link ">
+                            <span class="title">Venues</span>
+                        </a>
+                    </li>
+                    {% if current_user.primaryVenue.wifi_venue == 1 %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/controllers" class="nav-link ">
+                            <span class="title">Controllers</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/companies" class="nav-link ">
+                            <span class="title">Companies</span>
+                        </a>
+                    </li>
+                    {% if current_user.primaryVenue.wifi_venue == 1 %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/ips" class="nav-link ">
+                            <span class="title">IP Addresses</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/tags" class="nav-link ">
+                            <span class="title">Tags</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/nuts_classifications" class="nav-link ">
+                            <span class="title">NUTS Classifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/categories" class="nav-link ">
+                            <span class="title">Categories</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/zones_all" class="nav-link ">
+                            <span class="title">All Zones</span>
+                        </a>
+                    </li>
+                    {% if current_user.primaryVenue.tracking_venue == 1 %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/drones/all" class="nav-link ">
+                            <span class="title">All Drones</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/retail-sense/retail/upload" class="nav-link ">
+                            <span class="title">Retails Stats Upload</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/site_settings" class="nav-link ">
+                            <span class="title">Site Configuration</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            {% if current_user.primaryVenue.wifi_venue == 1 %}
+            <li class="nav-item  ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-envelope"></i></span>
+                    <span class="title">Marketing</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/marketing/list" class="nav-link ">
+                            <span class="title">Marketing Lists</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/marketing/list_type" class="nav-link ">
+                            <span class="title">Marketing List Types</span>
+                        </a>
+                    </li>                    
+                </ul>
+            </li>
+            {% endif %}
+
+            <!-- {% if current_user.primaryVenue.tracking_venue == 1 %}
+            <li class="nav-item  ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <i class="icon-equalizer"></i>
+                    <span class="title">Drone Calibration</span>
+                    <span class="arrow"></span>
+                </a>
+                <ul class="sub-menu">                  
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/calibration/devices" class="nav-link ">
+                            <span class="title">Calibration Devices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/calibration/perform" class="nav-link ">
+                            <span class="title">Perform Calibration</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/admin/geo-sense/calibration/maintenance" class="nav-link ">
+                            <span class="title">Calibration Maintenance</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% endif %} -->
+
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/admin/alert_notifications" class="nav-link ">
+                    <span><i class="fas fa-bell"></i></span>
+                    <span class="title">Alert Notifications</span>
+                </a>
+            </li>
+
+            <!-- <li class="nav-item">
+                <a href="{{site.uri.public}}/admin/venue_wizard" class="nav-link ">
+                    <i class="icon-users"></i>
+                    <span class="title">Venue Wizard</span>
+                </a>
+            </li> -->
+
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/admin/enviro-sense/enviro_sensors" class="nav-link">
+                    <span><i class="fab fa-skyatlas"></i></span>
+                    <span class="title">Enviro Sensors</span>
+                </a>
+            </li>
+
+            {% if current_user.primaryVenue.wifi_venue == 1 %}
+            {% if checkAccess('uri_captive_portal') %}
+            <li class="nav-item  ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-sign-in-alt"></i></span>
+                    <span class="title">Captive Portal</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item  ">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/captive_portal/settings" class="nav-link ">
+                            <span class="title">General Settings</span>
+                        </a>
+                    </li>
+                    {% if current_user.primaryVenue.venue_wifi.captive_portal == 'free' %}
+                    <li class="nav-item  ">
+                        <a href="{{site.uriŒ.public}}/admin/elephantwifi/captive_portal/text_labels" class="nav-link ">
+                            <span class="title">Text Labels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item  ">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/captive_portal/custom_css" class="nav-link ">
+                            <span class="title">Custom Styling</span>
+                        </a>
+                    </li>
+                    <li class="nav-item  ">
+                        <a href="{{site.uri.public}}/admin/elephantwifi/captive_portal/controller_integration" class="nav-link ">
+                            <span class="title">Controller Integration</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+            {% endif %}
+
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/admin/event-calendar" class="nav-link ">
+                    <span><i class="fas fa-calendar"></i></span>
+                    <span class="title">Admin Calendar</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+</div>
+<!-- END SIDEBAR WRAPPER -->
+{% endif %}

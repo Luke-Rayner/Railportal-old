@@ -1,0 +1,59 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{# Set page properties (page.*) here. #}
+{% block page %}
+    {# By putting this in a special block, we ensure that it will be set AFTER the default values are set in the parent template,
+    but BEFORE the page itself is rendered. #}
+    {% set page = page | merge({
+        "title"       : "Manage Public API key",
+        "description" : "Page to allow the user to manage the API key"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<h3>{{page.title}}</h3>
+<hr>
+<div class="row">
+    <div class="col-md-12">
+        <div id="settings-alerts">
+        </div>
+        {% if api_key_expired %}
+        <div class="alert alert-danger" role="alert">
+            Your API key has expired. It is highly recommended to refresh your API key and update it in your own code which accesses the Public API.
+        </div>
+        {% endif %}
+        <form class='form-horizontal' role='form' name='settings' action='#' method='post'>
+            <div class="form-group">
+                <label for="input_api_key_value" class="col-sm-2 control-label">your Public API key is:</label>
+                <div class="col-sm-4">
+                    <p class="form-control-static" style="font-size: 18px">{{api_key_value}}</p>
+                    <p class="help-block">With this API key you have access to the Public API</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<a type="button" class="btn btn-primary" id="refreshAPIKey">
+    <i id="api_key_refresh_icon" class="fa fa-refresh"></i> Refresh API key
+</a>
+<br>
+<br>
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+$('#refreshAPIKey').on('click', function(event) {
+    event.preventDefault(); // To prevent default behaviour
+
+    $('#api_key_refresh_icon').addClass('fa-spin');
+
+    window.setTimeout(function(){
+        window.location = '{{site.uri.public}}/account/manage_api_key/' + 'true';
+    },500);
+});
+
+$(document).ready(function() {
+    //
+});
+</script>
+{% endblock %}

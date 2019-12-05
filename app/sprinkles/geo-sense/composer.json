@@ -1,0 +1,17 @@
+{
+    "name": "Dev Geo-Sense Sprinkle",
+    "type": "userfrosting-sprinkle",
+    "description": "",
+    "license" : "MIT",
+    "authors" : [
+        {
+            "name": "Luke Rayner",
+            "homepage": "https://www.elephantwifi.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "UserFrosting\\Sprinkle\\GeoSense\\": "src/"
+        }
+    }
+}

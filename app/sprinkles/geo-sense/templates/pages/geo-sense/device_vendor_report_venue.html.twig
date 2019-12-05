@@ -1,0 +1,464 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Device Vendor Report",
+        "description" : "Device Vendor Report for a Venue"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="page_daterange" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft" data-placement="top" data-original-title="Select a time frame">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+
+    <button class="btn green-jungle pull-right" style="margin-right: 10px" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
+    <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
+    <!-- <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Top 10 device vendors</span>
+                    <span class="caption-helper">daily</span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 300px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Top 10 device vendors</span>
+                    <span class="caption-helper">total</span>
+                </div>
+                <div class="tools">
+                    <i class="fa fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 300px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+function genPDF() {
+    var element = document.getElementsByClassName("page-content")[0];
+    var opt = {
+        margin:       1,
+        filename:     'device_vendor_report.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 1 },
+        jsPDF:        { unit: 'pt', format: [1280, 720], orientation: 'l' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}
+
+/**
+ * function to be executed when we want to print a page
+ * (custom version for this page)
+ */
+var printUpdate = function () {
+    /**
+     * reflow all Highcharts instances
+     */
+    $('#chart_1_1').highcharts().reflow();
+    $('#chart_1_2').highcharts().reflow();
+};
+
+/**
+ * initialise the arrays to append results to for download in CSV format
+ */
+var csv_data = [];
+
+/**
+ * file name and report title for CSV download
+ */
+var csv_filename = 'Device_Vendor_Report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
+var csv_title = '';
+var venue_name = '{{user.venue_name}}';
+
+/**
+ * respond to click on the CSV download button
+ */
+$('#csv_button').on('click', function() {
+    /**
+     * update export title to reflect selected range
+     */
+    var csv_title = 'GEO-Sense: Device Vendor Report ({{user.venue_name}} - selected range: ' + $('#page_daterange_selected_large').text().replace(/,/g , '') + ')';
+
+    /**
+     * get the data from the charts
+     */
+    csv_data.push({
+        heading: 'Top 10 device vendors - Daily',
+        process: false,
+        data: $('#chart_1_1').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    csv_data.push({
+        heading: 'Top 10 device vendors - Totals',
+        process: false,
+        data: $('#chart_1_2').highcharts().getCSV() // when process is false we just push the output from Highcharts
+    });
+
+    exportToCsv(csv_filename, csv_title, venue_name, csv_data);
+});
+
+$(document).ready(function() {
+    /**
+     * Set the global timezone for this session for use in moment.js
+     */
+    moment.tz.setDefault('{{current_user.primaryVenue.time_zone}}');
+    moment.updateLocale('en', {
+        week : {
+            dow : 1,
+        }
+    });
+
+    /**
+     * empty weekends array for plotbands
+     */
+    var weekends = [];
+
+    /***************************************************************
+     * start preparations for the individual charts from here
+     ***************************************************************/
+
+    /***************************************************************
+     * start of timeseries device vendor chart
+     ***************************************************************/
+    var chart_1_1_Options = {
+        chart: {
+            renderTo: 'chart_1_1',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+                tooltipcontent += '<table style="width:100%">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + '</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '<tr><td><b>Total:</b></td><td style="text-align: right;"><b>' + mySum.toLocaleString() + '</b><td></tr>';
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    /**
+     * initialize the chart
+     */
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.showLoading();
+
+    /**
+     * callback function to be called from our ajax request
+     */
+    function onChart_1_1_DataReceived(data) {
+        /**
+         * define the series received
+         */
+        var seriesoptions = [];
+        var max_data_length = 0;
+
+        _.forEach(data, function(value, key) {
+            if (value.length > max_data_length) {
+                max_data_length = value.length;
+            }
+
+            seriesoptions.push({
+                name: key,
+                total_count: _.sumBy(value, function(o) { return o[1]; }),
+                data: value
+            });
+        });
+
+        /**
+         * determine how many days the length of the chart will be
+         */
+        if (max_data_length < 4) {
+            chart_1_1_Options.chart.type = 'column';
+        } else {
+            chart_1_1_Options.chart.type = 'line';
+        }
+
+        seriesoptions = _.orderBy(seriesoptions, [function(o) {
+            return o.total_count;
+        }], ['desc']);
+
+        chart_1_1_Options.series = _.take(seriesoptions, 10);
+        chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+        chart_1_1.xAxis[0].update({
+            plotBands: weekends
+        });
+    }
+
+    /***************************************************************
+     * end of chart 1.1
+     ***************************************************************/
+
+    /***************************************************************
+     * start of device vendor pie chart
+     ***************************************************************/
+    var chart_1_2_Options = {
+        chart: {
+            renderTo:        'chart_1_2',
+            type:            'pie',
+            backgroundColor: '#FFFFFF',
+            plotBorderWidth: null,
+            plotShadow:      false,
+            spacingTop:      5,
+            spacingBottom:   5,
+            spacingLeft:     5,
+            spacingRight:    5
+        },
+        legend: {
+            align:         'right',
+            verticalAlign: 'top',
+            layout:        'vertical',
+            labelFormatter: function () {
+                //return this.name;
+                return _.truncate(this.name, {
+                    'length': 24,
+                    'separator': ' '
+                });
+            }
+        },
+        tooltip: {
+            formatter: function () {
+                var tooltipcontent = '<b>' + this.key + '</b><br>' + (Math.round(this.percentage*10))/10 + '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')';
+                return tooltipcontent;
+            }
+        },
+        plotOptions: {
+            pie: {
+                borderWidth:      1,
+                allowPointSelect: true,
+                showInLegend:     true,
+                dataLabels: {
+                    enabled: false,
+                    format: '{point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                },
+                point: {
+                    events: {
+                        legendItemClick: function () {
+                            return false;
+                        }
+                    }
+                },
+                showInLegend: true
+            }
+        },
+        series: [{
+            name:         'Device count',
+            colorByPoint: true,
+            data:         []
+        }]
+    };
+
+    /**
+     * initialize the chart
+     */
+    var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+    chart_1_2.showLoading();
+
+    /**
+     * callback function to be called from our ajax request
+     */
+    function onChart_1_2_DataReceived(data) {
+        chart_1_2.series[0].remove();
+        chart_1_2.hideLoading();
+        chart_1_2.addSeries({
+            name:         'Device count',
+            colorByPoint: true,
+            data:         data
+        });
+    }
+
+    /***************************************************************
+     * end of chart 1.2
+     ***************************************************************/
+
+    /***************************************************************
+     * daterangepicker and ajax loading of all the data from here
+     ***************************************************************/
+    /**
+     * define default start and end for the page
+     */
+    var rangeStart  = moment().startOf('day').subtract(1, 'weeks');
+    var rangeEnd    = moment().startOf('day');
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     */
+    $('#page_daterange').daterangepicker({
+        timePicker:             true,
+        timePicker24Hour:       true,
+        timePickerIncrement:    60,
+        showISOWeekNumbers:     true,
+        locale: {
+            format: "DD/MM/YYYY",
+            firstDay: 1
+        },
+        ranges: {
+           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+           'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+           'Past Week':                 [moment().startOf('day').subtract(1, 'weeks'), moment().startOf('day')],
+           'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+           'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+           'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
+           'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
+           'All Time':                  ['{{current_user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:    moment().startOf('day'),
+        opens:      'left'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        if (end.diff(start) === 0) {
+            console.log('we have a difference between start and end of zero: we will add 1 hour to end');
+            end.add(1, 'hour');
+        }
+
+        console.log(start + ':' + end);
+
+        /**
+         * update the weekend plotbands
+         */
+        weekends = weekendAreasDaily(start, end);
+
+        /**
+         * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+         */
+        var chart_1_1 = $("#chart_1_1").highcharts();
+        var chart_1_2 = $("#chart_1_2").highcharts();
+
+        chart_1_1.showLoading();
+        chart_1_2.showLoading();
+
+        /**
+         * from here we call all ajax sources with the newly selected start/end:
+         */
+
+        /**
+         * get the data for chart 1.1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/stats/venue/device_vendors/daily/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_1_DataReceived
+        });
+
+        /**
+         * get the data for chart 1.2
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/stats/venue/device_vendors/totals/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_2_DataReceived
+        });
+
+    }
+    /***************************************************************
+     * end of daterangepicker and ajax data loading
+     ***************************************************************/
+
+    /***************************************************************
+     * other shared functions from here
+     ***************************************************************/
+
+    /**
+     * what we to do on resize of window and/or collapse of sidebar
+     */
+    $(window).resize(function(){
+        //
+    });
+
+    /**
+     * force a resize event after page load
+     */
+    window.dispatchEvent(new Event('resize'));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,322 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Venues",
+        "description" : "manage venues"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Venue Settings</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="venues" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Tags</th>
+                            <th>Venue Type</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn blue" id="createVenue">
+                          <i class="fa fa-plus-square"></i> Add Venue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+
+$(document).ready(function() {
+    var venues_table = $('#venues').on('error.dt', flashToasts).DataTable({
+        order: [
+            [0, 'asc']
+        ],
+        processing: true,
+        scrollX: true,
+        ajax: {
+            url: site.uri.public + '/api/list/venues',
+            dataSrc: function(json) {
+                return json.rows;
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name'},
+            {data: 'category.name'},
+            {data: 'tags',
+                render: function(data, type, full, meta) {
+                    if (typeof data !== 'undefined') {
+                        if (type === 'display') {
+                            var html_contents = '';
+                            _.forEach(data, function(tag) {
+                                html_contents += '<span class="badge badge-primary" style="font-size:x-small;">' + tag.name + '</span> ';
+                            });
+                            return html_contents;
+                        }
+
+                        if (type === 'filter') {
+                            var text_contents = '';
+                            _.forEach(data, function(tag) {
+                                text_contents += tag.name + ' ';
+                            });
+                            return text_contents;
+                        }
+                        return data;
+                    }
+                    return;
+                }
+            },
+            {data: 'venue_type',
+                render: function(data, type, full, meta) {
+                    if (full.wifi_venue == 1 && full.tracking_venue == 1) {
+                        return 'Both';
+                    }
+                    else if (full.wifi_venue == 1) {
+                        return 'WiFi';
+                    }
+                    else if (full.tracking_venue == 1) {
+                        return 'Geo Sense';
+                    }
+                    else {
+                        'Unknown';
+                    }
+                }
+            }
+        ],
+        fnDrawCallback: function(row, data, displayIndex) {
+            $('#datatables_refresh').prop('disabled', false);
+            $('#datatables_refresh').find('i').removeClass().addClass('fa fa-refresh fa-fw fa-lg');
+        }
+    });
+
+    /**
+     * fix to redraw the tables in hidden divs with scrollx enabled upon tab being opened
+     */
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .columns.adjust();
+    });
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+        $('#form-alerts').empty();
+        $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $('.modal').on('shown', function() {
+        //
+    });
+
+    /**
+     * function for refreshing datatables contents
+     */
+    $('body').on('click', '#datatables_refresh', function(e) {
+        e.preventDefault();
+
+        /**
+         * Reload the datatables data using ajax
+         */
+        venues_table.ajax.reload();
+    });
+
+    /**
+     * fix to get Bootstrap tooltips to work within Datatables
+     */
+    $('#venues').on('draw.dt', function () {
+        $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    });
+
+    /**
+     * functions for Venue Management from here
+     */
+
+    /**
+     * open the Modal to create a new venue
+     */
+    $('#createVenue').click(function(e) {
+        e.preventDefault();
+
+        /**
+         * show the modal
+         */
+        venueForm('dialog-venue-create')
+    });
+
+    /**
+     * open the Modal to update the venue upon tap/click on a row in the venues table
+     */
+    $('body').on('click touchstart', '#venues tbody tr', function(e) {
+        e.preventDefault();
+        var thisVenue = venues_table.row(this).data();
+
+        if($('#dialog-venue-info').length ) {
+            $('#dialog-venue-info').remove();
+        }
+
+        url = site.uri.public + "/admin/forms/venues/info/" + thisVenue.id;
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+            type: "GET",
+            url: url,
+            cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#dialog-venue-info').modal('show');
+        });
+    });
+
+    if(window.location.hash) {
+        console.log(location.hash.substr(1));
+        var thisVenue = location.hash.substr(1);
+
+        if($('#dialog-venue-info').length ) {
+            $('#dialog-venue-info').remove();
+        }
+
+        url = site.uri.public + "/admin/forms/venues/info/" + thisVenue;
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+            type: "GET",
+            url: url,
+            cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#dialog-venue-info').modal('show');
+        });
+    }
+
+    /**
+     * Display a modal form for creating a new venue.
+     * example call: venueForm('dialog-venue-create');
+     */
+    function venueForm(box_id) {
+        venue_id = typeof venue_id !== 'undefined' ? venue_id : "";
+
+        var data = {
+            box_id: box_id
+        };
+
+        /**
+         * Delete any existing instance of the form with the same name
+         */
+        if($('#' + box_id).length ) {
+            $('#' + box_id).remove();
+        }
+
+        /**
+         * also delete any existing instances of the confirmation modal if they exist
+         */
+        if($('#confirmModal').length ) {
+            $('#confirmModal').remove();
+        }
+
+        var url = site.uri.public + "/admin/forms/venues";
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+          type: "GET",
+          data: data,
+          url: url,
+          cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#' + box_id).modal('show');
+
+            /**
+             * Link submission buttons
+             */
+            $('#' + box_id + ' form').ufForm({
+                validator: validators,
+                msgTarget: $("#alerts-page")
+            }).on("submitSuccess.ufForm", function() {
+                window.location.reload();
+            });
+        });
+    }
+});
+
+
+</script>
+{% endblock %}

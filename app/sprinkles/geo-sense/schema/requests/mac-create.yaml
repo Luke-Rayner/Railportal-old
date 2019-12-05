@@ -1,0 +1,44 @@
+---
+label:
+  validators:
+    length:
+      label: "&LABEL"
+      min: 5
+      max: 30
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&LABEL"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&LABEL"
+      message: VALIDATE.NO_TRAIL_WS
+    required:
+      label: "&LABEL"
+      message: VALIDATE.REQUIRED
+id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+mac:
+  validators:
+    length:
+      label: "&MAC"
+      min: 17
+      max: 17
+      message: VALIDATE.LENGTH_RANGE
+device_vendor_id:
+  validators:
+venue_id:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&VENUE_ID"
+      message: VALIDATE.REQUIRED
+whitelist:
+  validators:
+    numeric:
+      message: "Invalid Number"
+    required:
+      label: "&WHITELIST"
+      message: VALIDATE.REQUIRED

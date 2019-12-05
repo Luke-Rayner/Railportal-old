@@ -1,0 +1,509 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Lists",
+        "description" : "Page which displays all lists when users can subscribe to at this venue"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Venue Marketing Details</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+               <form class="form-horizontal" id="venueMarketingDetailsForm" action="{{site.uri.public}}/admin/elephantwifi/venue-marketing-details/update" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    
+                    <div class="form-group">
+                        <label for="mailchimp" class="col-sm-2 control-label">Mailchimp</label>
+                        <div class="col-sm-4" style="margin-top:4px;">
+                             <div class="input-group">
+                                 <input id="mailchimp" type="checkbox" name="mailchimp" value="{{target_venue.venue_wifi.mailchimp}}" data-on-text="yes" data-off-text="no" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.mail_type == "mailchimp" %} checked="checked"{% endif %}>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sendinblue" class="col-sm-2 control-label">SendinBlue</label>
+                        <div class="col-sm-4" style="margin-top:4px;">
+                             <div class="input-group">
+                                 <input id="sendinblue" type="checkbox" name="sendinblue" value="{{target_venue.venue_wifi.sendinblue}}" data-on-text="yes" data-off-text="no" data-on="success" data-off="primary"{% if unifi_venue.venue_wifi.mail_type == "sendinblue" %} checked="checked"{% endif %}>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div id="mailchimp_inputs">
+                        <div class="form-group" id="marketing_public_key_container" {% if unifi_venue.venue_wifi.mail_type == '' %}hidden{% endif %}>
+                            <label for="marketing_public_key" class="col-sm-2 control-label">Public API Key</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg" data-toggle="tooltip" data-placement="top" title="The customers public api key"></i></span>
+                                    <input type="text" class="form-control" maxlength="40" id="marketing_public_key" name="marketing_public_key" value="{{unifi_venue.venue_wifi.marketing_public_key}}" placeholder="Public Key">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-4">
+                                <button type='submit' id="venueMarketingDetailsSubmit" name="venueMarketingDetailsSubmit" class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt fa-fw"></i> Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if unifi_venue.venue_wifi.mail_type != 'sendinblue' or (unifi_venue.venue_wifi.marketing_public_key == '' or unifi_venue.venue_wifi.marketing_public_key == null) %}
+                    <div id="sendinblue_inputs">
+
+
+                        <div class="form-group">
+                            <label for="marketing_email" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                    <input type="text" class="form-control" maxlength="50" id="marketing_email" name="marketing_email" placeholder="Email Address">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="marketing_first_name" class="col-sm-2 control-label">First Name</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                    <input type="text" class="form-control" maxlength="50" id="marketing_first_name" name="marketing_first_name" placeholder="First Name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="marketing_last_name" class="col-sm-2 control-label">Last Name</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                    <input type="text" class="form-control" maxlength="50" id="marketing_last_name" name="marketing_last_name" placeholder="Last Name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="marketing_company_name" class="col-sm-2 control-label">Company Name</label>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                    <input type="text" class="form-control" maxlength="50" id="marketing_company_name" name="marketing_company_name" placeholder="Company Name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-4">
+                                <button type='submit' id="sendinBlue_createChild_btn" class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt fa-fw"></i> Create Child Account</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Lists</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <table id="marketingListTable" class="table table-sorting table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>List Type</th>
+                            <th>Mail Type</th>
+                        </tr>
+                    </thead>
+                </table>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn orange" id="addNewList">
+                          <i class="fa fa-plus-square"></i> Add List
+                        </button>
+                        <a class="btn red" id="reshowMarketingButton"><i class="fa fa-plus-square"></i> Reshow Marketing</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='confirmReshowMarketingModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-globe fa-fw fa-lg"></i> Reshow Marketing</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Are you sure you need to reshow the marketing options?
+                </div>
+                <div class="form-group">
+                    <label for="marketing_reshow_time" class="col-sm-4 control-label">When would you like to reshow the marketing?</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <select class="form-control select2" id="marketing_reshow_time">
+                                <option value="now">Now</option>
+                                <option value="604800" {% if (unifi_venue.free_access_settings.marketing_reshow_time == 604800) %}selected{% endif %}>1 Week</option>
+                                <option value="2629746" {% if (unifi_venue.free_access_settings.marketing_reshow_time == 2629746) %}selected{% endif %}>1 Month</option>
+                                <option value="7889238" {% if (unifi_venue.free_access_settings.marketing_reshow_time == 7889238) %}selected{% endif %}>3 Months</option>
+                                <option value="15778476" {% if (unifi_venue.free_access_settings.marketing_reshow_time == 15778476) %}selected{% endif %}>6 Months</option>
+                                <option value="31556952" {% if (unifi_venue.free_access_settings.marketing_reshow_time == 31556952) %}selected{% endif %}>1 Year</option>
+                                <option value="94670856" {% if (unifi_venue.free_access_settings.marketing_reshow_time == 94670856) %}selected{% endif %}>3 Years</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> No
+                            </button>
+                            <button type='submit' id="confirmReshowMarketingModalSubmit" name="confirmReshowMarketingModalSubmit" class="btn blue">
+                                <i class="fa fa-cloud-upload fa-fw"></i> Yes
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+var marketingListTable;
+var marketing_lists = {{marketing_lists | raw}};
+var validators = {{validators | raw}};
+var venue_marketing_details_validators = {{venue_marketing_details_validators | raw}};
+var venue = {{ unifi_venue | raw}};
+
+/**
+ * enable the toggle switches
+ */
+$('#old_venue').bootstrapSwitch();
+$('#mailchimp').bootstrapSwitch();
+$('#sendinblue').bootstrapSwitch();
+
+$('#old_venue').bootstrapSwitch('setSizeClass', 'switch-mini');
+$('#mailchimp').bootstrapSwitch('setSizeClass', 'switch-mini');
+$('#sendinblue').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+/**
+ * Show marketing api fields
+ */
+$('#mailchimp').change(function() {
+    if (this.checked) {
+        $('#sendinblue').attr('checked', false).trigger("change");
+        $('#mailchimp_inputs').show();
+        $('#sendinblue_inputs').hide();
+    }
+});
+
+$('#sendinblue').change(function() {
+    if (this.checked) {
+        $('#mailchimp').attr('checked', false).trigger("change");
+        $('#sendinblue_inputs').show();
+        $('#mailchimp_inputs').hide();
+    }
+});
+
+$('#mailchimp').trigger("change");
+$('#sendinblue').trigger("change");
+
+function deleteList(list_id) {
+    /**
+     * populate the form with the values for this company
+     */
+    $.ajax({
+        type: 'GET',
+        url: site.uri.public + '/admin/elephantwifi/marketing/list/delete/' + list_id,
+        success: onDeleteSuccess,
+        error: onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('delete success');
+
+        setTimeout(function(){
+            window.location.reload(true);
+        }, 500);
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            window.location.reload(true);
+        }, 500);
+    }
+}
+
+$(document).ready(function() {
+    $('#venueMarketingDetailsForm').ufForm({
+        validator: venue_marketing_details_validators,
+        msgTarget: $("#update_list_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    $('#reshowMarketingButton').click(function() {
+        $('#confirmReshowMarketingModal').modal('show');
+    })
+
+    marketingListTable = $('#marketingListTable').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        data: marketing_lists,
+        columns: [
+            {data: 'list_name'},
+            {data: 'marketing_list_type.name'},
+            {data: 'mail_type'}
+        ],
+    });
+
+    /**
+     * fix to get Bootstrap tooltips to work within Datatables (use the ID of the table container)
+     * also add data-container: 'body' to the element triggering the tooltip to get it on top of other elements
+     */
+    $('#marketingListTable').on('draw.dt', function () {
+        $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    });
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+        $('#form-alerts').empty();
+        $('#update_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $(".modal").on('shown', function() {
+        //
+    });
+
+    /**
+     * table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(marketingListTable.draw, 100);
+    });
+
+    $('#updateMarketingList').ufForm({
+        validator: validators,
+        msgTarget: $("#update_list_form-alerts")
+    }).on("submitSuccess.ufForm", function() {
+        /**
+         * Reload the page on success
+         */
+        window.location.reload(true);
+    });
+
+    /**
+     * Display a modal form for updating an existing venue or creating a new venue.
+     * example call: venueForm('dialog-venue-edit', venue_id);
+     */
+    function Forms(url, box_id) {
+
+        var data = {
+            box_id: box_id
+        };
+
+        /**
+         * Delete any existing instance of the form with the same name
+         */
+        if($('#' + box_id).length ) {
+            $('#' + box_id).remove();
+        }
+
+        /**
+         * Fetch and render the form
+         */
+        $.ajax({
+          type: "GET",
+          data: data,
+          url: url,
+          cache: false
+        })
+        .fail(function(result) {
+            /**
+             * Display errors on failure
+             */
+            $('#userfrosting-alerts').flashAlerts().done(function() {
+            });
+        })
+        .done(function(result) {
+            /**
+             * Append the form as a modal dialog to the body
+             */
+            $( "body" ).append(result);
+            $('#' + box_id).modal('show');
+
+            $('#' + box_id + ' form').ufForm({
+                validator: validators,
+                msgTarget: $("#form-alerts")
+            }).on("submitSuccess.ufForm", function() {
+                /**
+                 * Reload the page on success
+                 */
+                window.location.reload(true);
+            });
+        });
+    }
+
+    /**
+     * open the updateMarketingListModal upon tap/click on a row in the lists table
+     */
+    $('body').on('click', '#marketingListTable tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this zone
+         */
+        var thisList = marketingListTable.row( this ).data();
+
+        if (venue['venue_wifi']['mail_type'] == 'mailchimp')
+            var url = site.uri.public + "/admin/elephantwifi/forms/mailchimp/marketing_list/u/" + thisList.id;
+        else
+            var url = site.uri.public + "/admin/elephantwifi/forms/sendinblue/marketing_list/u/" + thisList.id;
+
+        /**
+         * Show the modal
+         * The second param is the form id which can be found in the twig template
+         */
+        Forms(url, 'update_marketing_list', thisList);
+    });
+
+    $('#addNewList').click(function(e) {
+        e.preventDefault();
+
+        if (venue['venue_wifi']['mail_type'] == 'mailchimp')
+            var url = site.uri.public + "/admin/elephantwifi/forms/mailchimp/marketing_list/create";
+        else
+            var url = site.uri.public + "/admin/elephantwifi/forms/sendinblue/marketing_list/create";
+
+        /**
+         * Show the modal
+         * The second param is the form id which can be found in the twig template
+         */
+        Forms(url, 'create_marketing_list');
+    });
+
+    /**
+     * process venue delete request from the confirmation modal
+     */
+    $('#confirmReshowMarketingModalSubmit').click(function(){
+        var date = $('#marketing_reshow_time').val();
+        console.log(date);
+
+        /**
+         * issue AJAX GET request to delete devices with state = deleted
+         */
+        $.ajax({
+            type: 'GET',
+            url: site.uri.public + '/admin/elephantwifi/marketing/reshow_marketing/' + date,
+            success: onSuccess,
+            error: onError
+        });
+
+        // temp!
+        setTimeout(function(){
+            window.location.reload(true);
+        }, 500);
+
+        /**
+         * on error/success close the modal and reload the page
+         */
+        function onSuccess(d) {
+            /**
+             * delete success
+             */
+            console.log('success');
+
+            setTimeout(function(){
+                window.location.reload(true);
+            }, 500);
+        }
+
+        function onError(d) {
+            /**
+             * delete failed
+             */
+            console.log('failed');
+
+            setTimeout(function(){
+                window.location.reload(true);
+            }, 500);
+        }
+    });
+});
+</script>
+{% endblock %}

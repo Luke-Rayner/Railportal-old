@@ -1,0 +1,473 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Location Report",
+        "description" : ""
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="row text-center" style="display: none" id="pdf_title">
+        <img src="{{site.uri.public}}/images/WiFi-Logo-Image-Blue.png" height="50px" width="50px" style="margin-top: 5px"/>
+        <u><h1 class="bold">INTELLI-SENSE</h1></u>
+    </div>
+
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+
+    <div class="page-toolbar">
+        <div id="dashboard-report-range" data-display-range="1" class="pull-right tooltips btn btn-fit-height blue-soft">
+            <span class="visible-sm-inline visible-md-inline visible-lg-inline" id="page_daterange_selected"></span><span class="visible-xs-inline" id="page_daterange_selected_small"></span>&nbsp;
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase hidden-xs"></span>&nbsp;
+            <i class="fa fa-angle-down"></i>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_1" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Total Visitors </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_2" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Total Known Visitor Postcodes </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_3" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-cloud-download"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                </div>
+                <div class="desc"> Total Unknown Visitor Postcodes </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a id="donut_container_4" class="dashboard-stat dashboard-stat-v2 blue-soft" href="#">
+            <div class="visual">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="details">
+                <div class="number bold">
+                    <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
+                    </div>
+                <div class="desc"> Local Visitors </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">National Location Visitor Breakdown</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold">Local Location Visitor Breakdown</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <i class="fas fa-question-circle info-icon"></i>
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='confirmation_modal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header text-center'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-laptop fa-fw fa-lg"></i> Confirmation Alert</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <p>Due to the complexity of the data requested it could take several minutes to generate.</p>
+                        <p>Are you happy to continue?</p>
+                        <br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> No</button>
+                        <button type='button' class="btn btn-primary btn-sm" id="confirmation_apply" name="confirmation_apply"><i class="fa fa-check-circle"></i> Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript">
+
+$(document).ready(function() {
+    /**
+     * 
+     */
+    var chart_1_1_Options = {
+        chart: {
+            renderTo: 'chart_1_1',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+    chart_1_1.showLoading();
+
+    /**
+     * 
+     */
+    var chart_1_2_Options = {
+        chart: {
+            renderTo: 'chart_1_2',
+            backgroundColor: '#FFFFFF',
+            zoomType: 'x'
+        },
+        xAxis: {
+            type: 'datetime',
+            plotBands: weekends
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0,
+                stacking: 'normal'
+            }
+        },
+        legend: {
+            enabled: true
+        }
+    };
+
+    var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+    chart_1_2.showLoading();
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onChart_1_DataReceived(data) {
+        console.log(data);
+
+        var seriesoptions_national = [];
+        $.each(data['national'], function(key, value) {
+            seriesoptions_national.push({
+                type: 'column',
+                name: key,
+                stack: 'visitors'
+            });
+        });
+
+        var seriesoptions_local = [];
+        $.each(data['local'], function(key, value) {
+            seriesoptions_local.push({
+                type: 'column',
+                name: key,
+                stack: 'visitors'
+            });
+        });
+
+        chart_1_1_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                tooltipcontent += '<table style="width:100%; font-size: 12px;">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        }
+
+        chart_1_2_Options.tooltip = {
+            shared: true,
+            useHTML: true,
+            borderWidth: 0,
+            backgroundColor: "rgba(255,255,255,0)",
+            shadow: false,
+            formatter: function () {
+                var tooltipcontent = '<b>' + moment(this.x).format("dddd, D MMMM YYYY") + '</b>';
+                var mySum = 0;
+
+                tooltipcontent += '<table style="width:100%; font-size: 12px;">';
+
+                /**
+                 * we have to loop here as we don't yet know how many series we will have
+                 */
+                $.each(this.points, function () {
+                    var symbol = '■';
+                    tooltipcontent += '<tr><td><span style="color:' + this.point.color + '">' + symbol + '</span> ' + this.series.name + ':</td><td style="text-align: right;">' + this.y.toLocaleString() + '</td></tr>';
+                    mySum += this.y;
+                });
+
+                tooltipcontent += '</table>';
+                return tooltipcontent;
+            }
+        }
+
+        // National chart
+        chart_1_1_Options.series = seriesoptions_national;
+        chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+
+        var count = 0;
+        $.each(data['national'], function(key, value) {
+            chart_1_1.series[count].setData(value);
+            count++;
+        });
+
+        // Local chart
+        chart_1_2_Options.series = seriesoptions_local;
+        chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+
+        var count = 0;
+        $.each(data['local'], function(key, value) {
+            chart_1_2.series[count].setData(value);
+            count++;
+        });
+
+        var total_local_visitors = 0;
+        $.each(data['local'], function(key1, value1) {
+            $.each(value1, function(key2, value2) {
+                console.log(value2);
+                total_local_visitors += value2[1];
+            });
+        });
+
+        $('#donut_4').html(total_local_visitors.toLocaleString());
+    }
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onDonut_1_DataReceived(data) {
+        /**
+         * NOTE: with this function we also feed the "total visitors" data to chart 1.2
+         */
+        var totalnew    = 0;
+        var totalrepeat = 0;
+
+        if (typeof data.new !== 'undefined') {
+            _.forEach(data.new, function(value) {
+                totalnew += value[1];
+            });
+
+            _.forEach(data.repeat, function(value) {
+                totalrepeat += value[1];
+            });
+        }
+
+        /**
+         * NOTE: with this function we also feed #span_total_visitors_this_period donut
+         */
+        $('#donut_1').html((totalnew + totalrepeat).toLocaleString());
+    }
+
+    /**
+     * callback to be called from the bundled ajax calls
+     */
+    function onDonut_2_3_DataReceived(data) {
+        console.log(data);
+
+        $('#donut_2').html(data.postcode_count.toLocaleString());
+        $('#donut_3').html(data.non_postcode_count.toLocaleString());
+    }
+
+    /***************************************************************
+    * daterangepicker and ajax loading of all the data from here
+    ****************************************************************/
+
+    /**
+     * define default start and end for the page
+     */
+    var rangeStart  = moment().subtract(7, "days").startOf('day');
+    var rangeEnd    = moment().startOf('day');
+    
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     */
+    $('#dashboard-report-range').daterangepicker({
+        timePicker:             false,
+        showISOWeekNumbers:     true,
+        locale: {
+            format: "DD/MM/YYYY",
+            firstDay: 1
+        },
+        ranges: {
+           'Current Day':               [moment().startOf('day'), moment()],
+           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
+           'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
+           'This Week to-date':         [rangeStart, rangeEnd], //default value for the page
+           'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
+           'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
+           'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
+           'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
+           'All Time':                  ['{{current_user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+        },
+        startDate:  rangeStart,
+        endDate:    rangeEnd,
+        minDate:    '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:    moment(),
+        opens:      'left'
+    }, confirmation_popup);
+
+    function confirmation_popup(start, end) {
+        rangeStart = start;
+        rangeEnd   = end;
+        $('#confirmation_modal').modal('show');
+    }
+
+    $('#confirmation_apply').click(function() {
+        $('#confirmation_modal').modal('hide');
+        page_daterange(rangeStart, rangeEnd)
+    })
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        /**
+         * place the selected range in the <span> at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        end = end + 1;
+        console.log(start + ':' + end);
+
+        /**
+         * update the weekend plotbands
+         */
+        weekends = weekendAreasDaily(start, end);
+
+        /**
+         * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
+         */
+        var chart_1_1 = $("#chart_1_1").highcharts();
+        var chart_1_2 = $("#chart_1_2").highcharts();
+
+        $('#donut_1').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_2').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_3').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_4').html('<i class="fa fa-spinner fa-spin"></i>');
+
+        chart_1_1.showLoading();
+        chart_1_2.showLoading();
+
+        /**
+         * from here we call all ajax sources with the newly selected start/end:
+         */
+
+        $.when(
+            $.ajax({
+                url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/new_vs_repeat/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success:    onDonut_1_DataReceived
+            }),
+            $.ajax({
+                url:        '{{site.uri.public}}/elephantwifi/api/list_visitors_with_postcodes/' + start + '/' + end,
+                type:       'GET',
+                dataType:   'json',
+                success:    onDonut_2_3_DataReceived
+            })
+        ).then(function() {
+            $.ajax({
+                url:      '{{site.uri.public}}/elephantwifi/api/location_visitor_breakdown/' + start + '/' + end,
+                type:     'GET',
+                dataType: 'json',
+                success:  onChart_1_DataReceived
+            });
+        });
+    }
+
+});
+</script>
+{% endblock %}

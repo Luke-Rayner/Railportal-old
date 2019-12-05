@@ -1,0 +1,631 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Categories and Sub-categories",
+        "description" : "Page to manage categories and sub-categories."
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="notification_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">(Sub)Categories</span>
+                    <span class="caption-helper"></span>
+                </div>
+                <div class="tools">
+                    <a href="" class="fullscreen"> </a>
+                    <a href="" class="reload" id="datatables_refresh"> </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="notification_portlet_body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="active"><a href="#categories_tab" aria-controls="categories_tab" role="tab" data-toggle="tab"><i class="fa fa-folder fa-fw fa-lg"></i> Categories</a></li>
+                    <li><a href="#sub_categories_tab" aria-controls="sub_categories_tab" role="tab" data-toggle="tab"><i class="fa fa-folder fa-fw fa-lg"></i> Sub-categories</a></li>
+                    <li><a href="#event_categories_tab" aria-controls="event_categories_tab" role="tab" data-toggle="tab"><i class="fa fa-folder fa-fw fa-lg"></i> Event-categories</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="categories_tab">
+                        <br><br>
+                        <table id="categories" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Category name</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <button type="button" class="btn btn-success" id="addNewCategory">
+                          <i class="fa fa-plus-square"></i> Add new Category
+                        </button>
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="sub_categories_tab">
+                        <br><br>
+                        <table id="sub_categories" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sub-category name</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <button type="button" class="btn btn-success" id="addNewSubCategory">
+                          <i class="fa fa-plus-square"></i> Add new Sub-category
+                        </button>
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="event_categories_tab">
+                        <br><br>
+                        <table id="event_categories" class="table table-sorting table-striped table-hover datatable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Event-category name</th>
+                                    <th>Admin category</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <button type="button" class="btn btn-success" id="addNewEventCategory">
+                          <i class="fa fa-plus-square"></i> Add new Event Category
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addNewCategoryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Add a new Category</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-category-alerts-page"></div>
+
+                <form class="form-horizontal" id="addCategory" action="{{site.uri.public}}/admin/categories" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="add_category_name" class="col-sm-offset-2 col-sm-3 control-label">Category name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="add_category_name" name="name" placeholder="Category name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="addCategorySubmit" name="categorySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateCategoryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Edit Category</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-category-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateCategory" action="{{site.uri.public}}/admin/category/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_category_name" class="col-sm-offset-2 col-sm-3 control-label">Category name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_category_name" name="name" placeholder="Category name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateCategorySubmit" name="categorySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_category_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addNewSubCategoryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Add a new Sub-category</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-sub-category-alerts-page"></div>
+
+                <form class="form-horizontal" id="addSubCategory" action="{{site.uri.public}}/admin/sub_categories" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="add_sub_category_name" class="col-sm-offset-2 col-sm-3 control-label">Sub-category name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="add_sub_category_name" name="name" placeholder="Sub-category name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="addSubCategorySubmit" name="subCategorySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateSubCategoryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Edit Sub-category</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-sub-category-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateSubCategory" action="{{site.uri.public}}/admin/sub_category/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_sub_category_name" class="col-sm-offset-2 col-sm-3 control-label">Sub-category name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_sub_category_name" name="name" placeholder="Sub-category name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateSubCategorySubmit" name="subCategorySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_sub_category_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addNewEventCategoryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Add a new Event-category</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="create-event-category-alerts-page"></div>
+
+                <form class="form-horizontal" id="addEventCategory" action="{{site.uri.public}}/admin/event_categories" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="add_event_category_name" class="col-sm-offset-2 col-sm-3 control-label">Event-category name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="add_event_category_name" name="name" placeholder="Event-category name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admin_event_category" class="col-sm-offset-2 col-sm-3 control-label">Admin category</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <input id="admin_event_category" type="checkbox" name="admin_category" data-on-text="on" data-off-text="off" data-on="success" data-off="primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event_category_color" class="col-sm-offset-2 col-sm-3 control-label">Category color</label>
+                        <div class="col-sm-5">
+                            <div id="input_group_category_color" class="input-group colorpicker-component">
+                                <input type="text" class="form-control" maxlength="7" id="event_category_color" name="category_color" placeholder="Panel background color">
+                                <span class="input-group-addon color-picker-span"><i style="background:#337AB7"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="addEventCategorySubmit" name="eventCategorySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='updateEventCategoryModal' class='modal fade' data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+                <h4 class='modal-title'><i class="fa fa-folder fa-fw fa-lg"></i> Edit Event-category</h4>
+            </div>
+            <div class='modal-body'>
+
+                <div class="form-alerts" id="update-event-category-alerts-page"></div>
+
+                <form class="form-horizontal" id="updateEventCategory" action="{{site.uri.public}}/admin/event_category/u" method="post">
+                    {% include "forms/csrf.html.twig" %}
+                    <div class="form-group">
+                        <label for="update_event_category_name" class="col-sm-offset-2 col-sm-3 control-label">Event-category name</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-tag fa-fw fa-lg"></i></span>
+                                <input type="text" class="form-control" maxlength="30" id="update_event_category_name" name="name" placeholder="Event-category name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="update_admin_event_category" class="col-sm-offset-2 col-sm-3 control-label">Admin category</label>
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <input id="update_admin_event_category" type="checkbox" name="admin_category" data-on-text="on" data-off-text="off" data-on="success" data-off="primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="update_event_category_color" class="col-sm-offset-2 col-sm-3 control-label">Category color</label>
+                        <div class="col-sm-5">
+                            <div id="input_group_update_category_color" class="input-group colorpicker-component">
+                                <input type="text" class="form-control" maxlength="7" id="update_event_category_color" name="category_color" placeholder="Panel background color">
+                                <span class="input-group-addon color-picker-span"><i id="update_event_category_color_icon" style="background:#337AB7"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-5 col-sm-7">
+                            <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
+                            <button type='submit' id="updateEventCategorySubmit" name="eventCategorySubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="update_event_category_id" name="id">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript" class="init">
+$(document).ready(function() {
+
+    /**
+     * initialise the color picker
+     * first we define the general options
+     */
+    $(function() {
+        var color_picker_options = {
+            component: '.color-picker-span',
+            format: 'hex'
+        };
+
+        $('#input_group_category_color').colorpicker(color_picker_options);
+        $('#input_group_update_category_color').colorpicker(color_picker_options);
+    });
+
+    var categoriestable = $('#categories').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/api/categories/all",
+            dataSrc: function(json) {
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name'}
+        ],
+    });
+
+    var sub_categoriestable = $('#sub_categories').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/api/sub_categories/all",
+            dataSrc: function(json) {
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name'}
+        ],
+    });
+
+    var event_categoriestable = $('#event_categories').DataTable({
+        autoWidth: false,
+        language: {
+            "loadingRecords": "<br><br><h4>Loading...</h4>"
+        },
+        deferRender: true,
+        ajax: {
+            url: "{{site.uri.public}}/api/event_categories/all",
+            dataSrc: function(json) {
+                return json['rows'];
+            }
+        },
+        columns: [
+            {data: 'id'},
+            {data: 'name'},
+            {data: 'admin_category'}
+        ],
+    });
+
+    /**
+     * Load the validator rules for the forms in the modal
+     */
+    var validators = {{validators | raw}};
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data:
+     * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+     */
+    $('#addCategory').ufForm({
+        validator: validators,
+        msgTarget: $("#create-category-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    $('#updateCategory').ufForm({
+        validator: validators,
+        msgTarget: $("#update-category-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    /**
+     * open the addNewCategoryModal upon click on the button
+     */
+    $('#addNewCategory').click(function(e) {
+        e.preventDefault();
+
+        /*
+        show the modal with default time zone
+        */
+        $('#addNewCategoryModal').modal('show');
+    });
+    /**
+     * end of addNewCategoryModal
+     */
+
+    /**
+     * open the updateCategoryModal upon tap/click on a row in the categories table
+     */
+    $('body').on('click touchstart', '#categories tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this Category
+         */
+        var thisCategory = categoriestable.row( this ).data();
+        $('#update_category_name').val(thisCategory.name);
+        $('#update_category_id').val(thisCategory.id);
+
+        /**
+         * show the modal
+         */
+        $('#updateCategoryModal').modal('show');
+    });
+    /**
+     * end of updateCategoryModal
+     */
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data:
+     * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+     */
+    $('#addSubCategory').ufForm({
+        validator: validators,
+        msgTarget: $("#create-sub-category-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    $('#updateSubCategory').ufForm({
+        validator: validators,
+        msgTarget: $("#update-sub-category-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    /**
+     * open the addNewSubCategoryModal upon click on the button
+     */
+    $('#addNewSubCategory').click(function(e) {
+        e.preventDefault();
+
+        /*
+        show the modal with default time zone
+        */
+        $('#addNewSubCategoryModal').modal('show');
+    });
+    /**
+     * end of addNewSubCategoryModal
+     */
+
+    /**
+     * open the updateSubCategoryModal upon tap/click on a row in the sub_categories table
+     */
+    $('body').on('click touchstart', '#sub_categories tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this Sub-category
+         */
+        var thisSubCategory = sub_categoriestable.row( this ).data();
+        $('#update_sub_category_name').val(thisSubCategory.name);
+        $('#update_sub_category_id').val(thisSubCategory.id);
+
+        /**
+         * show the modal
+         */
+        $('#updateSubCategoryModal').modal('show');
+    });
+    /**
+     * end of updateSubCategoryModal
+     */
+
+    /**
+     * we need to use the function ufFormSubmit to submit the data:
+     * Process a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+     * function ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback
+     */
+    $('#addEventCategory').ufForm({
+        validator: validators,
+        msgTarget: $("#create-event-category-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    $('#updateEventCategory').ufForm({
+        validator: validators,
+        msgTarget: $("#update-event-category-alerts-page")
+    }).on("submitSuccess.ufForm", function() {
+        window.location.reload(true);
+    });
+
+    /**
+     * open the addNewEventCategoryModal upon click on the button
+     */
+    $('#addNewEventCategory').click(function(e) {
+        e.preventDefault();
+
+        /*
+        show the modal with default time zone
+        */
+        $('#addNewEventCategoryModal').modal('show');
+    });
+    /**
+     * end of addNewEventCategoryModal
+     */
+
+    /**
+     * open the updateEventCategoryModal upon tap/click on a row in the event_categories table
+     */
+    $('body').on('click touchstart', '#event_categories tbody tr', function(e) {
+        e.preventDefault();
+
+        /**
+         * populate the form with the values for this Event-category
+         */
+        var thisEventCategory = event_categoriestable.row( this ).data();
+        $('#update_event_category_name').val(thisEventCategory.name);
+        $('#update_event_category_id').val(thisEventCategory.id);
+        $('#update_event_category_color').val(thisEventCategory.category_color);
+        $('#update_event_category_color_icon').css('background-color', thisEventCategory.category_color);
+
+        if (thisEventCategory.admin_category == 1) {
+            $('#update_admin_event_category').prop('checked', true);
+            $('#update_admin_event_category').val(1);
+        }
+
+        /**
+         * show the modal
+         */
+        $('#updateEventCategoryModal').modal('show');
+    });
+    /**
+     * end of updateEventCategoryModal
+     */
+
+    /**
+     * what we want to do when a modal gets hidden
+     */
+    $('.modal').on('hidden.bs.modal', function(e) {
+       $('#form-alerts').empty();
+       $('#update_form-alerts').empty();
+       $('#update_sub_form-alerts').empty();
+       $('#update_event_form-alerts').empty();
+    });
+
+    /**
+     * whatever we want to do when a modal gets shown
+     */
+    $(".modal").on('shown', function() {
+        //
+    });
+
+    /**
+     * table redraw on resize of window and collapse of sidebar
+     */
+    $(window).resize(function(){
+        setTimeout(categoriestable.draw, 100);
+        setTimeout(sub_categoriestable.draw, 100);
+        setTimeout(event_categoriestable.draw, 100);
+    });
+
+    $('#admin_event_category').bootstrapSwitch();
+    $('#admin_event_category').bootstrapSwitch('setSizeClass', 'switch-mini');
+    $('#update_admin_event_category').bootstrapSwitch();
+    $('#update_admin_event_category').bootstrapSwitch('setSizeClass', 'switch-mini');
+
+});
+</script>
+{% endblock %}

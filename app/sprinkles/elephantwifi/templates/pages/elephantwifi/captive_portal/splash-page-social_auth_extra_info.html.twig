@@ -1,0 +1,140 @@
+{% extends "pages/elephantwifi/captive_portal/base/layout-captive-portal.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Splash page",
+        "description" : "Captive portal splash page"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div>
+                {# act depending on whether we have a custom logo to display or not #}
+                {%  if unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid != ''  %}
+                    <img src="{{site.uri.public}}/images/captive_portal/custom/logo/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_name}}" class="center-block img-responsive" alt="Logo">
+                {% else %}
+                    <img src="{{site.uri.public}}/assets-raw/images/captive_portal/logo.png" class="center-block img-responsive" alt="Logo">
+                {% endif %}
+                {# /custom logo #}
+			</div>
+			<div id="header">
+				<div style="text-align: center">
+					<h3>{{unifi_venue.venue_wifi.text_labels.heading}}</h3>
+				</div>
+			</div>
+            <div style="text-align: center">
+               <p>{{unifi_venue.venue_wifi.text_labels.sub_heading}}</p>
+            </div>
+			<div style="text-align: center">
+			   <p>{{unifi_venue.venue_wifi.text_labels.registration_sub_heading}}</p>
+			</div>
+			<div>
+                <div id="userfrosting-alerts">
+                    {% for alert in page.alerts %}
+                    <div class="alert alert-{{alert.type}} alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" style="display: table-cell;vertical-align: top;"><i class="fas fa-times"></i></span>
+                        </button>
+                        {{alert.message}}
+                    </div>
+                    {% endfor %}
+                </div>
+		        <div id="{{alerts_id | default('update_form-alerts')}}"></div>
+                <form class="form-horizontal" id="extra_info_form" action="{{site.uri.public}}/captive_portal/social_auth/extra_info" method="POST"  accept-charset="ISO-8859-1">
+                    {% include "forms/csrf.html.twig" %}
+                    {% if unifi_venue.venue_wifi.free_access_settings.form_gender == '1' %}
+                        <div class="form-group">
+                            <label for="gender" class="col-sm-4 control-label">{{unifi_venue.venue_wifi.text_labels.gender_label}}{% if unifi_venue.venue_wifi.free_access_settings.required_gender == 1 %}*{% endif %}</label>
+                            <div class="col-sm-7">
+                                <select class="form-control" id="gender" name="gender">
+                                    <option value="" selected disabled> Select gender</option>
+                                    <option value="0">Male</option>
+                                    <option value="1">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if unifi_venue.venue_wifi.free_access_settings.form_birth_date == '1' %}
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{unifi_venue.venue_wifi.text_labels.birth_date_label}}{% if unifi_venue.venue_wifi.free_access_settings.required_birth_date == 1 %}*{% endif %}</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="birth_date_day" name="birth_date_day" placeholder="Day">
+                                <select class="form-control" id="birth_date_month" name="birth_date_month">
+                                    <option value="" selected disabled>Month</option>
+                                    <option value="01">January</option>
+                                    <option value="02">February</option>
+                                    <option value="03">March</option>
+                                    <option value="04">April</option>
+                                    <option value="05">May</option>
+                                    <option value="06">June</option>
+                                    <option value="07">July</option>
+                                    <option value="08">August</option>
+                                    <option value="09">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">Novemeber</option>
+                                    <option value="12">Decemeber</option>
+                                </select>
+                                <input type="number" class="form-control" id="birth_date_year" name="birth_date_year" placeholder="Year" min="{{min_year}}" max="{{max_year}}">
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if unifi_venue.venue_wifi.free_access_settings.form_postcode == '1' %}
+                        <div class="form-group">
+                            <label for="postcode" class="col-sm-4 control-label">{{unifi_venue.venue_wifi.text_labels.postcode_label}}{% if unifi_venue.venue_wifi.free_access_settings.required_postcode == 1 %}*{% endif %}</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="postcode" name="postcode" placeholder="{{unifi_venue.venue_wifi.text_labels.postcode_placeholder}}">
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <button type='submit' id="formSubmit" name="formSubmit" class="btn btn-primary btn-sm"><i class="fas fa-cloud-upload-alt"></i> Submit</button>
+                </form>
+	        </div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        /**
+         * enable the submit button upon page ready
+         */
+        $("#formSubmit").removeClass("disabled");
+
+        /**
+         * Load the validator rules for this form
+         */
+        var validators  = {{validators | raw}};
+        var unifi_venue = {{unifi_venue | raw}};
+
+        /**
+         * Load the data required in the js for this page into variables for later use
+         * NOTE: take care not to load sensitive data here!
+         */
+        var site_uri_public = '{{site.uri.public | raw}}';
+        var portal_session = '{{portal_session | raw}}';
+
+        /**
+         * we need to use the function ufFormSubmit to submit the data through AJAX
+         * - ufFormSubmit processes a UserFrosting form, displaying messages from the message stream and executing specified callbacks
+         * example usage: ufFormSubmit(formElement, validators, msgElement, successCallback, msgCallback, beforeSubmitCallback)
+         */
+        $('#extra_info_form').ufForm({
+            validator: validators,
+            msgTarget: $("#update_form-alerts")
+        }).on("submitSuccess.ufForm", function() {
+            /**
+             * Redirect the user on success
+             */
+            window.location.href = site_uri_public + '/captive_portal/redirecting/' + portal_session
+        });
+    });
+</script>
+{% endblock %}
