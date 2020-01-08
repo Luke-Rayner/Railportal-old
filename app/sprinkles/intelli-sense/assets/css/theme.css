@@ -881,3 +881,12 @@ i.circle-icon.fa {
         margin-bottom: 15px;
     }
 }
+
+.portlet>.portlet-title>.tools>a.fullscreen:before {
+    content: "\f055";
+    font-family: "Font Awesome 5 Free";
+    font-size: 15px;
+    font-style: normal;
+    text-decoration: inherit;
+    font-weight:900
+}

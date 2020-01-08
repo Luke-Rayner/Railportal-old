@@ -682,6 +682,83 @@ class UserController extends SimpleController
         return $response->withJson([], 200);
     }
 
+    /**
+     * Processes the request to send a user a password reset email.
+     *
+     * Processes the request from the user update form, checking that:
+     * 1. The target user's new email address, if specified, is not already in use;
+     * 2. The logged-in user has the necessary permissions to update the posted field(s);
+     * 3. We're not trying to disable the master account;
+     * 4. The submitted data is valid.
+     * This route requires authentication.
+     *
+     * Request type: POST
+     *
+     * @param Request  $request
+     * @param Response $response
+     * @param array    $args
+     *
+     * @throws NotFoundException  If user is not found
+     * @throws ForbiddenException If user is not authozied to access page
+     */
+    public function createPasswordReset(Request $request, Response $response, $args)
+    {
+        // Get the username from the URL
+        $user = $this->getUserFromParams($args);
+
+        if (!$user) {
+            throw new NotFoundException();
+        }
+
+        /** @var \UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager $authorizer */
+        $authorizer = $this->ci->authorizer;
+
+        /** @var \UserFrosting\Sprinkle\Account\Database\Models\Interfaces\UserInterface $currentUser */
+        $currentUser = $this->ci->currentUser;
+
+        // Access-controlled resource - check that currentUser has permission to edit "password" for this user
+        if (!$authorizer->checkAccess($currentUser, 'uri_users', [
+            'user' => $user,
+            'fields' => ['password'],
+        ])) {
+            throw new ForbiddenException();
+        }
+
+        /** @var \UserFrosting\Support\Repository\Repository $config */
+        $config = $this->ci->config;
+
+        /** @var \UserFrosting\Sprinkle\Core\Alert\AlertStream $ms */
+        $ms = $this->ci->alerts;
+
+        // Begin transaction - DB will be rolled back if an exception occurs
+        Capsule::transaction(function () use ($user, $config) {
+
+            // Create a password reset and shoot off an email
+            $passwordReset = $this->ci->repoPasswordReset->create($user, $config['password_reset.timeouts.reset']);
+
+            // Create and send welcome email with password set link
+            $message = new TwigMailMessage($this->ci->view, 'mail/password-reset.html.twig');
+
+            $message->from($config['address_book.admin'])
+                    ->addEmailRecipient(new EmailRecipient($user->email, $user->full_name))
+                    ->setFromEmail($config['address_book.admin'])
+                    ->setReplyEmail($config['address_book.admin'])
+                    ->addParams([
+                        'user'         => $user,
+                        'token'        => $passwordReset->getToken(),
+                        'request_date' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ]);
+
+            $this->ci->mailer->send($message);
+        });
+
+        $ms->addMessageTranslated('success', 'PASSWORD.FORGET.REQUEST_SENT', [
+            'email' => $user->email,
+        ]);
+
+        return $response->withJson([], 200);
+    }
+
     protected function getUserFromParams($params)
     {
         // Load the request schema

@@ -119,11 +119,6 @@ function genPDF() {
 }
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Comparison_Charts_fixed_dates-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
@@ -204,6 +199,11 @@ var common_plot_options = {
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
     csv_data.push({
         heading: 'Current Week/Previous Week/This week Last year',
         process: false,

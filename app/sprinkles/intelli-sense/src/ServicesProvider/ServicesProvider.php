@@ -32,6 +32,7 @@ class ServicesProvider
          */
         $container->extend('classMapper', function ($classMapper, $c) {
             $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\IntelliSense\Database\Models\ExtendedUser');
+            $classMapper->setClassMapping('user_sprunje', 'UserFrosting\Sprinkle\IntelliSense\Sprunje\UserSprunje');
             return $classMapper;
         });
 
@@ -79,9 +80,13 @@ class ServicesProvider
                 $currentUser = $c->authenticator->user();
 
                 if ($authorizer->checkAccess($currentUser, 'uri_site_admin')) {
+                    return $response->withHeader('UF-Redirect', $c->router->pathFor('geo-sense-drone_summary'));
+                } 
+                else if (!$authorizer->checkAccess($currentUser, 'uri_wifi_user')) {
                     return $response->withHeader('UF-Redirect', $c->router->pathFor('geo-sense-dashboard'));
-                } else {
-                    return $response->withHeader('UF-Redirect', $c->router->pathFor('geo-sense-dashboard'));
+                }
+                else {
+                    return $response->withHeader('UF-Redirect', $c->router->pathFor('wifi-user-dashboard'));
                 }
             };
         };
@@ -108,9 +113,13 @@ class ServicesProvider
                 $currentUser = $c->authenticator->user();
 
                 if ($authorizer->checkAccess($currentUser, 'uri_site_admin')) {
+                    $redirect = $c->router->pathFor('geo-sense-drone_summary');
+                }
+                else if (!$authorizer->checkAccess($currentUser, 'uri_wifi_user')) {
                     $redirect = $c->router->pathFor('geo-sense-dashboard');
-                } else {
-                    $redirect = $c->router->pathFor('geo-sense-dashboard');
+                }
+                else {
+                    $redirect = $c->router->pathFor('wifi-user-dashboard');
                 }
                 
                 return $response->withRedirect($redirect);

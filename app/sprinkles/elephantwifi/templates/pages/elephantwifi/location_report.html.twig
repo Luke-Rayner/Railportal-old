@@ -381,15 +381,12 @@ $(document).ready(function() {
             firstDay: 1
         },
         ranges: {
-           'Current Day':               [moment().startOf('day'), moment()],
-           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
-           'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
-           'This Week to-date':         [rangeStart, rangeEnd], //default value for the page
-           'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
-           'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
-           'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
-           'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
-           'All Time':                  ['{{current_user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+           'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+           'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+           'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+           'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+           'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+           'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
         },
         startDate:  rangeStart,
         endDate:    rangeEnd,

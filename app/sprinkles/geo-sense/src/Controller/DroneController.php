@@ -238,7 +238,7 @@ class DroneController extends SimpleController
          * Get the venue linked to this drone
          */
         $venueQuery = new Venue;
-        $venue = $venueQuery->whereHas('zones.drones', function ($query) use ($drone_id) {
+        $venue = $venueQuery->with('venue_tracking')->whereHas('zones.drones', function ($query) use ($drone_id) {
             $query->where('id', $drone_id);
         })->first();
 

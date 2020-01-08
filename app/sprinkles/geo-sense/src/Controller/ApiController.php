@@ -2862,7 +2862,7 @@ class ApiController extends SimpleController
                  *
                  * get the allowed zones, then create an array which only contains the ids
                  */
-                $allowed_zones = collect($this->_app->user->zones);
+                $allowed_zones = collect($currentUser->zones);
                 $allowed_zones_ids = [];
                 foreach ($allowed_zones as $allowed_zone) {
                     $allowed_zones_ids[] = $allowed_zone->id;
@@ -3051,7 +3051,7 @@ class ApiController extends SimpleController
                      *
                      * get the allowed zones, then create an array which only contains the ids
                      */
-                    $allowed_zones = collect($this->_app->user->zones);
+                    $allowed_zones = collect($currentUser->zones);
                     $allowed_zones_ids = [];
                     foreach ($allowed_zones as $allowed_zone) {
                         $allowed_zones_ids[] = $allowed_zone->id;
@@ -4573,7 +4573,7 @@ class ApiController extends SimpleController
                      * - filter on the user's allowed zones AND on the user's primary_venue_id
                      * - get the allowed zones, then create an array which only contains their ids
                      */
-                    $allowed_zones = collect($this->_app->user->zones);
+                    $allowed_zones = collect($currentUser->zones);
                     $allowed_zone_ids = [];
 
                     foreach ($allowed_zones as $zone) {
@@ -5995,7 +5995,7 @@ class ApiController extends SimpleController
                      *
                      * get the allowed zones, then create an array which only contains the ids
                      */
-                    $allowed_zones = collect($this->_app->user->zones);
+                    $allowed_zones = collect($currentUser->zones);
                     $allowed_zones_ids = [];
                     foreach ($allowed_zones as $allowed_zone) {
                         $allowed_zones_ids[] = $allowed_zone->id;
@@ -7159,7 +7159,7 @@ class ApiController extends SimpleController
         $tag_filter = $current_venue->venue_tracking->event_info_zone_tag;
         $venue_filter = $currentUser->primary_venue_id;
         $event_info_bucket = $current_venue->venue_tracking->event_info_bucket;
-        $end = time();
+        $end = Carbon::now()->timestamp;
         $start = $end - $event_info_bucket;
         $results = [];
 
@@ -7168,8 +7168,8 @@ class ApiController extends SimpleController
          */
         $footfallQuery = new ProbeRequest;
         $finalQuery = $footfallQuery->selectRaw('DISTINCT(device_uuid)')
-            ->raw('PARTITION (p' . $venue_filter . ')')
-            ->whereBetween('ts', [$start, ($end + 1)]);
+            ->where('venue_id', 4)
+            ->whereBetween('ts', [(int)$start, ((int)$end + 1)]);
 
         if (!empty($tag_filter)) {
             /**
@@ -8219,7 +8219,7 @@ class ApiController extends SimpleController
          * check whether the user is allowed to view full venue stats or not
          * and act accordingly
          */
-        if ($currentUserr->full_venue_view_allowed == 1) {
+        if ($currentUser->full_venue_view_allowed == 1) {
             /**
              * user is allowed to view full venue stats
              * prepare and execute the query for the daily stats
@@ -8450,7 +8450,7 @@ class ApiController extends SimpleController
          * check whether the user is allowed to view full venue stats or not
          * and act accordingly
          */
-        if ($this->_app->user->full_venue_view_allowed == 1) {
+        if ($currentUser->full_venue_view_allowed == 1) {
             /**
              * user is allowed to view full venue stats
              * execute the prepared statement with the vars available for total visitors today
@@ -8627,7 +8627,7 @@ class ApiController extends SimpleController
              *
              * get the allowed zones, then create an array which only contains the ids
              */
-            $allowed_zones = collect($this->_app->user->zones);
+            $allowed_zones = collect($currentUser->zones);
             $allowed_zones_ids = [];
             foreach ($allowed_zones as $allowed_zone) {
                 $allowed_zones_ids[] = $allowed_zone->id;
@@ -10545,7 +10545,7 @@ class ApiController extends SimpleController
                  *
                  * get the allowed zones, then create an array which only contains the ids
                  */
-                $allowed_zones = collect($this->_app->user->zones);
+                $allowed_zones = collect($currentUser->zones);
                 $allowed_zones_ids = [];
                 foreach ($allowed_zones as $allowed_zone) {
                     $allowed_zones_ids[] = $allowed_zone->id;
@@ -11419,6 +11419,153 @@ class ApiController extends SimpleController
             'rows' => $drone_collection,
             'count_filtered' => $total_filtered
         ];
+
+        /**
+         * output the results in correct json formatting
+         */
+        return $response->withJson($results, 200, JSON_PRETTY_PRINT);
+    }
+
+    public function listTotalVisitorsThisWeek(Request $request, Response $response, $args)
+    {
+        // Get the current user
+        $currentUser = $this->ci->currentUser;
+
+        // Get the authorizer
+        $authorizer = $this->ci->authorizer;
+
+        // Check if user has permissions
+        if (!$authorizer->checkAccess($currentUser, 'uri_dashboard')) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $start = Carbon::now()->subDays(7)->startOfDay()->timestamp;
+        $end = Carbon::now()->startOfDay()->timestamp;
+
+        $visitorQuery = new TrackingDailyStatsVenueVisitors;
+        $total = $visitorQuery->count();
+
+        $visitotData = $visitorQuery->selectRaw('SUM(visitors_total) AS total')
+            ->where('day_epoch', '>=', $start)
+            ->where('day_epoch', '<', $end)
+            ->first();
+
+        $total_filtered = count($visitotData);
+
+        $results = [
+            'count' => $total,
+            'total' => (int)$visitotData['total'],
+            'count_filtered' => $total_filtered
+        ];
+
+        /**
+         * output the results in correct json formatting
+         */
+        return $response->withJson($results, 200, JSON_PRETTY_PRINT);
+    }
+
+    public function listLandingPageMapMetrics(Request $request, Response $response, $args)
+    {
+        // Get the current user
+        $currentUser = $this->ci->currentUser;
+
+        // Get the authorizer
+        $authorizer = $this->ci->authorizer;
+
+        // Check if user has permissions
+        if (!$authorizer->checkAccess($currentUser, 'uri_dashboard')) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $venueQuery = new Venue;
+
+        /**
+         * Get venues filtered by the show_stats_on_login flag
+         */
+        $venue_collection = $venueQuery->with('venue_tracking')
+            ->where('show_stats_on_login', 1)
+            ->where('tracking_venue', 1)
+            ->get();
+
+        /**
+         * iterate through the venue collection to construct the output for each venue
+         */
+        foreach ($venue_collection as $venue) {
+            $total_new_visitors = 0;
+            $total_repeat_visitors = 0;
+            $end_date = Carbon::now()->timestamp;
+            $venue_id = $venue->id;
+
+            /**
+             * prepare the query using a "random" PDO connection
+             */
+            $query = new TrackingDailyStatsVenueVisitors;
+            $db = $query->getConnection()->getPdo();
+
+            $visitor_data = $db->prepare('
+                SELECT SUM(visitors_new) AS visitors_new,
+                       SUM(visitors_total) AS visitor_total
+                FROM tracking_daily_stats_venue_visitors
+                WHERE venue_id = :venue_id
+            ');
+
+            /**
+             * bind the parameters to the selected query
+             */
+            $visitor_data->bindParam(':venue_id', $venue_id);
+            $visitor_data->execute();
+
+            foreach($visitor_data as $data) {
+                $total_new_visitors = $data['visitors_new'];
+                $total_repeat_visitors = $data['visitor_total'] - $data['visitors_new'];
+            }
+
+            /**
+             * count days/weeks/months from the start date to now using Carbon
+             */
+            $dt1 = Carbon::createFromTimestamp($venue->venue_tracking->capture_start);
+            $dt2 = Carbon::createFromTimestamp($end_date);
+
+            $days = $dt1->diffInDays($dt2);
+            $weeks = $dt1->diffInWeeks($dt2);
+            $months = $dt1->diffInMonths($dt2);
+
+            if ($days == 0) {
+                $days = 1;
+            }
+
+            if ($weeks == 0) {
+                $weeks = 1;
+            }
+
+            if ($months == 0) {
+                $months = 1;
+            }
+
+            /**
+             * determine the daily/weekly/monthly average visitor values
+             */
+            $average_visitors_per_day = round(($total_new_visitors + $total_repeat_visitors)/$days);
+            $average_visitors_per_week = round(($total_new_visitors + $total_repeat_visitors)/$weeks);
+            $average_visitors_per_month = round(($total_new_visitors + $total_repeat_visitors)/$months);
+
+            $venue_metrics[] = [
+                'id' => $venue->id,
+                'venue_name' => $venue->name,
+                'venue_lat' => $venue->lat,
+                'venue_lon' => $venue->lon,
+                'total_new_visitors' => $total_new_visitors,
+                'total_repeat_visitors' => $total_repeat_visitors,
+                'average_visitors_per_day' => $average_visitors_per_day,
+                'average_visitors_per_week' => $average_visitors_per_week,
+                'average_visitors_per_month' => $average_visitors_per_month
+            ];
+        }
+
+        /**
+         * assemble the results into a single object
+         */
+        $results = $venue_metrics;
 
         /**
          * output the results in correct json formatting

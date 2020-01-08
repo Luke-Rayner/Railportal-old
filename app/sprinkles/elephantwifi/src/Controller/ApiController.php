@@ -5213,7 +5213,16 @@ class ApiController extends SimpleController
          */
         $ap_collection = $apsQuery->with('ap_configs', 'zone.venue')->whereHas('zone.venue', function ($query) use($venue_filter) {
             $query->where('venue_id', $venue_filter);
-        })->orWhere('zone_id', 0)->get();
+        })
+        ->orWhere('zone_id', 0)
+        ->where('id', '!=', 173) // Office AP
+        ->where('id', '!=', 174) // Office AP
+        ->where('id', '!=', 175) // Office AP
+        ->where('id', '!=', 176) // Office AP
+        ->where('id', '!=', 216) // Office AP
+        ->where('id', '!=', 362) // Office AP
+        ->where('id', '!=', 341) // Office AP
+        ->get();
 
         $total_filtered  = count($ap_collection);
 
@@ -5222,6 +5231,261 @@ class ApiController extends SimpleController
             "rows" => $ap_collection->values()->toArray(),
             "count_filtered" => $total_filtered
         ];
+
+        /**
+         * output the results in correct json formatting
+         */
+        return $response->withJson($results, 200, JSON_PRETTY_PRINT);
+    }
+
+    public function listTotalConnectedThisWeek(Request $request, Response $response, $args)
+    {
+        // Get the authorizer
+        $authorizer = $this->ci->authorizer;
+
+        // Get the current user
+        $currentUser = $this->ci->currentUser;
+
+        // Check if user has permissions
+        if (!$authorizer->checkAccess($currentUser, 'uri_dashboard')) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $start = Carbon::now()->subDays(7)->startOfDay()->timestamp;
+        $end = Carbon::now()->startOfDay()->timestamp;
+
+        $visitorQuery = new WifiDailyStatsVenueVisitors;
+        $total = $visitorQuery->count();
+
+        $visitotData = $visitorQuery->selectRaw('SUM(total_device_uuid) AS total')
+            ->where('day_epoch', '>=', $start)
+            ->where('day_epoch', '<', $end)
+            ->first();
+
+        $total_filtered = count($visitotData);
+
+        $results = [
+            'count' => $total,
+            'total' => (int)$visitotData['total'],
+            'count_filtered' => $total_filtered
+        ];
+
+        /**
+         * output the results in correct json formatting
+         */
+        return $response->withJson($results, 200, JSON_PRETTY_PRINT);
+    }
+
+    public function listLandingPageMapMetrics(Request $request, Response $response, $args)
+    {
+        // Get the authorizer
+        $authorizer = $this->ci->authorizer;
+
+        // Get the current user
+        $currentUser = $this->ci->currentUser;
+
+        // Check if user has permissions
+        if (!$authorizer->checkAccess($currentUser, 'uri_dashboard')) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $venueQuery = new Venue;
+
+        /**
+         * Get venues filtered by the show_stats_on_login flag
+         */
+        $venue_collection = $venueQuery->with('venue_wifi')
+            ->where('show_stats_on_login', 1)
+            ->where('wifi_venue', 1)
+            ->get();
+
+        /**
+         * iterate through the venue collection to construct the output for each venue
+         */
+        foreach ($venue_collection as $venue) {
+            $total_new_visitors = 0;
+            $total_repeat_visitors = 0;
+            $end_date = Carbon::now()->timestamp;
+            $venue_id = $venue->id;
+
+            /**
+             * prepare the query using a "random" PDO connection
+             */
+            $query = new WifiDailyStatsVenueVisitors;
+            $db = $query->getConnection()->getPdo();
+
+            $visitor_data = $db->prepare('
+                SELECT SUM(total_device_uuid) AS total_visitors,
+                       SUM(new_device_uuid) AS new_visitors
+                FROM wifi_daily_stats_venue_client_per_day
+                WHERE venue_id = :venue_id
+            ');
+
+            /**
+             * bind the parameters to the selected query
+             */
+            $visitor_data->bindParam(':venue_id', $venue_id);
+            $visitor_data->execute();
+
+            foreach($visitor_data as $data) {
+                $total_new_visitors = $data['new_visitors'];
+                $total_repeat_visitors = $data['total_visitors'] - $data['new_visitors'];
+            }
+
+            /**
+             * count days/weeks/months from the start date to now using Carbon
+             */
+            $dt1 = Carbon::createFromTimestamp($venue->venue_wifi->capture_start);
+            $dt2 = Carbon::createFromTimestamp($end_date);
+
+            $days = $dt1->diffInDays($dt2);
+            $weeks = $dt1->diffInWeeks($dt2);
+            $months = $dt1->diffInMonths($dt2);
+
+            if ($days == 0) {
+                $days = 1;
+            }
+
+            if ($weeks == 0) {
+                $weeks = 1;
+            }
+
+            if ($months == 0) {
+                $months = 1;
+            }
+
+            /**
+             * determine the daily/weekly/monthly average visitor values
+             */
+            $average_visitors_per_day = round(($total_new_visitors + $total_repeat_visitors)/$days);
+            $average_visitors_per_week = round(($total_new_visitors + $total_repeat_visitors)/$weeks);
+            $average_visitors_per_month = round(($total_new_visitors + $total_repeat_visitors)/$months);
+
+            $venue_metrics[] = [
+                'id' => $venue->id,
+                'venue_name' => $venue->name,
+                'venue_lat' => $venue->lat,
+                'venue_lon' => $venue->lon,
+                'total_new_visitors' => $total_new_visitors,
+                'total_repeat_visitors' => $total_repeat_visitors,
+                'average_visitors_per_day' => $average_visitors_per_day,
+                'average_visitors_per_week' => $average_visitors_per_week,
+                'average_visitors_per_month' => $average_visitors_per_month
+            ];
+        }
+
+        /**
+         * assemble the results into a single object
+         */
+        $results = $venue_metrics;
+
+        /**
+         * output the results in correct json formatting
+         */
+        return $response->withJson($results, 200, JSON_PRETTY_PRINT);
+    }
+
+    public function totalUsersVsBrowsers(Request $request, Response $response, $args)
+    {
+        // Get the authorizer
+        $authorizer = $this->ci->authorizer;
+
+        // Get the current user
+        $currentUser = $this->ci->currentUser;
+
+        // Check if user has permissions
+        if (!$authorizer->checkAccess($currentUser, 'uri_dashboard')) {
+            throw new NotFoundException($request, $response);
+        }
+
+        /**
+         * filter on the user's primary_venue_id and get the user's timezone
+         */
+        $venue_filter = $currentUser->primary_venue_id;
+        $timezone = $currentUser->primaryVenue->time_zone;
+
+        /**
+         * initialise several variables
+         */
+        $results = ['browsers' => [], 'users' => []];
+
+        /*************************************************************************************
+         * WORK ON SELECTED RANGE FROM HERE
+         * - get the desired time zone
+         * - set $start, $end
+         *
+         * TODO:
+         * - determine full days within the body
+         * - get daily stats for it
+         * - determine whether tail is today or not
+         *  - yes: we get data from probe_requests
+         *  - no: we get hourly stats for it
+         * - determine head and get hourly stats for it
+         * - using Carbon to copy timestamps you need to use the copy function!!!
+         *************************************************************************************/
+        $start_date = Carbon::createFromTimestamp($args['start']/1000, $timezone);
+        $end_date = Carbon::createFromTimestamp($args['end']/1000, $timezone);
+
+        /**
+         * get the start date and end date (start of day)
+         */
+        $start = $start_date->format('U');
+        $end = $end_date->format('U');
+
+        /**
+         * prepare the query using a "random" PDO connection
+         */
+        $query = new WifiDailyStatsVenueUniqueDeviceUuids;
+        $db = $query->getConnection()->getPdo();
+
+        if ($start > 0 && $end > 0) {
+            /**
+             * create the prepared statement
+             */
+            $visitor_counts = $db->prepare('
+                SELECT SUM(browsers) AS browsers,
+                    SUM(users) AS users
+                FROM
+                (
+                    SELECT COUNT(CASE WHEN has_authorised = 1 THEN 1 END) AS browsers,
+                           COUNT(CASE WHEN has_authorised = 0 THEN 1 END) AS users
+                    FROM
+                    (
+                        SELECT DISTINCT(device_uuid),
+                               has_authorised,
+                               day_epoch
+                        FROM
+                        (
+                            SELECT device_uuid,
+                                   has_authorised,
+                                   day_epoch
+                            FROM wifi_daily_stats_venue_unique_device_uuids_per_hour
+                            WHERE (day_epoch + (3600*hour)) >= :start
+                            AND (day_epoch + (3600*hour)) < :end_1
+                            AND venue_id = :venue_id
+                        ) AS temp1
+                    ) AS temp2
+                    GROUP BY day_epoch
+                ) AS temp3'
+            );
+
+            /**
+             * bind the parameters to the selected query
+             */
+            $visitor_counts->bindParam(':start', $start);
+            $visitor_counts->bindParam(':end_1', $end);
+            $visitor_counts->bindParam(':venue_id', $venue_filter);
+
+            /**
+             * execute the query for total visitors
+             */
+            $visitor_counts->execute();
+        }
+
+        foreach($visitor_counts as $count) {
+            $results['browsers'] = (int)$count['browsers'];
+            $results['users'] = (int)$count['users'];
+        }
 
         /**
          * output the results in correct json formatting

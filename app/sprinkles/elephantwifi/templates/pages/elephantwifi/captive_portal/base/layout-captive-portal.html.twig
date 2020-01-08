@@ -17,7 +17,7 @@ TODO:
 {% set page_group = "captive_portal" %}
 {% block page %}
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html>
     {% block head %}
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -27,21 +27,12 @@ TODO:
         <meta name="description" content="{{page.description}}">
 {# NOTE: place fontawesome above bootstrap to avoid alignment issues #}
         <!-- Page stylesheets -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" rel="stylesheet" type="text/css" />
+        <link href="{{ assets.url("assets://css/font-awesome-captive-portal/css/all.css") }}" rel="stylesheet" type="text/css" />
         <link href="{{ assets.url("assets://css/bootstrap-3.3.6.min.css") }}" rel="stylesheet" type="text/css">
         <link href="{{ assets.url("assets://css/bootstrap-social.css") }}" rel="stylesheet" type="text/css">
         <link href="{{ assets.url("assets://css/captive-portal.css") }}" rel="stylesheet" type="text/css">
         <link href="{{site.uri.public}}/captive_portal/css/{{unifi_venue.id}}/venue-custom.css" rel="stylesheet" type="text/css">
         <title>{{unifi_venue.text_labels.page_title}}</title>
-
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-80178753-3"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'UA-80178753-3');
-        </script>
     </head>
     {% endblock %}
     <br>

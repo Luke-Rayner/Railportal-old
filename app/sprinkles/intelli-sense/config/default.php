@@ -13,8 +13,13 @@ return [
         ],
         'site_title' => 'Intelli Sense',
         'uri' => [
-            'author'  => 'https://kipla.co.uk',
-            'public'  => 'https://devportal.intelli-sense.co.uk'
+            'author'  => 'https://elephantwifi.co.uk',
+            'public'  => 'https://portal.intelli-sense.co.uk'
+        ],
+        'title' => 'ElephantWiFi',
+        'debug' => [
+            'ajax' => false,
+            'info' => false,
         ]
     ],
     
@@ -25,14 +30,30 @@ return [
     'locale' => 'en_US',
 
     'password_reset' => [
-        'algorithm'  => 'sha512',
-        'timeouts'   => [
+        'algorithm' => 'sha512',
+        'timeouts' => [
             'create' => 86400,
-            'reset'  => 10800
+            'reset' => 10800
         ]
     ],
 
+    /*
+     * Use router cache, disable full error details
+     */
+    // 'settings' => [
+    //     'routerCacheFile' => 'routes.cache',
+    //     'displayErrorDetails' => false,
+    // ],
+
     'address_book' => [
-        'admin' => 'support@elephantwifi.co.uk'
-    ]
+        'admin' => 'info@elephantwifi.co.uk'
+    ],
+
+    /*
+     * Send errors to log
+     */
+    'php' => [
+        'display_errors' => 'false',
+        'log_errors' => 'true',
+    ],
 ];

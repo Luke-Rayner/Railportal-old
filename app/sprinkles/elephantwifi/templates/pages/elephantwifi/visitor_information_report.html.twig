@@ -409,6 +409,11 @@ $('#tour_btn').click(function(e) {
 
 $(document).ready(function() {
 
+    $('#donut_1').html('<i class="fa fa-spinner fa-spin"></i>');
+    $('#donut_2').html('<i class="fa fa-spinner fa-spin"></i>');
+    $('#donut_3').html('<i class="fa fa-spinner fa-spin"></i>');
+    $('#donut_4').html('<i class="fa fa-spinner fa-spin"></i>');
+
     /**
      * get the data for donut_1
      */
@@ -436,226 +441,6 @@ $(document).ready(function() {
             }
         }
     };
-
-
-    /***************************************************************
-     * BEGIN daterangepicker from here
-     ***************************************************************/
-
-    /**
-     * define $start and $end for most of the charts
-     * and determine how far back do we go back to get clients stats
-     * TODO:
-     */
-    var rangeEnd       = moment().endOf('day').subtract(1, 'day');
-    var rangeStart     = moment().subtract(1, 'weeks').startOf('day');
-    var rightNow       = moment();
-
-    /**
-     * Store the URL Param
-     * If URL has a Search Pram change the date range
-     */
-    var searchText = getUrlParam('Search');
-    if (searchText != null) {
-        rangeStart = moment().subtract(30, 'days').startOf('day');
-    }
-
-    /**
-     * initiate the daterangepicker with initial start/end and Label
-     */
-    page_daterange(rangeStart, rangeEnd);
-
-    /**
-     * functions to display the "active" custom date range and the picker for current page
-     * - assuming start of data collection is January 1st, 2015
-     * TODO:
-     * - consider a venue variable that holds the start date and is checked/updated when setting up
-     */
-    $('#dashboard-report-range').daterangepicker({
-        timePicker:             false,
-        showISOWeekNumbers:     true,
-        locale: {
-            format: 'DD/MM/YYYY',
-            firstDay: 1
-        },
-        ranges: {
-           'Current week':     [moment().startOf('week'), rightNow],
-           'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
-           'Past 7 days':      [rangeStart, rangeEnd],
-           'Current month':    [moment().startOf('month'), moment().endOf('month')],
-           'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
-           'Past 31 days':     [moment().startOf('day').subtract(31, 'days'), rightNow],
-           'Current year':     [moment().startOf('year'), rightNow],
-           'Past 365 days':    [moment().startOf('day').subtract(1, 'years'), rightNow]
-        },
-        startDate:   rangeStart,
-        endDate:     rangeEnd,
-        minDate:     '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
-        maxDate:     moment().endOf('day').subtract(1, 'day'),
-        opens:       'left',
-        applyClass:  'blue',
-        cancelClass: 'red'
-    }, page_daterange);
-
-    /**
-     * callback function to execute upon selected date range
-     */
-    function page_daterange(start, end) {
-        console.log(start + ':' + end);
-        /**
-         * update these global variables for the daterangepicker and the ajax calls
-         */
-        rangeStart = start;
-        rangeEnd = end;
-        now = moment().valueOf();
-
-        /**
-         * place the selected range in the <span>s at the top of the page
-         */
-        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
-        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
-
-        /**
-         * get the data for donuts
-         */
-        $.ajax({
-            url: '{{site.uri.public}}/elephantwifi/api/stats/total_unique_venue_visitors/' + start + '/' + end + '/range',
-            type: 'GET',
-            dataType: 'json',
-            success: onDonut_bottom_DataReceived
-        });
-
-        /**
-         * Populate the table with data
-         */
-        var visitorTable = $('#visitorTable').on('error.dt', flashToasts).DataTable({
-            serverSide: false,
-            ajax: {
-                url: '{{site.uri.public}}/elephantwifi/api/list/visitors_basic_details/' + start + '/' + end,
-                dataSrc: function(json) {
-                    $('#list_title').html(json.length + ' Marketing visitors for the selected date range');
-                    identities = json;
-                    $('#spinner').hide();
-                    console.log(json);
-                    return json;
-                }
-            },
-            order: [[ 3, "desc" ]],
-            processing: true,
-            language: {
-                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="margin-top: 100px"></i><span class="sr-only">Loading...</span> '
-            },
-            scrollX: true,
-            columns: [
-                {data: 'avatar_url',
-                    "orderable": false,
-                    render: function(data, type, full, meta) {
-                        if(data != '') {
-                            image = '<img src="' + data + '" alt="Profile Picture">';
-                        } else {
-                            if(full.gender == 1)
-                                image = '<img src="' + site.uri.public + '/images/female-avatar.png" alt="Profile Picture" height="50px" width="50px">';
-                            else if(full.gender == 0)
-                                image = '<img src="' + site.uri.public + '/images/male-avatar.png" alt="Profile Picture" height="50px" width="50px">';
-                            else
-                                image = '<img src="' + site.uri.public + '/images/mixed-avatar.png" alt="Profile Picture" height="50px" width="50px">';
-                        }
-
-                        return image;
-                    }
-                },
-                {data: 'first_name',
-                    render: function(data, type, full, meta) {
-                        if (full.gender != null) {
-                            if(full.gender == 0) {
-                                gender = 'Male';
-                            } else {
-                                gender = 'Female';
-                            }
-                        } else {
-                            gender = '';
-                        }
-
-                        if (full.birth_date != null) {
-                            age = Math.round(((new Date()).getTime()/1000 - full.birth_date) / (60 * 60 * 24 * 365));
-                        } else {
-                            age = '';
-                        }
-
-                        return '<font color="#E15910">' + data + ' ' + full.last_name + '</font>' + '<br>' + gender + ' ' + age;
-                        // return (new Date()).getTime();
-                    }
-                },
-                {data: 'email_address'},
-                {data: 'last_seen',
-                    render: function(data, type, full, meta) {
-                        if (data != null) {
-                            last_seen = moment.unix(data).format("DD/MM/YYYY HH:mm");
-                        } else {
-                            last_seen = '';
-                        }
-
-                        // Hide the timestamp so you are able to sort the column correctly
-                        return last_seen;
-                    }
-                },
-                {data: 'provider',
-                    render: function(data, type, full, meta) {
-                        if (data == '') {
-                            return 'Registration Form';
-                        } else {
-                            return capitalizeFirstLetter(data);
-                        }
-                    }
-                },
-                {data: 'marketing_lists',
-                    render: function(data, type, full, meta) {
-                        var lists = [];
-                        $.each( data, function( index, value ){
-                            lists.push(value.list_name);
-                        });
-
-                        return lists.toString();
-                    }
-                }
-            ]
-        });
-
-        // Use the stored URL Param to search through the table
-        if (searchText != null) {
-            visitorTable.search(searchText).draw();
-        }
-
-        // Reload the table when the datetimepicker is changed
-        visitorTable.ajax.url(site.uri.public + '/elephantwifi/api/list/visitors_basic_details/' + start + '/' + end).load();
-
-        $('body').unbind("click").on('click', '#visitorTable tbody tr', function(e) {
-            e.preventDefault();
-
-            /**
-             * populate the form with the values for this row
-             */
-            var thisNotification = visitorTable.row( this ).data();
-            console.log(thisNotification.user_id);
-
-            /**
-            * get the device data with ajax
-            */
-            $.ajax({
-                url:      site.uri.public + '/elephantwifi/api/list/visitor_details/' + thisNotification.user_id,
-                type:     'GET',
-                dataType: 'json',
-                success:  onIdentityDataReceived,
-                error:    console.log("error")
-            });
-
-            $('#visitorModal').modal('show');
-        });      
-    }
-
-    /***************************************************************
-     * END of daterangepicker
-     ***************************************************************/
 
     function onIdentityDataReceived(data) {
         console.log("hello");
@@ -827,6 +612,228 @@ $(document).ready(function() {
         $('#donut_7').html(data.average_weekly.toLocaleString());
         $('#donut_8').html(data.average_daily.toLocaleString());
     }
+
+    /***************************************************************
+     * BEGIN daterangepicker from here
+     ***************************************************************/
+
+    /**
+     * define $start and $end for most of the charts
+     * and determine how far back do we go back to get clients stats
+     * TODO:
+     */
+    var rangeEnd = moment().endOf('day').subtract(1, 'day');
+    var rangeStart = moment().subtract(1, 'weeks').startOf('day');
+    var rightNow = moment();
+
+    /**
+     * Store the URL Param
+     * If URL has a Search Pram change the date range
+     */
+    var searchText = getUrlParam('Search');
+    if (searchText != null) {
+        rangeStart = moment().subtract(30, 'days').startOf('day');
+    }
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     * - assuming start of data collection is January 1st, 2015
+     * TODO:
+     * - consider a venue variable that holds the start date and is checked/updated when setting up
+     */
+    $('#dashboard-report-range').daterangepicker({
+        timePicker:             false,
+        showISOWeekNumbers:     true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        ranges: {
+           'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+           'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+           'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+           'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+           'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+           'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+        },
+        startDate:   rangeStart,
+        endDate:     rangeEnd,
+        minDate:     '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:     moment().endOf('day').subtract(1, 'day'),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        console.log(start + ':' + end);
+        /**
+         * update these global variables for the daterangepicker and the ajax calls
+         */
+        rangeStart = start;
+        rangeEnd = end;
+        now = moment().valueOf();
+
+        /**
+         * place the selected range in the <span>s at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        $('#donut_5').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_6').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_7').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_8').html('<i class="fa fa-spinner fa-spin"></i>');
+
+        /**
+         * get the data for donuts
+         */
+        $.ajax({
+            url: '{{site.uri.public}}/elephantwifi/api/stats/total_unique_venue_visitors/' + start + '/' + end + '/range',
+            type: 'GET',
+            dataType: 'json',
+            success: onDonut_bottom_DataReceived
+        });
+
+        /**
+         * Populate the table with data
+         */
+        var visitorTable = $('#visitorTable').on('error.dt', flashToasts).DataTable({
+            serverSide: false,
+            ajax: {
+                url: '{{site.uri.public}}/elephantwifi/api/list/visitors_basic_details/' + start + '/' + end,
+                dataSrc: function(json) {
+                    $('#list_title').html(json.length + ' Marketing visitors for the selected date range');
+                    identities = json;
+                    $('#spinner').hide();
+                    console.log(json);
+                    return json;
+                }
+            },
+            order: [[ 3, "desc" ]],
+            processing: true,
+            language: {
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="margin-top: 100px"></i><span class="sr-only">Loading...</span> '
+            },
+            scrollX: true,
+            columns: [
+                {data: 'avatar_url',
+                    "orderable": false,
+                    render: function(data, type, full, meta) {
+                        if(data != '') {
+                            image = '<img src="' + data + '" alt="Profile Picture">';
+                        } else {
+                            if(full.gender == 1)
+                                image = '<img src="' + site.uri.public + '/assets-raw/images/female-avatar.png" alt="Profile Picture" height="50px" width="50px">';
+                            else if(full.gender == 0)
+                                image = '<img src="' + site.uri.public + '/assets-raw/images/male-avatar.png" alt="Profile Picture" height="50px" width="50px">';
+                            else
+                                image = '<img src="' + site.uri.public + '/assets-raw/images/mixed-avatar.png" alt="Profile Picture" height="50px" width="50px">';
+                        }
+
+                        return image;
+                    }
+                },
+                {data: 'first_name',
+                    render: function(data, type, full, meta) {
+                        if (full.gender != null) {
+                            if(full.gender == 0) {
+                                gender = 'Male';
+                            } else {
+                                gender = 'Female';
+                            }
+                        } else {
+                            gender = '';
+                        }
+
+                        if (full.birth_date != null) {
+                            age = Math.round(((new Date()).getTime()/1000 - full.birth_date) / (60 * 60 * 24 * 365));
+                        } else {
+                            age = '';
+                        }
+
+                        return '<font color="#E15910">' + data + ' ' + full.last_name + '</font>' + '<br>' + gender + ' ' + age;
+                        // return (new Date()).getTime();
+                    }
+                },
+                {data: 'email_address'},
+                {data: 'last_seen',
+                    render: function(data, type, full, meta) {
+                        if (data != null) {
+                            last_seen = moment.unix(data).format("DD/MM/YYYY HH:mm");
+                        } else {
+                            last_seen = '';
+                        }
+
+                        // Hide the timestamp so you are able to sort the column correctly
+                        return last_seen;
+                    }
+                },
+                {data: 'provider',
+                    render: function(data, type, full, meta) {
+                        if (data == '') {
+                            return 'Registration Form';
+                        } else {
+                            return capitalizeFirstLetter(data);
+                        }
+                    }
+                },
+                {data: 'marketing_lists',
+                    render: function(data, type, full, meta) {
+                        var lists = [];
+                        $.each( data, function( index, value ){
+                            lists.push(value.list_name);
+                        });
+
+                        return lists.toString();
+                    }
+                }
+            ]
+        });
+
+        // Use the stored URL Param to search through the table
+        if (searchText != null) {
+            visitorTable.search(searchText).draw();
+        }
+
+        // Reload the table when the datetimepicker is changed
+        visitorTable.ajax.url(site.uri.public + '/elephantwifi/api/list/visitors_basic_details/' + start + '/' + end).load();
+
+        $('body').unbind("click").on('click', '#visitorTable tbody tr', function(e) {
+            e.preventDefault();
+
+            /**
+             * populate the form with the values for this row
+             */
+            var thisNotification = visitorTable.row( this ).data();
+            console.log(thisNotification.user_id);
+
+            /**
+            * get the device data with ajax
+            */
+            $.ajax({
+                url:      site.uri.public + '/elephantwifi/api/list/visitor_details/' + thisNotification.user_id,
+                type:     'GET',
+                dataType: 'json',
+                success:  onIdentityDataReceived,
+                error:    console.log("error")
+            });
+
+            $('#visitorModal').modal('show');
+        });      
+    }
+
+    /***************************************************************
+     * END of daterangepicker
+     ***************************************************************/
 });
 
 $('#device_list').on('click', '.list-group-item', function() {

@@ -111,6 +111,8 @@
 var target_drone = {{target_drone | raw}};
 var venue = {{venue | raw}};
 
+console.log(venue);
+
 $(document).ready(function() {
 
     /**
@@ -232,7 +234,7 @@ $(document).ready(function() {
      */
     var rangeStart = moment().subtract(24, 'hours');
     var rangeEnd = moment();
-    var minDate = moment.unix(venue.capture_start);
+    var minDate = moment.unix(venue.venue_tracking.capture_start);
 
     page_daterange(rangeStart, rangeEnd);
 

@@ -26,6 +26,8 @@ $app->group('/enviro-sense/api', function () {
 
 	$this->get('/overview/zone/stats/{enviro_sensor_id}', 'UserFrosting\Sprinkle\EnviroSense\Controller\ApiController:listEnviromentalZoneOverviewStats');
 
+	$this->get('/overview/daqi', 'UserFrosting\Sprinkle\EnviroSense\Controller\ApiController:listEnviromentalOverviewDAQI');
+
 	$this->get('/overview/zone/donut_stats/{enviro_sensor_id}', 'UserFrosting\Sprinkle\EnviroSense\Controller\ApiController:listEnviromentalZoneOverviewDonutStats');
 
 	$this->get('/stats/{start}/{end}', 'UserFrosting\Sprinkle\EnviroSense\Controller\ApiController:listEnviromentalStats');

@@ -80,7 +80,8 @@ class ExtendedUser extends User
     {
         if (in_array($name, [
             'aux',
-            'venue_name'
+            'venue_name',
+            'company_name'
         ])) {
             return true;
         } else {
@@ -100,6 +101,8 @@ class ExtendedUser extends User
             return $this->primaryVenue->name;
         else if ($name == "api_key")
             return $this->getApiKey;
+        else if ($name == "company_name")
+            return $this->company->name;
         else
             return parent::__get($name);
     }
@@ -132,6 +135,22 @@ class ExtendedUser extends User
             // Needed to immediately hydrate the relation.  It will actually get saved in the bootLinkExtendedUserAux method.
             $this->setRelation('aux', $aux);
         }
+    }
+
+    /**
+     * Joins the user's company, so we can do things like sort, search, paginate, etc.
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeJoinCompany($query)
+    {
+        $query = $query->select('company.*');
+
+        $query = $query->leftJoin('company', 'company.id', '=', 'extended_users.company_id');
+
+        return $query;
     }
 
     /**

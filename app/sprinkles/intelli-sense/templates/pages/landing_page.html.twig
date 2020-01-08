@@ -1,0 +1,961 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Landing Page",
+        "description" : "Overview of all our solutions"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="row text-center" style="display: none" id="pdf_title">
+        <img src="{{site.uri.public}}/assets-raw/images/WiFi-Logo-Image-Blue.png" height="50px" width="50px" style="margin-top: 5px"/>
+        <u><h1 class="bold">INTELLI-SENSE</h1></u>
+    </div>
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_1" class="portlet light bordered">
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption">
+                    <span class="caption-subject bold" style="color: white;">
+                        <img src="{{site.uri.public}}/assets-raw/images/footprint-geo.png" height="4%" width="4%" />
+                        <img src="{{site.uri.public}}/assets-raw/images/header-geo.png" height="7%" width="18%" class="wifi-logo-text"/>
+                    </span>
+                    <span class="caption-helper bold" style="color: white; font-size: 1vw;"> - New / Repeat Past 7 Days</span>
+                </div>
+                <div class="tools"></div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_1" style="width: 100%; height: 200px; margin: 0 auto; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_1_2" class="portlet light bordered">
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption" style="padding-top: 2%; padding-bottom: 2%;">
+                    <span class="caption-subject bold" style="color: white;">
+                        <img src="{{site.uri.public}}/assets-raw/images/WiFi-Logo-Image.png" height="4%" width="5%" />
+                        <img src="{{site.uri.public}}/assets-raw/images/WiFi-Logo-Text.png" height="10%" width="24%" class="wifi-logo-text"/>
+                    </span>
+                    <span class="caption-helper bold" style="color: white; font-size: 1vw;"> - Browsers / Users Past 7 Days</span>
+                </div>
+                <div class="tools"></div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_1_2" style="width: 100%; height: 200px; margin: 0 auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div {% if checkAccess('uri_enviro_user') %} id="chart_container_2_1" {% endif %} class="portlet light bordered">
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption ">
+                    <span class="caption-subject bold" style="color: white;">
+                        <img src="{{site.uri.public}}/assets-raw/images/Enviro-Sense-Logo.gif" height="4%" width="4%"/>
+                        <img src="{{site.uri.public}}/assets-raw/images/Enviro-Sense-Text.gif" height="7%" width="18%" class="wifi-logo-text"/>
+                    </span>
+                    <span class="caption-helper bold" style="color: white; font-size: 1vw;"> - DAQI for today</span>
+                </div>
+                <div class="tools"></div>
+            </div>
+            <div class="portlet-body">
+                {% if current_user.primaryVenue.enviro_venue == 1 %}
+                    {% if checkAccess('uri_enviro_user') %}
+                        <div id="chart_2_1" style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 600%;"></div>
+                    {% else %}
+                        <div style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 200%;">
+                            <img src="{{site.uri.public}}/assets-raw/images/enviro-widget-info.jpg"/>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div style="width: 100%; height: 200px; margin: 0 auto; text-align: center; font-size: 200%;">
+                        <img src="{{site.uri.public}}/assets-raw/images/enviro-widget-info.jpg" height="100%" width="100%"/>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_2" class="portlet light bordered">
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption" style="padding-bottom: 3%; padding-top: 2%;">
+                    <span class="caption-subject bold" style="color: white; font-size: 1vw;">Parking Solution</span>
+                    <span class="caption-helper" style="color: #BEBEBE;"></span>
+                </div>
+                <div class="tools"></div>
+            </div>
+            <div class="portlet-body">
+                <div id="chart_2_2" style="width: 100%; height: 200px; margin: 0 auto">
+                    <img src="{{site.uri.public}}/assets-raw/images/car-park-widget.jpg" height="100%" width="100%"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption">
+                    <span class="caption-subject bold" style="color: white;">
+                        <img src="{{site.uri.public}}/assets-raw/images/footprint-geo.png" height="4%" width="4%" />
+                        <img src="{{site.uri.public}}/assets-raw/images/header-geo.png" width="23%" class="wifi-logo-text"/>
+                    </span>
+                    <span class="caption-helper bold" style="color: white; font-size: 1vw;"> - Heatmap Overview</span>
+                </div>
+                <div class="tools"></div>
+            </div>
+            <div class="portlet-body">
+               <div id="geo_sense_heatmap_container" style="width:100%; height:800px;"></div>
+            </div>
+            <br>
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption text-center" style="width: 100%">
+                    <p class="caption-subject" style="color: white;">Total Visitors Last 7 Days</p>
+                    <br>
+                    <p id="geo_sense_past_7_day_total_figure" class="bold" style="color: white; font-size: 40px;"></p>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div id="chart_container_2_1" class="portlet light bordered">
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption" style="padding-top: 2%; padding-bottom: 2%;">
+                    <span class="caption-subject bold" style="color: white;">
+                        <img src="{{site.uri.public}}/assets-raw/images/WiFi-Logo-Image.png" height="5%" width="6%" />
+                        <img src="{{site.uri.public}}/assets-raw/images/WiFi-Logo-Text.png" width="37%" class="wifi-logo-text"/>
+                    </span>
+                    <span class="caption-helper bold" style="color: white; font-size: 1vw;"> - Heatmap Overview</span>
+                </div>
+                <div class="tools"></div>
+            </div>
+            <div class="portlet-body">
+               <div id="wifi_heatmap_container" style="width:100%; height:800px;"></div>
+            </div>
+            <br>
+            <div class="portlet-title" style="background-color: #1C2746; padding-left: 20px; padding-right: 20px;">
+                <div class="caption text-center" style="width: 100%">
+                    <p class="caption-subject" style="color: white;">Total Connected Devices Last 7 Days</p>
+                    <br>
+                    <p id="wifi_past_7_day_total_figure" class="bold" style="color: white; font-size: 40px;"></p>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- END PORTLETS -->
+{# END PAGE CONTENT #}
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript">
+
+// Alert var
+var alert_notifications = {{alert_notifications}};
+
+/**
+ * some global vars/objects/arrays which will be required later on
+ */
+var geo_sense_marker_options = {};
+var geo_sense_markers = [];
+var geo_sense_bounds = [];
+
+var wifi_marker_options = {};
+var wifi_markers = [];
+var wifi_bounds = [];
+
+/**
+ * configuration parameters to customise the heatmap presentation
+ */
+var heatmap_padding = 50;
+var heatmap_radius = 60;
+var init_zoom = 5;
+var max_zoom = 18;
+var min_zoom = 5;
+
+$(document).ready(function() {
+
+    /**
+     * Show the logon alerts
+     */
+    {% for alert in page.alerts %}
+        /**
+         * here we cycle through any alerts we may have and create a toastr message for each
+         */
+        var alert_type    = '{{alert.type}}';
+        var alert_message = '{{alert.message}}';
+
+        if (alert_type == 'login'){
+            if (alert_notifications > 0) {
+                /**
+                 * here we define the options for the login motification
+                 */
+
+                // Get CSRF token
+                var csrf_token = $("meta[name=csrf_token]").attr("content");
+                data = {
+                    csrf_token: csrf_token 
+                };
+
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": false,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": 0,
+                    "extendedTimeOut": 0,
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut",
+                    "tapToDismiss": false
+                }
+
+                toastr.options.onHidden = function() {
+                    // $.ajax({
+                    //     type: 'POST',
+                    //     url: "{{site.uri.public}}/alert_seen/" + alert_details.id,
+                    //     dataType: 'json',
+                    //     data: data
+                    // });
+                };
+
+                toastr.options.onclick = function() {
+                    $('.toast .toast-close-button').focus();
+                    var newTab = window.open('https://portal.intelli-sense.co.uk/message-center', '_blank');
+                    newTab.focus();
+                }
+
+                var title   = 'New Notifications'; 
+                var message = 'You have ' + alert_notifications + ' new notifications. Please click here to find out more.'; 
+                
+                toastr['info'](message, title);
+            }
+            
+            toastr.options.onclick = function() {}
+            toastr['success'](alert_message);
+        } 
+        else if (alert_type == 'success'){
+            toastr['success'](alert_message);
+        } 
+        else if (alert_type == 'warning'){
+            toastr['warning'](alert_message);
+        } 
+        else  if (alert_type == 'info'){
+            toastr['info'](alert_message);
+        } 
+        else if (alert_type == 'danger'){
+            toastr['error'](alert_message);
+        }
+    {% endfor %}
+
+    var enviro_venue   = '{{current_user.primaryVenue.enviro_venue}}';
+    var tracking_venue = '{{current_user.primaryVenue.tracking_venue}}';
+    var wifi_venue     = '{{current_user.primaryVenue.wifi_venue}}';
+
+    /**
+     * here we get all the dashboard metrics with ajax,
+     * starting off with some timing definitions
+     */
+    var now        = moment();
+    var rangeEnd   = moment().startOf('day');
+    var rangeStart = moment().startOf('day').subtract(7, 'days');
+
+    /**********************************
+     * Shared Heatmap Options - Start *
+     *********************************/
+
+    /*****************************
+     * Geo-Sense Heatmap - Start *
+     ****************************/
+
+    $.ajax({
+        url: site.uri.public + '/geo-sense/api/total_visitors_this_week',
+        type: 'GET',
+        dataType: 'json',
+        success: onTrackingTotalWeeklyDataReceived,
+        error: flashToasts
+    });
+
+    function onTrackingTotalWeeklyDataReceived(data) {
+        $('#geo_sense_past_7_day_total_figure').html(data.total.toLocaleString());
+    }
+
+    $.ajax({
+        url: site.uri.public + '/geo-sense/api/landing_page_map_metrics',
+        type: 'GET',
+        dataType: 'json',
+        error: flashToasts,
+        success: function(data) {
+            onGeoSenseHeatmap_DataReceived(data);
+        }
+    });
+
+    /**
+     * define the default icon
+     */
+    var geo_sense_HeatmapIcon = L.AwesomeMarkers.icon({
+        icon:           'street-view',
+        prefix:         'fa',
+        markerColor:    'blue'
+    });
+
+    geo_sense_popup_options       = {closeButton: false, keepInView: true};
+    geo_sense_popup_layer_options = {closeButton: true, offset: L.point(0,-24), closeOnClick: false, autoClose: false};
+    geo_sense_marker_options      = {icon: geo_sense_HeatmapIcon};
+
+    /**
+     * configuration options for Heatmap.js
+     */
+    var geo_sense_cfg = {
+        /**
+         * radius should be small ONLY if scaleRadius is true (or small radius is intended)
+         */
+        radius: {{current_user.primaryVenue.heatmap_radius}},
+        maxOpacity: .8,
+
+        /**
+         * scales the radius based on map zoom
+         */
+        scaleRadius: false,
+
+        /**
+         * if set to false the heatmap uses the global maximum for colorization
+         * if activated: uses the data maximum within the current map boundaries
+         * (there will always be a red spot with useLocalExtremas true)
+         */
+        useLocalExtrema: false,
+
+        /**
+         * mapping the data fields
+         */
+        latField:   'venue_lat',
+        lngField:   'venue_lon',
+        valueField: 'average_visitors_per_day'
+    };
+
+    /**
+     * heatmap starts here
+     */
+    var geo_sense_venue_data = {
+        min: 1,
+        max: 0,
+        data:[]
+    };
+
+    /**
+     * initialise the heatmap layer
+     */
+    var geo_sense_heatmapLayer = new HeatmapOverlay(geo_sense_cfg);
+
+    /**
+     * then bring the layers together (heatmap layer and MapQuest layer)
+     */
+    var geo_sense_venue_heatmap = new L.Map('geo_sense_heatmap_container', {
+        center: new L.LatLng('{{current_user.primaryVenue.lat}}', '{{current_user.primaryVenue.lon}}'),
+        zoom: '{{current_user.primaryVenue.heatmap_init_zoom}}',
+        layers: [ MQ.mapLayer(), geo_sense_heatmapLayer]
+    });
+
+    /**
+     * callback function to process collected user stats for chart 1.1
+     */
+    function onGeoSenseHeatmap_DataReceived(data) {
+        /**
+         * create geo_sense_markers for all venues that are provided and initialize some counters
+         */
+        var total_average_daily       = 0;
+        var total_average_weekly      = 0;
+        var total_average_monthly     = 0;
+        var total_cumulative_visitors = 0;
+
+        _.forEach(data, function(value, key) {
+            /**
+             * calculate the value of the total daily average
+             * (we use this so that we can calculate the relative size of each venue's heatmap)
+             * calculate other overall metrics while we're going through all the venue metrics
+             */
+            total_average_daily       += value.average_visitors_per_day;
+            total_average_weekly      += value.average_visitors_per_week;
+            total_average_monthly     += value.average_visitors_per_month;
+            total_cumulative_visitors += (value.total_new_visitors + value.total_repeat_visitors);
+
+            geo_sense_markers[value.id] = L.marker([value.venue_lat, value.venue_lon], geo_sense_marker_options)
+                .addTo(geo_sense_venue_heatmap);
+
+            var popup_content = '<table><tr><td><b>' + value.venue_name + '</b></td></tr><tr>';
+            // if (value.total_new_visitors > 0 && value.total_repeat_visitors > 0 && value.average_visitors_per_day > 0 && value.average_visitors_per_week > 0 && value.average_visitors_per_month) {
+            //     popup_content += '<td>Total new visitors:</td><td align="right">'
+            //     popup_content += value.total_new_visitors.toLocaleString() + '</td></tr><tr><td>Total repeat visitors:</td><td align="right">';
+            //     popup_content += value.total_repeat_visitors.toLocaleString()+ '</td></tr><tr><td>Average daily visitors:</td><td align="right">';
+            //     popup_content += value.average_visitors_per_day.toLocaleString() + '</td></tr><tr><td>Average weekly visitors:</td><td align="right">';
+            //     popup_content += value.average_visitors_per_week.toLocaleString() + '</td></tr><tr><td>Average monthly visitors:</td><td align="right">';
+            //     popup_content += value.average_visitors_per_month.toLocaleString() + '</td></tr>';
+            // } else {
+            //     popup_content += '<tr><td>Coming soon...</td></tr>';
+            // }
+
+            popup_content += '</table>';
+
+            geo_sense_markers[value.id].bindPopup(popup_content, geo_sense_popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                this.closePopup();
+            });
+
+            geo_sense_bounds.push([value.venue_lat, value.venue_lon]);
+        });
+
+        /**
+         * use the geo_sense_bounds array to center the map with the correct amount of padding
+         */
+        geo_sense_venue_heatmap.fitBounds(geo_sense_bounds, {padding: [heatmap_padding, heatmap_padding]});
+
+        /**
+         * update the heatmap configuration parameters:
+         * - data
+         * - max value (which determine radius of heatmap for each marker)
+         */
+        geo_sense_venue_data.data = data;
+        geo_sense_venue_data.max  = total_average_daily/data.length;
+
+        geo_sense_heatmapLayer.setData(geo_sense_venue_data);
+    }
+
+    /************************
+     * WiFi Heatmap - Start *
+     ***********************/
+
+    $.ajax({
+        url:        site.uri.public + '/elephantwifi/api/total_connected_this_week',
+        type:       'GET',
+        dataType:   'json',
+        success:    onWiFiTotalWeeklyDataReceived,
+        error:      flashToasts
+    });
+
+    function onWiFiTotalWeeklyDataReceived(data) {
+        $('#wifi_past_7_day_total_figure').html(data.total.toLocaleString());
+    }
+
+    $.ajax({
+        url:        site.uri.public + '/elephantwifi/api/landing_page_map_metrics',
+        type:       'GET',
+        dataType:   'json',
+        error:      flashToasts,
+        success:    function(data) {
+            onWiFiHeatmap_DataReceived(data);
+        }
+    });
+
+    /**
+     * define the default icon
+     */
+    var wifi_HeatmapIcon = L.AwesomeMarkers.icon({
+        icon:           'street-view',
+        prefix:         'fa',
+        markerColor:    'blue'
+    });
+
+    wifi_popup_options       = {closeButton: false, keepInView: true};
+    wifi_popup_layer_options = {closeButton: true, offset: L.point(0,-24), closeOnClick: false, autoClose: false};
+    wifi_marker_options      = {icon: wifi_HeatmapIcon};
+
+    /**
+     * configuration options for Heatmap.js
+     */
+    var wifi_cfg = {
+        /**
+         * radius should be small ONLY if scaleRadius is true (or small radius is intended)
+         */
+        radius: {{current_user.primaryVenue.heatmap_radius}},
+        maxOpacity: .8,
+
+        /**
+         * scales the radius based on map zoom
+         */
+        scaleRadius: false,
+
+        /**
+         * if set to false the heatmap uses the global maximum for colorization
+         * if activated: uses the data maximum within the current map boundaries
+         * (there will always be a red spot with useLocalExtremas true)
+         */
+        useLocalExtrema: false,
+
+        /**
+         * mapping the data fields
+         */
+        latField:   'venue_lat',
+        lngField:   'venue_lon',
+        valueField: 'average_visitors_per_day'
+    };
+
+    /**
+     * heatmap starts here
+     */
+    var wifi_venue_data = {
+        min: 1,
+        max: 0,
+        data:[]
+    };
+
+    /**
+     * initialise the heatmap layer
+     */
+    var wifi_heatmapLayer = new HeatmapOverlay(wifi_cfg);
+
+    /**
+     * then bring the layers together (heatmap layer and MapQuest layer)
+     */
+    var wifi_venue_heatmap = new L.Map('wifi_heatmap_container', {
+        center: new L.LatLng('{{current_user.primaryVenue.lat}}', '{{current_user.primaryVenue.lon}}'),
+        zoom: '{{current_user.primaryVenue.heatmap_init_zoom}}',
+        layers: [ MQ.mapLayer(), wifi_heatmapLayer]
+    });
+
+    /**
+     * callback function to process collected user stats for chart 1.1
+     */
+    function onWiFiHeatmap_DataReceived(data) {
+        /**
+         * create wifi_markers for all venues that are provided and initialize some counters
+         */
+        var total_average_daily       = 0;
+        var total_average_weekly      = 0;
+        var total_average_monthly     = 0;
+        var total_cumulative_visitors = 0;
+
+        _.forEach(data, function(value, key) {
+            /**
+             * calculate the value of the total daily average
+             * (we use this so that we can calculate the relative size of each venue's heatmap)
+             * calculate other overall metrics while we're going through all the venue metrics
+             */
+            total_average_daily       += value.average_visitors_per_day;
+            total_average_weekly      += value.average_visitors_per_week;
+            total_average_monthly     += value.average_visitors_per_month;
+            total_cumulative_visitors += (value.total_new_visitors + value.total_repeat_visitors);
+
+            wifi_markers[value.id] = L.marker([value.venue_lat, value.venue_lon], wifi_marker_options)
+                .addTo(wifi_venue_heatmap);
+
+            var popup_content = '<table><tr><td><b>' + value.venue_name + '</b></td></tr><tr>';
+            // if (value.total_new_visitors > 0 && value.total_repeat_visitors > 0 && value.average_visitors_per_day > 0 && value.average_visitors_per_week > 0 && value.average_visitors_per_month) {
+            //     popup_content += '<td>Total new visitors:</td><td align="right">'
+            //     popup_content += value.total_new_visitors.toLocaleString() + '</td></tr><tr><td>Total repeat visitors:</td><td align="right">';
+            //     popup_content += value.total_repeat_visitors.toLocaleString()+ '</td></tr><tr><td>Average daily visitors:</td><td align="right">';
+            //     popup_content += value.average_visitors_per_day.toLocaleString() + '</td></tr><tr><td>Average weekly visitors:</td><td align="right">';
+            //     popup_content += value.average_visitors_per_week.toLocaleString() + '</td></tr><tr><td>Average monthly visitors:</td><td align="right">';
+            //     popup_content += value.average_visitors_per_month.toLocaleString() + '</td></tr>';
+            // } else {
+            //     popup_content += '<tr><td>Coming soon...</td></tr>';
+            // }
+
+            popup_content += '</table>';
+
+            wifi_markers[value.id].bindPopup(popup_content, wifi_popup_options)
+                .on('mouseover', function (e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function (e) {
+                this.closePopup();
+            });
+
+            wifi_bounds.push([value.venue_lat, value.venue_lon]);
+        });
+
+        /**
+         * use the wifi_bounds array to center the map with the correct amount of padding
+         */
+        wifi_venue_heatmap.fitBounds(wifi_bounds, {padding: [heatmap_padding, heatmap_padding]});
+
+        /**
+         * update the heatmap configuration parameters:
+         * - data
+         * - max value (which determine radius of heatmap for each marker)
+         */
+        wifi_venue_data.data = data;
+        wifi_venue_data.max  = total_average_daily/data.length;
+
+        wifi_heatmapLayer.setData(wifi_venue_data);
+    }
+
+    /*********************
+     * Chart_1_1 - Start *
+     ********************/
+
+    if (tracking_venue == 1) {
+        /**
+         * get the data for chart 3.2, chart 1.2, donut_1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/geo-sense/api/visitor_report/new_vs_repeat/old/' + rangeStart + '/' + rangeEnd,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_1_DataReceived
+        });
+
+        /**
+         * define specific options then draw "chart 1.1" to
+         * container: chart_1_1
+        */
+        var chart_1_1_Options = {
+            chart: {
+                type: 'pie',
+                renderTo: 'chart_1_1',
+                backgroundColor: '#FFFFFF',
+                plotBorderWidth: null,
+                plotShadow: false,
+                spacingTop: 0,
+                spacingBottom: 0,
+                spacingLeft: 0,
+                spacingRight: 0
+            },
+            plotOptions: {
+                pie: {
+                    innerSize: '65%',
+                    center: ['50%', '50%'],
+                    borderWidth: 0,
+                    allowPointSelect: false,
+                    cursor: false,
+                    showInLegend: true,
+                    point: {
+                        events: {
+                            legendItemClick: function () {
+                                return false;
+                            }
+                        }
+                    }
+                },
+                series: {
+                    states: {
+                        hover: {
+                            enabled: false
+                        }
+                    }
+                }
+            },
+            legend: {
+                align: 'right',
+                verticalAlign: 'top',
+                layout: 'vertical',
+                floating: true
+            },
+            tooltip: {
+                formatter: function () {
+                    var tooltipcontent = '<b style="font-size: 12px;">' + this.key + '</b><br><p style="font-size: 12px;">' + (Math.round(this.percentage*10))/10 + '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')</p>';
+                    return tooltipcontent;
+                }
+            },
+            title: {
+                align: 'center',
+                verticalAlign: 'middle',
+                y: 10
+            }
+        };
+
+        chart_1_1_Options.series = [{
+            name: "visitors",
+            data: [{
+                name: "new visitors",
+                y: 0,
+                color: '#e25826'
+            },
+            {
+                name: "repeat visitors",
+                y: 0,
+                color: '#132149'
+            }]
+        }];
+
+        var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+        chart_1_1.showLoading();
+
+        /**
+         * callback to be called from the bundled ajax calls
+         */
+        function onChart_1_1_DataReceived(data) {
+            var totalnew    = 0;
+            var totalrepeat = 0;
+
+            if (typeof data.new !== 'undefined') {
+                _.forEach(data.new, function(value) {
+                    totalnew += value[1];
+                });
+
+                _.forEach(data.repeat, function(value) {
+                    totalrepeat += value[1];
+                });
+            }
+
+            /**
+             * define font size percentage for the donut contents, reduce size if total is over 1M
+             */
+            var chart_1_1__font_size_perc = 150;
+            if (totalnew + totalrepeat >= 1000000) {
+                var chart_1_1__font_size_perc = 120;
+            }
+
+            chart_1_1_Options.title.text = '<b style="font-size: ' + chart_1_1__font_size_perc + '%; font-weight: bold;">' + (totalnew + totalrepeat).toLocaleString() + '</b><br><b>Total</b>';
+            var chart_1_1 = new Highcharts.Chart(chart_1_1_Options);
+            chart_1_1.series[0].setData([totalnew, totalrepeat]);
+        }
+    }
+    else {
+        
+    }
+
+    /*********************
+     * Chart_1_2 - Start *
+     ********************/
+
+    if (wifi_venue == 1) {
+        /**
+         * get the data for chart 1.2
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/stats/users_vs_browsers/' + rangeStart + '/' + rangeEnd,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_2_DataReceived
+        });
+
+        /**
+         * define specific options then draw "chart 1.1" to
+         * container: chart_1_1
+        */
+        var chart_1_2_Options = {
+            chart: {
+                type: 'pie',
+                renderTo: 'chart_1_2',
+                backgroundColor: '#FFFFFF',
+                plotBorderWidth: null,
+                plotShadow: false,
+                spacingTop: 0,
+                spacingBottom: 0,
+                spacingLeft: 0,
+                spacingRight: 0
+            },
+            plotOptions: {
+                pie: {
+                    innerSize: '65%',
+                    center: ['50%', '50%'],
+                    borderWidth: 0,
+                    allowPointSelect: false,
+                    cursor: false,
+                    showInLegend: true,
+                    point: {
+                        events: {
+                            legendItemClick: function () {
+                                return false;
+                            }
+                        }
+                    }
+                },
+                series: {
+                    states: {
+                        hover: {
+                            enabled: false
+                        }
+                    }
+                }
+            },
+            legend: {
+                align: 'right',
+                verticalAlign: 'top',
+                layout: 'vertical',
+                floating: true
+            },
+            tooltip: {
+                formatter: function () {
+                    var tooltipcontent = '<b style="font-size: 12px;">' + this.key + '</b><br><p style="font-size: 12px;">' + (Math.round(this.percentage*10))/10 + '% (' + this.y.toLocaleString() + ' of ' + this.total.toLocaleString() + ')</p>';
+                    return tooltipcontent;
+                }
+            },
+            title: {
+                align: 'center',
+                verticalAlign: 'middle',
+                y: 10
+            }
+        };
+
+        chart_1_2_Options.series = [{
+            name: "visitors",
+            data: [{
+                name: "browsers",
+                y: 0,
+                color: '#e25826'
+            },
+            {
+                name: "users",
+                y: 0,
+                color: '#132149'
+            }]
+        }];
+
+        /**
+         * initialize the chart
+         */
+        var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+        chart_1_2.showLoading();
+
+        /**
+         * callback to be called from the bundled ajax calls
+         */
+        function onChart_1_2_DataReceived(data) {
+            var browsers = data['browsers'];
+            var users = data['users'];
+
+            /**
+             * define font size percentage for the donut contents, reduce size if total is over 1M
+             */
+            var chart_1_2__font_size_perc = 150;
+            if (browsers + users >= 1000000) {
+                var chart_1_2__font_size_perc = 120;
+            }
+
+            chart_1_2_Options.title.text = '<b style="font-size: ' + chart_1_2__font_size_perc + '%; font-weight: bold;">' + (browsers + users).toLocaleString() + '</b><br><b>Total</b>';
+            var chart_1_2 = new Highcharts.Chart(chart_1_2_Options);
+            chart_1_2.series[0].setData([browsers, users]);
+        }
+
+        $('#chart_1_2').click(function() {
+            window.location.href = "{{site.uri.public}}/wifi/dashboard";
+        });
+    } 
+    else {
+        $('#chart_1_2').html('<img src="' + site.uri.public + '/images/no-wifi-widget.jpg" height="100%" width="100%"/>');
+    }
+
+    /*********************
+     * Chart_1_3 - Start *
+     ********************/
+
+    if (enviro_venue == 1) {
+        /**
+         * get the DAQI stats
+         */
+        $.ajax({
+            url:      '{{site.uri.public}}/enviro-sense/api/overview/daqi',
+            type:     'GET',
+            dataType: 'json',
+            success:   onEnviroOverviewDAQIDataReceived
+        });    
+
+        function onEnviroOverviewDAQIDataReceived(data) {
+            console.log(data);
+
+            //Get AQI
+            var aqi_rating = parseInt(data['value']).toFixed(0);
+            var aqi_color  = '';
+            var aqi_text = '';
+            var aqi_text_color = '';
+
+            if (aqi_rating == 1 || aqi_rating == 2 || aqi_rating == 3) {
+                 aqi_color = '#009900';
+                 aqi_text = 'Low'
+                 aqi_text_color = 'black'
+            } 
+            else if (aqi_rating == 4 || aqi_rating == 5 || aqi_rating == 6) {
+                aqi_color = '#FF9900';
+                aqi_text = 'Moderate'
+                aqi_text_color = 'black'
+            }
+            else if (aqi_rating == 7 || aqi_rating == 8 || aqi_rating == 9) {
+                aqi_color = '#FF0000';
+                aqi_text = 'High'
+                aqi_text_color = 'white'
+            }
+            else {
+                aqi_color = '#CE30FF';
+                aqi_text = 'Very High'
+                aqi_text_color = 'white'
+            }
+
+            $('#chart_2_1').html("DAQI - " + aqi_rating + "<br><p style='font-size: 20px;'>" + aqi_text + "</p>");
+            $('#chart_2_1').css('background-color', aqi_color);
+            $('#chart_2_1').css('color', aqi_text_color);
+        }
+
+        $('#chart_2_1').click(function() {
+            window.location.href = "{{site.uri.public}}/enviro/venue_overview";
+        });
+    }
+
+    /***********************
+     * Other Functionality *
+     **********************/
+
+    //disable default scroll 
+    geo_sense_venue_heatmap.scrollWheelZoom.disable();
+
+    $("#geo_sense_heatmap_container").bind('mousewheel DOMMouseScroll', function (event) {
+        event.stopPropagation();
+        if (event.ctrlKey == true) {
+                event.preventDefault();
+            geo_sense_venue_heatmap.scrollWheelZoom.enable();
+            $('#geo_sense_heatmap_container').removeClass('map-scroll');
+            setTimeout(function(){
+                geo_sense_venue_heatmap.scrollWheelZoom.disable();
+            }, 1000);
+        } else {
+            geo_sense_venue_heatmap.scrollWheelZoom.disable();
+            $('#geo_sense_heatmap_container').addClass('map-scroll');
+        }
+    });
+
+    $(window).bind('mousewheel DOMMouseScroll', function (event) {
+       $('#geo_sense_heatmap_container').removeClass('map-scroll');
+    });
+
+    wifi_venue_heatmap.scrollWheelZoom.disable();
+
+    $("#wifi_heatmap_container").bind('mousewheel DOMMouseScroll', function (event) {
+        event.stopPropagation();
+        if (event.ctrlKey == true) {
+                event.preventDefault();
+            wifi_venue_heatmap.scrollWheelZoom.enable();
+            $('#wifi_heatmap_container').removeClass('map-scroll');
+            setTimeout(function(){
+                wifi_venue_heatmap.scrollWheelZoom.disable();
+            }, 1000);
+        } else {
+            wifi_venue_heatmap.scrollWheelZoom.disable();
+            $('#wifi_heatmap_container').addClass('map-scroll');
+        }
+    });
+
+    $(window).bind('mousewheel DOMMouseScroll', function (event) {
+       $('#wifi_heatmap_container').removeClass('map-scroll');
+    });
+});
+</script>
+{% endblock %}

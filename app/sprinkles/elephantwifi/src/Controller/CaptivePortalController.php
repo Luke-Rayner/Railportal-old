@@ -1664,6 +1664,7 @@ class CaptivePortalController extends SimpleController
                 'dob' => $dob,
                 'list_uids' => $list_uids
             );
+
             $this->submitIdentityToMailinglist($details, $venue, $venue->venue_wifi->mail_type);
 
             // If they had to re-select marketing and chose some lists
@@ -1730,7 +1731,8 @@ class CaptivePortalController extends SimpleController
              */
             $registration_expiry_date = time() + ($venue->venue_wifi->free_access_settings->registration_duration * 60);
             $device->registration_expiry_date = $registration_expiry_date;
-        } else {
+        } 
+        else {
             error_log('we have encountered an authorisation error');
             /**
              * halt and create an error message
@@ -2048,7 +2050,7 @@ class CaptivePortalController extends SimpleController
             $user = $classMapper->createInstance('user', $data);
             $user->save();
 
-            $user->addRole($data['group_id']);
+            $user->roles()->sync($data['group_id']);
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$user->user_name} created a new account.", [
@@ -2099,11 +2101,9 @@ class CaptivePortalController extends SimpleController
             $roleIds = $user->getRoleIds();
 
             if(!in_array(3, $roleIds)) {
-                // Add user to WiFi User group
-                $user->addRole(3);
+                array_push($roleIds, 3);
+                $user->roles()->sync($roleIds);
                 $user->save();
-
-                error_log('User was added to WiFi User group');
             }
 
             /**
@@ -2238,7 +2238,7 @@ class CaptivePortalController extends SimpleController
         /**
          * we use credentials from the controller object
          */
-        $unifidata = new UnifiController($venue->venue_wifi->controller->user_name, $venue->venue_wifi->controller->password, $venue->venue_wifi->controller->url, $venue->venue_wifi->controller_venue_id, $venue->venue_wifi->controller->version, $this->_app);
+        $unifidata = new UnifiController($venue->venue_wifi->controller->user_name, $venue->venue_wifi->controller->password, $venue->venue_wifi->controller->url, $venue->venue_wifi->controller_venue_id, $venue->venue_wifi->controller->version, $this->ci);
         $loginresults = $unifidata->login();
 
         /**

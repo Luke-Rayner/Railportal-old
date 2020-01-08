@@ -55,7 +55,31 @@ $(document).ready(function() {
         msgTarget: $("#alerts-page")
     }).on("submitSuccess.ufForm", function() {
         // Forward to login page on success
-        window.location.replace(site.uri.public);
+        function getCookie(key) {
+            const regexp = new RegExp(`.*${key}=([^;]*)`);
+            const result = regexp.exec(document.cookie);
+            if(result) {
+                return result [1];
+            }
+        }
+
+        var faq_attempt = parseInt(getCookie('FAQ_Attempt'));
+
+        if (faq_attempt == 1) {
+            // Setting cross domain cookie
+            var now = new Date();
+            var time = now.getTime();
+            // 6 Hours Expiry Time (1000 converts ms into s)
+            var expireTime = time + 1000*21600;
+            now.setTime(expireTime);
+
+            document.cookie = "IntelliSense_Authorisation=1;expires=" + now.toGMTString() + ";path=/;domain=intelli-sense.co.uk";
+            
+            window.location.replace("https://faq.intelli-sense.co.uk/");
+        }
+        else {
+            window.location.replace(site.uri.public);
+        }        
     });
 });
 </script>

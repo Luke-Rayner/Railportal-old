@@ -28,10 +28,12 @@ use UserFrosting\Sprinkle\IntelliSense\Database\Models\Venue;
 use UserFrosting\Sprinkle\IntelliSense\Database\Models\SiteConfiguration;
 use UserFrosting\Sprinkle\IntelliSense\Database\Models\Event;
 use UserFrosting\Sprinkle\IntelliSense\Database\Models\EventCategory;
+use UserFrosting\Sprinkle\IntelliSense\Database\Models\ExtendedUser;
 
 use UserFrosting\Sprinkle\GeoSense\Database\Models\ProbeRequest;
 use UserFrosting\Sprinkle\GeoSense\Database\Models\Whitelist;
 use UserFrosting\Sprinkle\GeoSense\Database\Models\WhitelistDeviceVendor;
+use UserFrosting\Sprinkle\GeoSense\Database\Models\Drone;
 
 use UserFrosting\Sprinkle\ElephantWifi\Database\Models\Device;
 use UserFrosting\Sprinkle\ElephantWifi\Database\Models\Session;
@@ -240,10 +242,9 @@ class SystemController extends SimpleController
         foreach($api_data as $data) {
             $enviro_sensor = EnviroSensor::where('serial_id', $data['id'])->first();
 
-            $enviro_sensor->status = $data['status'];
-            $enviro_sensor->versionsw = $data['versionsw'];
-            $enviro_sensor->versionhw = $data['versionhw'];
-            $enviro_sensor->save();
+            if (!empty($enviro_sensor)) {
+                $enviro_sensor->update(['status' => $data['status'], 'versionsw' => $data['versionsw'], 'versionhw' => $data['versionhw']]);
+            }
         }
     }
 
@@ -409,6 +410,10 @@ class SystemController extends SimpleController
                     if (empty($access_point->_uptime))
                         $access_point->_uptime = null;
 
+                    if (!isset($access_point->name)) {
+                        $access_point->name = 'NO NAME SET';
+                    }
+
                     $ap_config = new ApConfig([
                         'name' => $access_point->name,
                         'firmware_version' => $access_point->version,
@@ -517,7 +522,7 @@ class SystemController extends SimpleController
 
     private function wifiClientConnectionCronJob()
     {
-        $now = Carbon::now('Europe/London')->Second(0)->timestamp;
+        $now = Carbon::now('Europe/London')->second(0)->timestamp;
         /**
          * Get a list of all the available controllers
          */
@@ -591,7 +596,11 @@ class SystemController extends SimpleController
         }
     }
 
-    private function droneCheckCronJob(){
+    private function droneCheckCronJob()
+    {
+    	/** @var \UserFrosting\Support\Repository\Repository $config */
+        $config = $this->ci->config;
+    	
         $droneQuery = new Drone;
 
         /**
@@ -678,44 +687,6 @@ class SystemController extends SimpleController
                         unset($drone->last_activity);
                         unset($drone->last_health_message);
                         $drone->save();
-
-                        /**
-                         * if drone has passed the offline threshold by 2*5 minutes we should consider issuing an alert
-                         *
-                         * TODO:
-                         * - figure out how to best avoid sending out alerts every 5 minutes after threshold has been crossed
-                         *   (only alert twice by using second if clause?)
-                         * - define the e-mail address in the system settings
-                         * - add in the Venue name and IP address of the drone
-                         */
-                        if ($now - $drone->last_activity->timestamp > $drone_offline_threshold + 600 && $now - $drone->last_activity->timestamp < $drone_offline_threshold + 1000) {
-                            echo 'ALERT:    ' . $drone->id . ' ' . $drone->name . ', was offline too long. Sending email alert' . PHP_EOL;
-
-                            /**
-                             * Fetch the configured email address/name for notifications
-                             */
-                            $recipient_email = $fetch_settings->where('plugin', 'cron')
-                                ->where('name', 'cron_alert_recipient_email')
-                                ->first()->value;
-
-                            $recipient_name = $fetch_settings->where('plugin', 'cron')
-                                ->where('name', 'cron_alert_recipient_name')
-                                ->first()->value;
-
-                            // Create and send email
-                            $message = new TwigMailMessage($this->ci->view, 'mail/drone-offline-notification.html.twig');
-
-                            $message->from($config['address_book.admin'])
-                                    ->addEmailRecipient(new EmailRecipient($recipient_email, $recipient_name))
-                                    ->setFromEmail($config['address_book.admin'])
-                                    ->setReplyEmail($config['address_book.admin'])
-                                    ->addParams([
-                                        'drone' => $drone,
-                                        'offline_duration' => round(($now - $drone->last_activity->timestamp)/60)
-                                    ]);
-
-                            $this->ci->mailer->send($message);
-                        }
                     }
                 }
             }

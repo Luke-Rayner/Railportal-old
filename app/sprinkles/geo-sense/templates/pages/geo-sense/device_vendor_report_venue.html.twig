@@ -100,11 +100,6 @@ var printUpdate = function () {
 };
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Device_Vendor_Report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
@@ -115,6 +110,11 @@ var venue_name = '{{user.venue_name}}';
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
     /**
      * update export title to reflect selected range
      */

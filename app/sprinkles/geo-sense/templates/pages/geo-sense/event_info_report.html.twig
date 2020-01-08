@@ -258,7 +258,7 @@ function fetchFootfallData() {
      * to the timer function at the end of the script section
      */
     $.ajax({
-        url:      '{{site.uri.public}}/geo-sense/api/event/footfall_count/',
+        url:      '{{site.uri.public}}/geo-sense/api/event/footfall_count',
         type:     'GET',
         dataType: 'json',
         success:  onCurrentFootfallDataReceived
@@ -269,6 +269,7 @@ function fetchFootfallData() {
  * function push the received footfall data to the page
  */
 function onCurrentFootfallDataReceived(data) {
+    console.log(data);
     if (data > current_visitor_count) {
         counter_suffix = ' <i class="fa fa-arrow-circle-up" style="font-size: 50%;"></i>';
     } else if (data < current_visitor_count) {

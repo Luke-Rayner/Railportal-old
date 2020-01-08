@@ -95,7 +95,7 @@
                 <div class="number bold">
                     <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Average Weekly Retail Sales <p style="font-size: 16px;">all businesses for <span id="donut_1_month_container"></span> </p>  </div>
+                <div class="desc" style="font-size: 1.3em;"> Average Weekly Sales <p style="font-size: 0.7em;">all businesses for <span id="donut_1_month_container"></span> </p>  </div>
             </div>
         </a>
     </div>
@@ -108,7 +108,7 @@
                 <div class="number bold">
                     <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Average Weekly Retail Sales <p style="font-size: 16px;">large businesses for <span id="donut_3_month_container"></span></p> </div>
+                <div class="desc" style="font-size: 1.3em;"> Average Weekly Sales <p style="font-size: 0.7em;">large businesses for <span id="donut_3_month_container"></span></p> </div>
             </div>
         </a>
     </div>
@@ -121,7 +121,7 @@
                 <div class="number bold">
                     <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                     </div>
-                <div class="desc"> Average Weekly Retail Sales <p style="font-size: 16px;">small businesses for <span id="donut_4_month_container"></span></p> </div>
+                <div class="desc" style="font-size: 1.3em;"> Average Weekly Sales <p style="font-size: 0.7em;">small businesses for <span id="donut_4_month_container"></span></p> </div>
             </div>
         </a>
     </div>
@@ -134,7 +134,7 @@
                 <div class="number bold">
                     <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Average Weekly Online Retail Sales <p style="font-size: 16px;">all businesses for <span id="donut_2_month_container"></span></p> </div>
+                <div class="desc" style="font-size: 1.3em;"> Average Weekly Online Sales <p style="font-size: 0.7em;">all businesses for <span id="donut_2_month_container"></span></p> </div>
             </div>
         </a>
     </div>
@@ -150,7 +150,7 @@
                 <div class="number bold">
                     <span id="donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Online Penetration <p style="font-size: 16px;">for <span id="donut_5_month_container"></span></p> </div>
+                <div class="desc" style="font-size: 1.3em;"> Online Penetration <p style="font-size: 0.7em;">for <span id="donut_5_month_container"></span></p> </div>
             </div>
         </a>
     </div>
@@ -163,7 +163,7 @@
                 <div class="number bold">
                     <span id="donut_7"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Sales, Year on Year Difference <p style="font-size: 16px;">all businesses for <span id="donut_7_month_container"></span></p> </div>
+                <div class="desc" style="font-size: 1.3em;"> Sales, Year on Year Difference <p style="font-size: 0.7em;">all businesses for <span id="donut_7_month_container"></span></p> </div>
             </div>
         </a>
     </div>
@@ -176,7 +176,7 @@
                 <div class="number bold">
                     <span id="donut_8"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                     </div>
-                <div class="desc"> Sales, Month on Month Difference <p style="font-size: 16px;">all businesses for <span id="donut_8_month_container"></span></p> </div>
+                <div class="desc" style="font-size: 1.3em;"> Sales, Month on Month Difference <p style="font-size: 0.7em;">all businesses for <span id="donut_8_month_container"></span></p> </div>
             </div>
         </a>
     </div>
@@ -189,7 +189,7 @@
                 <div class="number bold">
                     <span id="donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Footfall, last month </div>
+                <div class="desc" style="font-size: 1.3em;"> Footfall, last month </div>
             </div>
         </a>
     </div>
@@ -587,13 +587,13 @@ function onChart_1_1_DataReceived(data) {
     chart_1_1.series[1].setData(data[1]);
     chart_1_1.series[2].setData(data[2]);
 
-    $('#donut_1').html('£' + (Math.round((data[0][data[0].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_1').html('£' + (Math.round((data[0][data[0].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + 'm');
     $('#donut_1_month_container').html( moment(data[0][data[0].length - 1][0]).format('MMMM') );
 
-    $('#donut_3').html('£' + (Math.round((data[1][data[1].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_3').html('£' + (Math.round((data[1][data[1].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + 'm');
     $('#donut_3_month_container').html( moment(data[1][data[1].length - 1][0]).format('MMMM') );
 
-    $('#donut_4').html('£' + (Math.round((data[2][data[2].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_4').html('£' + (Math.round((data[2][data[2].length - 1][1] / 1000000) * 100) / 100).toLocaleString() + 'm');
     $('#donut_4_month_container').html( moment(data[2][data[2].length - 1][0]).format('MMMM') );
 }
 
@@ -678,7 +678,7 @@ function onChart_2_1_DataReceived(data) {
     var chart_2_1 = new Highcharts.Chart(chart_2_1_Options);
     chart_2_1.series[0].setData(data);
 
-    $('#donut_2').html('£' + (Math.round((data[data.length - 1][1] / 1000000) * 100) / 100).toLocaleString() + ' Million');
+    $('#donut_2').html('£' + (Math.round((data[data.length - 1][1] / 1000000) * 100) / 100).toLocaleString() + 'm');
     $('#donut_2_month_container').html( moment(data[data.length - 1][0]).format('MMMM') );
 }
 

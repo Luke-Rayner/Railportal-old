@@ -187,7 +187,7 @@ class User extends Model implements UserInterface
      *
      * @return bool true if the deletion was successful, false otherwise.
      */
-    public function delete($hardDelete = true)
+    public function delete($hardDelete = false)
     {
         /** @var \UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = static::$ci->classMapper;
@@ -202,6 +202,7 @@ class User extends Model implements UserInterface
 
             // Remove all user tokens
             $this->activities()->delete();
+
             $this->passwordResets()->delete();
             $classMapper->getClassMapping('verification')::where('user_id', $this->id)->delete();
             $classMapper->getClassMapping('persistence')::where('user_id', $this->id)->delete();

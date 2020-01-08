@@ -172,6 +172,9 @@ $app->group('/pdf', function () {
 	$this->get('/pdf_templates/repeat_visitors/{start}/{end}', 'UserFrosting\Sprinkle\IntelliSense\Controller\PDFController:getPdfRepeatVisitors');
 });
 
+// Landing Page
+$app->get('/landing-page', 'UserFrosting\Sprinkle\IntelliSense\Controller\DashboardController:pageLanding');
+
 // System routes
 $app->get('/system/cron/{cron_id}/{secret_key}', 'UserFrosting\Sprinkle\IntelliSense\Controller\SystemController:processCronRequest');
 
@@ -184,6 +187,7 @@ $app->post('/user/session_expiry_time/u', 'UserFrosting\Sprinkle\IntelliSense\Co
 $app->get('/users', 'UserFrosting\Sprinkle\IntelliSense\Controller\UserController:pageUsers');
 $app->post('/users', 'UserFrosting\Sprinkle\IntelliSense\Controller\UserController:createUser');
 $app->post('/users/u/{user_id}', 'UserFrosting\Sprinkle\IntelliSense\Controller\UserController:updateUser');
+$app->post('/api/users/u/{user_name}/password-reset', 'UserFrosting\Sprinkle\IntelliSense\Controller\UserController:createPasswordReset');
 
 $app->get('/event-calendar', 'UserFrosting\Sprinkle\IntelliSense\Controller\EventController:pageEventCalendar');
 

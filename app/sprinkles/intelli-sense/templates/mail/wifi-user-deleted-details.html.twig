@@ -1,0 +1,100 @@
+{% block subject %}
+    WiFi User {{user.full_name}} deleted their details
+{% endblock %}
+
+{% block body %}
+<p>
+    Dear {{recipient}},
+</p>
+<p>
+    An account has been deleted, here are the account details:
+</p>
+<ul>
+    <li>
+        Name: {{user.full_name}}
+    </li>
+    <li>
+        Email: {{user.email}}
+    </li>
+    <li>
+    	Registed With: {{identity.authenticated_by}}
+    </li>
+    <li>
+    	First Seen: {{user.created_at}}
+    </li>
+    <li>
+    	Deleted At: {{time}}
+    </li>
+</ul>
+
+<p>
+    Fields which have been deleted
+</p>
+<ul>
+    {% if identity.first_name|length %}
+        <li>
+            First Name
+        </li>
+    {% endif %}
+
+    {% if identity.last_name|length %}
+        <li>
+            Last Name
+        </li>
+    {% endif %}
+
+    {% if identity.email_address|length %}
+        <li>
+            Email Address
+        </li>
+    {% endif %}
+
+    {% if identity.provider|length %}
+        <li>
+            Social Provider
+        </li>
+    {% endif %}
+
+    {% if identity.profile_id|length %}
+        <li>
+            Profile Id
+        </li>
+    {% endif %}
+
+    {% if identity.gender|length %}
+        <li>
+            Gender
+        </li>
+    {% endif %}
+
+    {% if identity.birth_date|length %}
+        <li>
+            Birth Date
+        </li>
+    {% endif %}
+
+    {% if identity.postcode|length %}
+        <li>
+            Postcode
+        </li>
+    {% endif %}
+
+    {% if identity.avatar_url|length %}
+        <li>
+            Profile Picture
+        </li>
+    {% endif %}
+
+    <li>
+        Device Details
+    </li>
+    
+</ul>
+{% endblock %}
+
+{% block page_scripts %}
+<script type="text/javascript">
+	var dt = new Date();
+	$('#time').text(dt);
+</script>
+{% endblock %}

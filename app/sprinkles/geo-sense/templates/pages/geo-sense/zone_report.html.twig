@@ -46,7 +46,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                {% for zone in current_user.getZones %}
+                                {% for zone in current_user.getZones() %}
                                     {% if (zone.venue_id == current_user.primaryVenue.id and zone.tracking_zone == 1) %}
                                         <option value="{{zone.id}}">{{zone.name|e }}</option>
                                     {% endif %}
@@ -272,7 +272,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                {% for zone in current_user.getZones %}
+                                {% for zone in current_user.getZones() %}
                                     {% if (zone.venue_id == current_user.primaryVenue.id and zone.tracking_zone == 1) %}
                                         <option value="{{zone.id}}">{{zone.name|e }}</option>
                                     {% endif %}
@@ -498,7 +498,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                {% for zone in current_user.getZones %}
+                                {% for zone in current_user.getZones() %}
                                     {% if (zone.venue_id == current_user.primaryVenue.id and zone.tracking_zone == 1) %}
                                         <option value="{{zone.id}}">{{zone.name|e }}</option>
                                     {% endif %}
@@ -774,11 +774,6 @@ var printUpdate = function () {
 };
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Zones_Report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
@@ -790,6 +785,11 @@ var venue_name   = '{{user.venue_name}}';
  * only collect data for sections where a zone has been selected
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
     /**
      * get the data from the page for Zone #1
      */
@@ -960,6 +960,18 @@ moment.updateLocale('en', {
  * empty weekends array for plotbands
  */
 var weekends = [];
+
+/**
+ * Get all geo-sense zones for this venue
+ */
+var all_zones = {{current_user.primaryVenue.zones | raw}};
+var zones = [];
+
+$.each(all_zones, function(key, value) {
+    if (value.tracking_zone == 1) {
+        zones[value.id] = value;
+    }
+});
 
 /**
  * general configuration options for all donut charts
@@ -1556,17 +1568,16 @@ $(document).ready(function() {
                 firstDay: 1
             },
             ranges: {
-               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
-               'This Week to-date':         [rangeStart, rangeEnd], //default value for the page
-               'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
-               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
-               'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
-               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
-               'All Time':                  ['{{current_user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+               'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+               'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+               'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+               'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+               'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+               'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
             },
             startDate:  rangeStart,
             endDate:    rangeEnd,
-            minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            minDate:    moment.unix(zones[selected_zone_1]['capture_start']).format('DD/MM/YYYY')
             maxDate:    moment().startOf('day'),
             opens:      'left'
         }, page_daterange);
@@ -2288,17 +2299,16 @@ $(document).ready(function() {
                 firstDay: 1
             },
             ranges: {
-               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
-               'This Week to-date':         [rangeStart, rangeEnd], //default value for the page
-               'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
-               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
-               'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
-               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
-               'All Time':                  ['{{current_user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+               'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+               'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+               'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+               'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+               'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+               'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
             },
             startDate:  rangeStart,
             endDate:    rangeEnd,
-            minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            minDate:    moment.unix(zones[selected_zone_1]['capture_start']).format('DD/MM/YYYY'),
             maxDate:    moment().startOf('day'),
             opens:      'left'
         }, page_daterange);
@@ -3016,17 +3026,16 @@ $(document).ready(function() {
                 firstDay: 1
             },
             ranges: {
-               'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
-               'This Week to-date':         [rangeStart, rangeEnd], //default value for the page
-               'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
-               'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
-               'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
-               'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
-               'All Time':                  ['{{current_user.primaryVenue.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+               'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+               'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+               'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+               'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+               'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+               'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
             },
             startDate:  rangeStart,
             endDate:    rangeEnd,
-            minDate:    '{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}',
+            minDate:    moment.unix(zones[selected_zone_1]['capture_start']).format('DD/MM/YYYY'),
             maxDate:    moment().startOf('day'),
             opens:      'left'
         }, page_daterange);

@@ -560,7 +560,7 @@ class RetailController extends SimpleController
                             }                            
                         }
                         else {
-                            $lastestResult = $retailOnlineWeeklyAverageStatsData[0]['date'];
+                            $lastestResult = $retailOnlinePenetrationStatsData[0]['date'];
 
                             $latest_day_epoch = new Carbon($lastestResult, 'Europe/London');
                             $latest_day_epoch = $latest_day_epoch->timestamp;

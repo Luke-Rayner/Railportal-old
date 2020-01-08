@@ -1,6 +1,82 @@
 {% if checkAccess('uri_dashboard') == true %}
 <!-- BEGIN SIDEBAR WRAPPER -->
 <div class="page-sidebar-wrapper">
+    {% if current_user.primaryVenue.wifi_venue == 1 %}
+    {% if checkAccess('uri_wifi_dashboard') %}
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu" id="wifi_platform_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <div id="wifi_platform_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
+                <img src="{{ assets.url("assets://images/WiFi-Logo-Image.png") }}" height="38px" width="38px" style="margin-top: 5px"/>
+                <img src="{{ assets.url("assets://images/WiFi-Logo-Text.png") }}" height="38" width="150" style="margin-top: 7px; margin-left: 5px" class="wifi-logo-text"/>
+            </div>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/elephantwifi/dashboard" class="nav-link ">
+                    <span><i class="far fa-chart-bar"></i></span>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span><i class="fas fa-chart-pie"></i></span>
+                    <span class="title">Charts & Reports</span>
+                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
+                </a>
+                <ul class="sub-menu">
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/wifi-connection-report" class="nav-link ">
+                            <span class="title">WiFi Connection Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/internet-user-report" class="nav-link ">
+                            <span class="title">Internet User Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/location-report" class="nav-link ">
+                            <span class="title">Location Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/comparison-report" class="nav-link ">
+                            <span class="title">Comparison Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/network-report" class="nav-link ">
+                            <span class="title">Network Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/content-filter-report" class="nav-link ">
+                            <span class="title">Content Filter Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/list-of-visitors-report" class="nav-link ">
+                            <span class="title">Visitor Information</span>
+                        </a>
+                    </li>
+                    {% if checkAccess('uri_site_admin') %}
+                    <li class="nav-item">
+                        <a href="{{site.uri.public}}/elephantwifi/user-reports/users" class="nav-link ">
+                            <span class="title">WiFi Users</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="{{site.uri.public}}/elephantwifi/wlan-reports/heatmap" class="nav-link ">
+                    <span><i class="fas fa-street-view"></i></span>
+                    <span class="title">User Heatmap</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+    {% endif %}
+    
     {% if current_user.primaryVenue.tracking_venue == 1 %}
     {% if checkAccess('uri_tracking_dashboard') %}
     <div class="page-sidebar navbar-collapse collapse">
@@ -147,82 +223,6 @@
     {% endif %}
     {% endif %}
 
-    {% if current_user.primaryVenue.wifi_venue == 1 %}
-    {% if checkAccess('uri_wifi_dashboard') %}
-    <div class="page-sidebar navbar-collapse collapse">
-        <ul class="page-sidebar-menu" id="wifi_platform_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
-            <div id="wifi_platform_header" style="background-color: #1c2746; height: 50px; width: 100%; cursor: pointer;" class="text-center">
-                <img src="{{ assets.url("assets://images/WiFi-Logo-Image.png") }}" height="38px" width="38px" style="margin-top: 5px"/>
-                <img src="{{ assets.url("assets://images/WiFi-Logo-Text.png") }}" height="38" width="150" style="margin-top: 7px; margin-left: 5px" class="wifi-logo-text"/>
-            </div>
-            <li class="nav-item">
-                <a href="{{site.uri.public}}/elephantwifi/dashboard" class="nav-link ">
-                    <span><i class="far fa-chart-bar"></i></span>
-                    <span class="title">Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a href="javascript:;" class="nav-link nav-toggle">
-                    <span><i class="fas fa-chart-pie"></i></span>
-                    <span class="title">Charts & Reports</span>
-                    <span style="float: right"><i class="fas fa-chevron-left"></i></span>
-                </a>
-                <ul class="sub-menu">
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/wifi-connection-report" class="nav-link ">
-                            <span class="title">WiFi Connection Report</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/internet-user-report" class="nav-link ">
-                            <span class="title">Internet User Report</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/location-report" class="nav-link ">
-                            <span class="title">Location Report</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/comparison-report" class="nav-link ">
-                            <span class="title">Comparison Report</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/network-report" class="nav-link ">
-                            <span class="title">Network Report</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/content-filter-report" class="nav-link ">
-                            <span class="title">Content Filter Report</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/list-of-visitors-report" class="nav-link ">
-                            <span class="title">Visitor Information</span>
-                        </a>
-                    </li>
-                    {% if checkAccess('uri_site_admin') %}
-                    <li class="nav-item">
-                        <a href="{{site.uri.public}}/elephantwifi/user-reports/users" class="nav-link ">
-                            <span class="title">WiFi Users</span>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </li>
-            <li class="nav-item">
-                <a href="{{site.uri.public}}/elephantwifi/wlan-reports/heatmap" class="nav-link ">
-                    <span><i class="fas fa-street-view"></i></span>
-                    <span class="title">User Heatmap</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-    {% endif %}
-    {% endif %}
-
     {% if checkAccess('uri_retail_dashboard') %}
     <div class="page-sidebar navbar-collapse collapse">
         <ul class="page-sidebar-menu" id="retail_menu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
@@ -341,6 +341,12 @@
                 <a href="{{site.uri.public}}/message-center" class="nav-link ">
                     <span><i class="fas fa-comments"></i></span>
                     <span class="title">Message Center</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="https://emarketing.elephantwifi.co.uk" target="_blank" class="nav-link ">
+                    <span><i class="fas fa-envelope"></i></span>
+                    <span class="title">Marketing Portal</span>
                 </a>
             </li>
         </ul>

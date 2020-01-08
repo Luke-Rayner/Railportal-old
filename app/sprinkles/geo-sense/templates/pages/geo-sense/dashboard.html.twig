@@ -24,7 +24,7 @@
     <button class="btn green-jungle pull-right" id="csv_button" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Download report data in CSV format">Excel Export</button>
     <button class="btn orange pull-right" style="margin-right: 5px" aria-hidden="true" onclick="genPDF();" data-toggle="tooltip" data-placement="bottom" title="Print this page.">Print Report</button>
     <!-- <button class="btn btn-warning pull-right" id="tour_btn"style="margin-right: 5px" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="Start Tour">Start Page Tour</button> -->
-    <span class="pull-right" style="margin-right: 20px"><h4><b>Venue Start Date - {{user.primaryVenue.venue_tracking.capture_start | date('d/m/Y', 'Europe/London')}}<b><h4></span>
+    <span class="pull-right" style="margin-right: 20px"><h4><b>Venue Start Date - {{current_user.primaryVenue.venue_tracking.capture_start | date('d/m/Y', 'Europe/London')}}<b><h4></span>
 </div>
 <!-- END PAGE HEAD-->
 
@@ -266,16 +266,11 @@ var printUpdate = function () {
 };
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Dashboard-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
 var csv_title    = 'GEO-Sense: Dashboard';
-var venue_name   = '{{user.venue_name}}';
+var venue_name   = '{{current_user.venue_name}}';
 
 /**
  * initialise vars so that we can pull them into the CSV report later on after they're updated
@@ -290,6 +285,11 @@ var visitors_today_repeat = 0;
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+    
     /**
      * get the data from the charts
      */
@@ -346,7 +346,6 @@ $('#csv_button').on('click', function() {
 });
 
 $(document).ready(function() {
-
     /**
      * calculate weekends for plotbands
      */
@@ -808,32 +807,32 @@ $(document).ready(function() {
             },
             {
                 type: 'area',
-                name: '{{user.primaryVenue.dt_level_5_label}}',
+                name: '{{current_user.primaryVenue.dt_level_5_label}}',
                 color: '#949898'
             },
             {
                 type: 'area',
-                name: '{{user.primaryVenue.dt_level_4_label}}',
+                name: '{{current_user.primaryVenue.dt_level_4_label}}',
                 color: '#5A5A5A'
             },
             {
                 type: 'area',
-                name: '{{user.primaryVenue.dt_level_3_label}}',
+                name: '{{current_user.primaryVenue.dt_level_3_label}}',
                 color: '#6EB553'
             },
             {
                 type: 'area',
-                name: '{{user.primaryVenue.dt_level_2_label}}',
+                name: '{{current_user.primaryVenue.dt_level_2_label}}',
                 color: '#4E5977'
             },
             {
                 type: 'area',
-                name: '{{user.primaryVenue.dt_level_1_label}}',
+                name: '{{current_user.primaryVenue.dt_level_1_label}}',
                 color: '#E9825C'
             },
             {
                 type: 'area',
-                name: '{{user.primaryVenue.dt_skipped_label}}',
+                name: '{{current_user.primaryVenue.dt_skipped_label}}',
                 visible: false,
                 color: '#DD686E' // otherwise this becomes purple
             }
@@ -981,7 +980,7 @@ $(document).ready(function() {
      * to the timer function at the end of the script section
      */
     $.ajax({
-        url:      '{{site.uri.public}}/geo-sense/api/footfall_count/' + ((now)-{{user.primaryVenue.current_visitors_bucket * 1000}}) + '/' + now,
+        url:      '{{site.uri.public}}/geo-sense/api/footfall_count/' + ((now)-{{current_user.primaryVenue.current_visitors_bucket * 1000}}) + '/' + now,
         type:     'GET',
         dataType: 'json',
         success:  onCurrentFootfallDataReceived

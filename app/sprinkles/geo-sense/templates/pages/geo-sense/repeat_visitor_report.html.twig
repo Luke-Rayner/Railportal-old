@@ -47,7 +47,7 @@
                 <div class="number bold">
                     <span id="donut_1"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Total / New Visitors</div>
+                <div class="desc" style="font-size: 1.3em;"> Total / New Visitors</div>
             </div>
         </a>
     </div>
@@ -60,7 +60,7 @@
                 <div class="number bold">
                     <span id="donut_2"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Less than 7 days <br> <span id="date_less_than_7_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em;"> Less than 7 days <br> <span id="date_less_than_7_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -73,7 +73,7 @@
                 <div class="number bold">
                     <span id="donut_3"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc"> Between 7 and 14 days ago <br> <span id="date_between_7_and_14_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em;"> Between 7 and 14 days ago <br> <span id="date_between_7_and_14_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -86,7 +86,7 @@
                 <div class="number bold">
                     <span id="donut_4"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                     </div>
-                <div class="desc"> Between 14 and 30 days ago <br> <span id="date_between_14_and_30_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em;"> Between 14 and 30 days ago <br> <span id="date_between_14_and_30_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -102,7 +102,7 @@
                 <div class="number bold">
                     <span id="donut_5"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc" style="color: #324068"> Between 30 and 90 days ago <br> <span id="date_between_30_and_90_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em; color: #324068"> Between 30 and 90 days ago <br> <span id="date_between_30_and_90_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -115,7 +115,7 @@
                 <div class="number bold">
                     <span id="donut_6"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc" style="color: #324068"> Between 90 and 180 days ago <br> <span id="date_between_90_and_180_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em; color: #324068"> Between 90 and 180 days ago <br> <span id="date_between_90_and_180_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -128,7 +128,7 @@
                 <div class="number bold">
                     <span id="donut_7"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                 </div>
-                <div class="desc" style="color: #324068"> Between 180 and 365 days ago <br> <span id="date_between_180_and_365_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em; color: #324068"> Between 180 and 365 days ago <br> <span id="date_between_180_and_365_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -141,7 +141,7 @@
                 <div class="number bold">
                     <span id="donut_8"><i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i></span>
                     </div>
-                <div class="desc" style="color: #324068"> Longer than 365 days ago <br> <span id="date_longer_than_365_days" style="font-size: 16px;"></span></div>
+                <div class="desc" style="font-size: 1.3em; color: #324068"> Longer than 365 days ago <br> <span id="date_longer_than_365_days" style="font-size: 0.7em;"></span></div>
             </div>
         </a>
     </div>
@@ -326,11 +326,6 @@ $('.info-icon').click(function(e) {
 });
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Repeat_Visitor_Report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
@@ -341,6 +336,11 @@ var venue_name = '{{user.venue_name}}';
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
     /**
      * update export title to reflect selected range
      */
@@ -768,15 +768,12 @@ $(document).ready(function() {
             format: "DD/MM/YYYY"
         },
         ranges: {
-           'Current Day':               [moment().startOf('day'), moment()],
-           'Yesterday':                 [moment().startOf('day').subtract(1, 'days'), moment().startOf('day').subtract(1, 'days').endOf('day')],
-           'Current Day Last Week':     [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day').subtract(1, 'weeks')],
-           'Past 7 Days':               [rangeStart, rangeEnd], //default value for the page
-           'Past Month':                [moment().startOf('day').subtract(1, 'months'), moment()],
-           'Previous Week same range':  [moment().startOf('week').subtract(1, 'weeks'), moment().subtract(1, 'weeks')],
-           'Same Week 4 Weeks ago':     [moment().startOf('week').subtract(4, 'weeks'), moment().subtract(4, 'weeks')],
-           'This Month to-date':        [moment().startOf('month'), moment().endOf('month')],
-           'All Time':                  ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+           'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+           'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+           'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+           'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+           'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+           'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
         },
         startDate:  rangeStart,
         endDate:    rangeEnd,
@@ -830,6 +827,15 @@ $(document).ready(function() {
         /**
          * then we need to set the charts, <div>s and <spans>s which will be refreshed, to their loading state
          */
+        $('#donut_1').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_2').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_3').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_4').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_5').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_6').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_7').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#donut_8').html('<i class="fa fa-spinner fa-spin"></i>');
+
         var chart_1_1 = $("#chart_1_1").highcharts();
         chart_1_1.showLoading();
 

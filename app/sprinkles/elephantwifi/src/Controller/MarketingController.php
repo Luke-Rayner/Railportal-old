@@ -889,26 +889,26 @@ class MarketingController extends SimpleController
 
             $venueWifi->save();
 
-            // Create the custom attributes
-            $customer_config = SendinBlueConfiguration::getDefaultConfiguration()->setApiKey('api-key', $api_key);
+            // // Create the custom attributes
+            // $customer_config = SendinBlueConfiguration::getDefaultConfiguration()->setApiKey('api-key', $api_key);
 
-            $apiAttributesInstance = new SendinBlueAttributesApi(
-                new \GuzzleHttp\Client(),
-                $customer_config
-            );
+            // $apiAttributesInstance = new SendinBlueAttributesApi(
+            //     new \GuzzleHttp\Client(),
+            //     $customer_config
+            // );
 
-            $createAttribute = new \SendinBlue\Client\Model\CreateAttribute([
-                'type' => 'text'
-            ]);
+            // $createAttribute = new \SendinBlue\Client\Model\CreateAttribute([
+            //     'type' => 'text'
+            // ]);
 
-            try {
-                $apiAttributesInstance->createAttribute('normal', 'gender', $createAttribute);
-                $apiAttributesInstance->createAttribute('normal', 'location', $createAttribute);
-                $apiAttributesInstance->createAttribute('normal', 'age', $createAttribute);
-                $apiAttributesInstance->createAttribute('normal', 'dob', $createAttribute);
-            } catch (Exception $e) {
-                return $response->withJson([], 400);
-            }
+            // try {
+            //     $apiAttributesInstance->createAttribute('normal', 'gender', $createAttribute);
+            //     $apiAttributesInstance->createAttribute('normal', 'location', $createAttribute);
+            //     $apiAttributesInstance->createAttribute('normal', 'age', $createAttribute);
+            //     $apiAttributesInstance->createAttribute('normal', 'dob', $createAttribute);
+            // } catch (Exception $e) {
+            //     return $response->withJson([], 400);
+            // }
         }
 
         $ms->addMessageTranslated('success', 'Venue marketing details have been updated');

@@ -37,7 +37,8 @@
                         <a href="{{site.uri.public}}/pdf-report-generation" class="no-hover"><button class="btn orange" id="pdf_report_download" style="margin-top: 5%">PDF Report Download</button></a>
                     </li> -->
 
-                    {# <li class="dropdown dropdown-user dropdown-dark no-hover hidden-xs">
+                    {% if checkAccess('uri_dashboard') == true %}
+                    <li class="dropdown dropdown-user dropdown-dark no-hover hidden-xs">
                         <a href="javascript:;" class="dropdown-toggle no-hover pdf_dropdown" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                             <button class="btn orange" id="pdf_report_download" style="font-size: 0.8vw;">PDF Report Download</button>
                         </a>
@@ -46,15 +47,16 @@
                             <li class="disabled no-hover"><a href="#"><i>WiFi PDF Report (Coming Soon)</i></a></li>
                             <li class="disabled no-hover"><a href="#"><i>Air Quality PDF Report (Coming Soon)</i></a></li>
                         </ul>
-                    </li> #}
+                    </li>
 
                     <li class="separator hide"> </li>
 
-                    {# <li class="dropdown dropdown-notification dropdown-dark">
+                    <li class="dropdown dropdown-notification dropdown-dark">
                         <a href="{{site.uri.public}}/landing-page" class="dropdown-toggle">
                             <i class="fa fa-home"></i> 
                         </a>
-                    </li> #}
+                    </li>
+                    {% endif %}
 
                     <li class="separator hide"> </li>
 
@@ -66,11 +68,11 @@
                         {# TODO: do not show dropdown if only 1 venue is available in user.getVenues, also leave out current venue from dropdown? #}
                         <ul id="portal_selection" class="dropdown-menu dropdown-menu-default scrollable-menu" style="width: 195px; margin-right: 0;">
                             <li>
-                                <a href="{{site.uri.public}}/wifi/dashboard">
+                                <a href="{{site.uri.public}}/elephantwifi/dashboard">
                                     <i class="fa fa-sign-out fa-fw"></i> Main Portal </a>
                             </li>
                             <li>
-                                <a href="{{site.uri.public}}/wifi_user/dashboard">
+                                <a href="{{site.uri.public}}/elephantwifi/wifi_user/dashboard">
                                     <i class="fa fa-user fa-fw"></i> Personal Portal </a>
                             </li>
                         </ul>

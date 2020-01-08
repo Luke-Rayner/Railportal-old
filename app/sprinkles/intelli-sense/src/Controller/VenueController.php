@@ -681,8 +681,6 @@ class VenueController extends SimpleController
             $current_wifi_venue->web_titan_id = $data['web_titan_id'];
             $current_wifi_venue->captive_portal = $data['captive_portal'];
             $current_wifi_venue->is_sponsored = $data['is_sponsored'];
-            $current_wifi_venue->marketing_public_key = $data['marketing_public_key'];
-            $current_wifi_venue->marketing_private_key = $data['marketing_private_key'];
 
             $current_venue->wifi_venue = 1;
             $current_wifi_venue->save();

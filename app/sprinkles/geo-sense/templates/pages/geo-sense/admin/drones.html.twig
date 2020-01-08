@@ -40,6 +40,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             {% if show_venue == true %}<th>Venue</th>{% endif %}
+                            <th>Capture Start</th>
                             <th>Local IP</th>
                             <th>RSSI</th>
                             <th>Model</th>
@@ -164,6 +165,11 @@ $(document).ready(function() {
             {data: 'id'},
             {data: 'name'},
             {% if show_venue == true %}{data: 'zone.venue.name'},{% endif %}
+            {data: 'zone.capture_start',
+                render: function(data, type, full, meta) {
+                    return moment.unix(data).format("MM/DD/YYYY");
+                }
+            },
             {data: 'local_ip'},
             {data: 'rssi_threshold'},
             {data: 'drone_revision_code',

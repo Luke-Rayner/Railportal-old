@@ -13,7 +13,7 @@
         <div class="panel-body">
             <div>
                 {%  if unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid != ''  %}
-                    <img src="{{site.uri.public}}/images/captive_portal/custom/logo/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_name}}" class="center-block img-responsive" alt="Logo">
+                    <img src="{{site.uri.public}}/assets-raw/images/captive_portal/custom/logo/{{unifi_venue.id}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_uuid}}/{{unifi_venue.venue_wifi.custom_css.custom_logo_file_name}}" class="center-block img-responsive" alt="Logo">
                 {% else %}
                     <img src="{{site.uri.public}}/assets-raw/images/captive_portal/logo.png" class="center-block img-responsive" alt="Logo">
                 {% endif %}

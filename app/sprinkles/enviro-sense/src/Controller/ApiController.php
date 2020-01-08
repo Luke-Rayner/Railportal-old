@@ -705,6 +705,100 @@ class ApiController extends SimpleController
         return $response->withJson($results, 200, JSON_PRETTY_PRINT);
     }
 
+    public function listEnviromentalOverviewDAQI(Request $request, Response $response, $args)
+    {
+        // Get the authorizer
+        $authorizer = $this->ci->authorizer;
+
+        // Get the current user
+        $currentUser = $this->ci->currentUser;
+
+        // Check if user has permissions
+        if (!$authorizer->checkAccess($currentUser, 'uri_enviro_user')) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $results = [];
+
+        /**
+         * filter on the user's primary_venue_id
+         */
+        $venue_filter = $currentUser->primary_venue_id;
+
+        //get the enviro_sensors for this venue
+        $enviro_sensors = EnviroSensor::where('venue_id', $venue_filter)->get();
+
+        $enviro_sensor_ids = [];
+        foreach($enviro_sensors as $enviro_sensor) {
+            array_push($enviro_sensor_ids, $enviro_sensor->id);
+        }
+
+        /**
+         * create a string containing enviro_sensor ids, comma seperated, to insert into the PDO statement
+         */
+        $ids_string = implode(',', $enviro_sensor_ids);
+
+        /**
+         * Get the timestamps needed in the below query
+         */
+        $now = Carbon::now()->format('U');
+        $startToday = Carbon::now()->startOfDay()->format('U');
+
+        /**
+         * prepare the query using a "random" PDO connection
+         */
+        $query = new EnviroSensorHourlyAqiData;
+        $db = $query->getConnection()->getPdo();
+
+        $fetch_enviro_sensor_hourly_aqi_data = $db->prepare("
+            SELECT avg(particle_matter_2_5_aqi) as particle_matter_2_5_aqi,
+                avg(particle_matter_2_5_value) as particle_matter_2_5_value,
+                avg(particle_matter_10_aqi) as particle_matter_10_aqi,
+                avg(particle_matter_10_value) as particle_matter_10_value,
+                avg(ozone_aqi) as ozone_aqi,
+                avg(ozone_value) as ozone_value,
+                avg(nitrogen_dioxide_aqi) as nitrogen_dioxide_aqi,
+                avg(nitrogen_dioxide_value) as nitrogen_dioxide_value,
+                avg(sulfur_dioxide_aqi) as sulfur_dioxide_aqi,
+                avg(sulfur_dioxide_value) as sulfur_dioxide_value
+            FROM enviro_sensor_hourly_aqi_data
+            WHERE ts >= :start
+            AND ts < :end
+            AND  enviro_sensor_id IN (" . $ids_string . ")
+        ");
+        $fetch_enviro_sensor_hourly_aqi_data->bindParam(':start', $startToday);
+        $fetch_enviro_sensor_hourly_aqi_data->bindParam(':end', $now);
+        $fetch_enviro_sensor_hourly_aqi_data->execute();
+        $fetch_enviro_sensor_hourly_aqi_data_array = $fetch_enviro_sensor_hourly_aqi_data->fetchAll();
+
+        $max_daqi_array = [
+            'value' => 0,
+            'name' => ''
+        ];
+        $max_daqi = 0;
+        foreach ($fetch_enviro_sensor_hourly_aqi_data_array as $enviro_sensor_data) {
+            // Check if max_daqi should be increased
+            $max_daqi_array['value'] = ($enviro_sensor_data['particle_matter_2_5_aqi'] > $max_daqi_array['value']) ? $enviro_sensor_data['particle_matter_2_5_aqi'] : $max_daqi_array['value'];
+
+            $max_daqi_array['value'] = ($enviro_sensor_data['particle_matter_10_aqi'] > $max_daqi_array['value']) ? $enviro_sensor_data['particle_matter_10_aqi'] : $max_daqi_array['value'];
+
+            $max_daqi_array['value'] = ($enviro_sensor_data['ozone_aqi'] > $max_daqi_array['value']) ? $enviro_sensor_data['ozone_aqi'] : $max_daqi_array['value'];
+
+            $max_daqi_array['value'] = ($enviro_sensor_data['nitrogen_dioxide_aqi'] > $max_daqi_array['value']) ? $enviro_sensor_data['nitrogen_dioxide_aqi'] : $max_daqi_array['value'];
+
+            $max_daqi_array['value'] = ($enviro_sensor_data['sulfur_dioxide_aqi'] > $max_daqi_array['value']) ? $enviro_sensor_data['sulfur_dioxide_aqi'] : $max_daqi_array['value'];
+
+            if ($max_daqi_array['value'] > $max_daqi) {
+                $max_daqi = $max_daqi_array['value'];
+            }
+        }
+
+        /**
+         * output the results in correct json formatting
+         */
+        return $response->withJson($max_daqi_array, 200, JSON_PRETTY_PRINT);
+    }
+
 
 
     private function colorPicker($value) {

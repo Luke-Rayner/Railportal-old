@@ -215,25 +215,25 @@
 {% block page_scripts %}
 <script type="text/javascript" class="init">
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Comparison Report - ' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
 var csv_title = '';
-var venue_name = '{{user.venue_name}}';
+var venue_name = '{{current_user.venue_name}}';
 
 /**
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
     /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
+    /**
      * update export title to reflect selected range
      */
-    var csv_title = 'ElephantWiFi: Comparison Report ({{user.venue_name}}';
+    var csv_title = 'ElephantWiFi: Comparison Report ({{current_user.venue_name}}';
 
     csv_data.push({
         heading: 'Left Chart - Total Browsers - New Vs Repeat',
@@ -990,14 +990,12 @@ $(document).ready(function() {
             firstDay: 1
         },
         ranges: {
-           'Current week':     [moment().startOf('week'), newRightNow],
-           'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
-           'Past 7 days':      [newRangeStart, newRangeEnd],
-           'Current month':    [moment().startOf('month'), moment().endOf('month')],
-           'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
-           'Past 31 days':     [moment().startOf('day').subtract(31, 'days'), newRightNow],
-           'Current year':     [moment().startOf('year'), newRightNow],
-           'Past 365 days':    [moment().startOf('day').subtract(1, 'years'), newRightNow]
+           'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+           'Past 7 days': [newRangeStart, newRangeEnd], //default value for the page
+           'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+           'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+           'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+           'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
         },
         startDate:   newRangeStart,
         endDate:     newRangeEnd,

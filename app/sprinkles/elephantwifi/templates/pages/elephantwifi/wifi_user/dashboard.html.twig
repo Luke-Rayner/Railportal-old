@@ -1,0 +1,285 @@
+{% extends "pages/layouts/layout-dashboard.html.twig" %}
+
+{% block page %}
+    {% set page = page | merge({
+        "title"       : "Visitor Personal Portal",
+        "description" : "view personal data"
+    }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div class="page-title">
+        <h1>{{page.title}}
+            <small>{{page.description}}</small>
+        </h1>
+    </div>
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line" id="ap_portlet">
+                <div class="caption ">
+                    <span class="caption-subject font-blue-sharp bold uppercase">Personal Information</span>
+                    <span class="caption-helper">per venue</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                    <a href="" class="fullscreen"> </a>
+                </div>
+                <ul class="nav nav-tabs">
+                    {% for venue in current_user.getWiFiUserVenues() %}
+                    <li>
+                        <a href="#venue{{venue.id}}tab" data-toggle="tab"> {{ venue.name }} </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="portlet-body">
+                <div class="tab-content">
+                    {% for identity in identities %}
+                        <div class="tab-pane" id="venue{{identity.venue_id}}tab">
+                            <div id="personal_info" style="width: 100%; min-height: 200px; margin: 0 auto">
+                                <form class="form-horizontal" id="update_personal_details_{{identity.venue_id}}" action="{{site.uri.public}}/elephantwifi/wifi_user/u/personal_info" method="post">
+                                    {% include "forms/csrf.html.twig" %}
+                                    <div id="{{alerts_id | default('update_personal_info-alerts')}}"></div>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <b><p>First name: </p></b>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            {{identity.first_name}}
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <b><p>Last name: </p></b>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            {{identity.last_name}}
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="input-group">
+                                                <b><p>Email: </p></b>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="input-group">
+                                                <input id="identity_id" type="text" name="identity_id" value="{{identity.id}}"
+                                                data-on-text="on" data-off-text="off" data-on="success" data-off="primary" hidden>
+                                                <input id="venue_id" type="text" name="venue_id" value="{{identity.venue_id}}"
+                                                data-on-text="on" data-off-text="off" data-on="success" data-off="primary" hidden>
+                                                {{identity.email_address}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <b><p>Gender: </p></b>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            {% if identity.gender == 0 %}
+                                                <p>Male</p>
+                                            {% elseif identity.gender == 1 %}
+                                                <p>Female<p/>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <b><p>Age: </p></b>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            {{identity.age}}
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <b><p>First visit: </p></b>
+                                        </div>
+                                        <div class="col-xs-9">
+                                            {{identity.created_at}}
+                                        </div>
+                                    </div>
+                                    <!-- <hr>
+                                    <h4>Marketing Lists</h4>
+                                    <div class="row">
+                                        {% if identity.marketing_lists|length > 0 %}
+                                            {% for marketing_list in identity.marketing_lists %}
+                                            <div class="col-xs-3">
+                                                <b><p>{{marketing_list.marketing_list_type.name}}: </p></b>
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <div class="input-group">
+                                                    <input id="marketing_consent_{{marketing_list.id}}" type="checkbox" name="marketing_consent[{{marketing_list.id}}]" value="{{marketing_list.id}}" data-on-text="on" data-off-text="off" data-on="success" data-off="primary" checked="checked">
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="col-xs-12">
+                                                <p><i>You are not subscribed to any lists</i></p>
+                                            </div>
+                                        {% endif %}
+                                    </div> -->
+                                    <br>
+                                
+                                    <div class="form-group">
+                                        <div class="col-xs-12">
+                                            <!-- <button type="submit" id="update_user" name="update_user" class="btn blue center">Update Info</button> -->
+                                            <button type="button" id="delete_user" name="delete_user" onclick="showConfirmModal(this);" class="btn red center" data-identity_id="{{identity.id}}">Delete Info</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmModal" class="modal fade" tabindex="-1" role="basic" aria-hidden="true" data-width="600">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" name="confirmModalHeader" id="confirmModalHeader"><i class="fa fa-question-circle fa-lg fa-fw"></i>Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger text-center" role="alert" >
+                    <p>Please confirm you wish to delete all data linked to yourself currently held by ElephantWiFi.</p>
+                    <br>
+                    <p>Deleting your data will stop you from connecting to any ElephantWiFi managed venue. ElephantWiFi managed venues you have accessed in the past are listed below.</p>
+                    <br>
+                    {% for venue in current_user.getWiFiUserVenues() %}
+                        <p>{{venue.name}}</p>
+                    {% endfor %}
+                    <br>
+                    <p>If you do wish to reconnect to any venue managed by ElephantWiFi in the future you will need to re-register.</p>
+                    <br>
+                    <p>Thank you for using our services</p><a href="http://www.elephantwifi.co.uk/">ElephantWiFi</a>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="pull-right">
+                            <button type="button" class="btn blue" data-dismiss="modal">
+                                <i class="fa fa-times-circle"></i> Cancel
+                            </button>
+                            <button type='submit' id="confirmModalSubmit" name="confirmModalSubmit" class="btn red">
+                                <i class="fa fa-cloud-upload fa-fw"></i> Delete
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{# END CONFIRM MODAL CONTENT #}
+
+{% endblock %}
+{% block page_scripts %}
+<script type="text/javascript">
+
+$(document).ready(function() {
+    /**
+     * Load the validator rules for the form in the modal
+     */
+    var validators = {{validators | raw}};
+    var identities = {{identities | raw}};
+    var selected_identity;
+
+    $('#venue' + identities[0].venue_id + 'tab').addClass('active');
+
+    $.each(identities, function(identity_key, identity_value) {
+
+        $.each(identity_value.marketing_lists, function(list_key, list_value) {
+            $('#marketing_consent_' + list_value.id).bootstrapSwitch();
+            $('#marketing_consent_' + list_value.id).bootstrapSwitch('setSizeClass', 'switch-mini');
+        });
+
+        $('#update_personal_details_' + identity_value.venue_id).ufForm({
+            validator: validators,
+            msgTarget: $("#create-alerts-page")
+        }).on("submitSuccess.ufForm", function() {
+            window.location.reload(true);
+        });
+    });
+});
+
+/**
+ * function to open the confirmation modal
+ */
+function showConfirmModal(d) {
+    selected_identity = d.getAttribute("data-identity_id");
+    /**
+     * open confirmation modal
+     */
+    $('#confirmModal').modal('show');
+}
+
+/**
+ * process venue delete request from the confirmation modal
+ */
+$('#confirmModalSubmit').click(function(){
+    $('#confirmModalSubmit').prop('disabled', true);
+    $('#confirmModalSubmit').find('i').removeClass().addClass('fa fa-spinner fa-fw fa-spin');
+
+    /**
+     * issue AJAX GET request to delete devices with state = deleted
+     */
+    $.ajax({
+        type: 'GET',
+        url: site.uri.public + '/elephantwifi/wifi_user/delete',
+        success: onDeleteSuccess,
+        error: onDeleteError
+    });
+
+    // temp!
+    setTimeout(function(){
+        window.location.reload(true);
+    }, 500);
+
+    /**
+     * on error/success close the modal and reload the page
+     */
+    function onDeleteSuccess(d) {
+        /**
+         * delete success
+         */
+        console.log('delete success');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.href = '{{site.uri.public}}';
+        }, 500);
+
+        window.location.href = '{{site.uri.public}}';
+    }
+
+    function onDeleteError(d) {
+        /**
+         * delete failed
+         */
+        console.log('delete failed');
+
+        setTimeout(function(){
+            $('#confirmModalSubmit').prop('disabled', false);
+            $('#confirmModalSubmit').find('i').removeClass('fa fa-spinner fa-fw fa-spin').addClass('fa fa-cloud-upload fa-fw');
+
+            window.location.reload;
+        }, 500);
+    }
+});
+
+</script>
+{% endblock %}

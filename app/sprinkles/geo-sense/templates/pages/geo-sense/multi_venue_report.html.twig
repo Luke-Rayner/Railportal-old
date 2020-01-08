@@ -328,11 +328,6 @@ var printUpdate = function () {
 };
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * global var to prevent loops in charts syncing when zooming in/out
  * more examples here: http://jsfiddle.net/vgsp1duo/1/
  */
@@ -349,6 +344,11 @@ var venue_name   = 'All Venues';
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
     /**
      * update export title to reflect selected range
      */

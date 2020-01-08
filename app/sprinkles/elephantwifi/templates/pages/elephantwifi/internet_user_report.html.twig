@@ -465,11 +465,6 @@ $('.info-icon').click(function(e) {
 })
 
 /**
- * initialise the arrays to append results to for download in CSV format
- */
-var csv_data = [];
-
-/**
  * file name and report title for CSV download
  */
 var csv_filename = 'Visitor_Report-' + moment().format("DD_MMMM_YYYY_HHmm") + '.csv';
@@ -480,6 +475,11 @@ var venue_name = '{{user.venue_name}}';
  * respond to click on the CSV download button
  */
 $('#csv_button').on('click', function() {
+    /**
+     * initialise the arrays to append results to for download in CSV format
+     */
+    var csv_data = [];
+
     /**
      * update export title to reflect selected range
      */
@@ -554,164 +554,6 @@ $(document).ready(function() {
      */
     var chart_3_1 = {};
     var weather_icons_array = [];
-
-    /***************************************************************
-     * BEGIN daterangepicker from here
-     ***************************************************************/
-
-    /**
-     * define $start and $end for most of the charts
-     * and determine how far back do we go back to get clients stats
-     * TODO:
-     */
-    var rangeEnd = moment().subtract(1, 'day').endOf('day');
-    var rangeStart = moment().subtract(1, 'weeks').startOf('day');
-    var rightNow = moment().subtract(1, 'day').endOf('day');
-
-    /**
-     * initiate the daterangepicker with initial start/end and Label
-     */
-    page_daterange(rangeStart, rangeEnd);
-
-    /**
-     * functions to display the "active" custom date range and the picker for current page
-     * - assuming start of data collection is January 1st, 2015
-     * TODO:
-     * - consider a venue variable that holds the start date and is checked/updated when setting up
-     */
-    $('#dashboard-report-range').daterangepicker({
-        timePicker:             true,
-        timePicker24Hour:       true,
-        timePickerIncrement:    60,
-        showISOWeekNumbers:     true,
-        locale: {
-            format: 'DD/MM/YYYY',
-            firstDay: 1
-        },
-        ranges: {
-           'Current week':     [moment().startOf('week'), rightNow],
-           'Last week':        [moment().startOf('week').subtract(1, 'weeks'), moment().startOf('week').subtract(1, 'weeks').endOf('week')],
-           'Past 7 days':      [rangeStart, rangeEnd],
-           'Current month':    [moment().startOf('month'), moment().endOf('month')],
-           'Last month':       [moment().startOf('month').subtract(1, 'months'), moment().startOf('month').subtract(1, 'months').endOf('month')],
-           'Past 31 days':     [moment().startOf('day').subtract(31, 'days'), rightNow],
-           'Current year':     [moment().startOf('year'), rightNow],
-           'Past 365 days':    [moment().startOf('day').subtract(1, 'years'), rightNow]
-        },
-        startDate:   rangeStart,
-        endDate:     rangeEnd,
-        minDate:     '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
-        maxDate:     moment().subtract(1, 'day').endOf('day'),
-        opens:       'left',
-        applyClass:  'blue',
-        cancelClass: 'red'
-    }, page_daterange);
-
-    /**
-     * callback function to execute upon selected date range
-     */
-    function page_daterange(start, end) {
-        console.log(start + ':' + end);
-        /**
-         * update these global variables for the daterangepicker and the ajax calls
-         */
-        rangeStart = start;
-        rangeEnd = end;
-        now = moment().valueOf();
-
-        /**
-         * historyhours is used to get stats for the users
-         */
-        var historyHours = Math.round((now - start)/(3600*1000));
-
-        /**
-         * enable spinners on the charts, <span>s and <div>s which will be updated
-         */
-        $('#span_total_visitors_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
-        $('#span_busiest_time_of_day_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
-        $('#span_average_dwell_time_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
-        $('#span_average_visitors_per_day_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
-
-        /**
-         * place the selected range in the <span>s at the top of the page
-         */
-        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
-        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
-
-        /**
-         * get the data for chart 1.2
-         */
-        $.ajax({
-            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/new_vs_repeat/' + start + '/' + end,
-            type:       'GET',
-            dataType:   'json',
-            success:    onChart_1_2_DataReceived
-        });
-
-        /**
-         * get the data for chart 3.1
-         */
-        $.ajax({
-            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/visitors_per_hourofday/' + start + '/' + end,
-            type:       'GET',
-            dataType:   'json',
-            success:    chart_3_1_DataReceived
-        });
-
-        /**
-         * get the data for chart 3.2
-         */
-        $.ajax({
-            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/visitors_durations/' + start + '/' + end,
-            type:       'GET',
-            dataType:   'json',
-            success:    onChart_3_2_DataReceived
-        });
-
-        /**
-         * get the data for chart 2.2
-         */ 
-        $.ajax({
-            url:        '{{site.uri.public}}/elephantwifi/api/weather_daily/' + start + '/' + end,
-            type:       'GET',
-            dataType:   'json',
-            success:    onChart_2_2_DataReceived
-        });
-
-        /**
-         * get the data for chart 1.1
-         */
-        $.ajax({
-            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/busiest_zones/' + start + '/' + end,
-            type:       'GET',
-            dataType:   'json',
-            success:    chart_1_1_DataReceived
-        });
-
-        /**
-         * get the data for chart 2.1
-         */
-        $.ajax({
-            url:      site.uri.public + '/elephantwifi/api/stats/venue/males_vs_females_compare_age_count/' + start + '/' + end,
-            type:     'GET',
-            dataType: 'json',
-            success:  onGenderCompareAgeCountDataReceived
-        });
-
-        /**
-         * get the data for chart 4.1
-         */
-        $.ajax({
-            url:        '{{site.uri.public}}/elephantwifi/api/stats/venue/connect_vs_internet_count/' + start + '/' + end,
-            type:       'GET',
-            dataType:   'json',
-            success:    chart_4_1_DataReceived
-        });
-    }
-
-    /***************************************************************
-     * END of daterangepicker
-     ***************************************************************/
 
     /***************************************************************
      * start of users chart
@@ -1792,6 +1634,182 @@ $(document).ready(function() {
      * END other Ajax Requests
      ***************************************************************/
 
+    /***************************************************************
+     * BEGIN daterangepicker from here
+     ***************************************************************/
+
+    /**
+     * define $start and $end for most of the charts
+     * and determine how far back do we go back to get clients stats
+     * TODO:
+     */
+    var rangeEnd = moment().subtract(1, 'day').endOf('day');
+    var rangeStart = moment().subtract(1, 'weeks').startOf('day');
+    var rightNow = moment().subtract(1, 'day').endOf('day');
+
+    /**
+     * initiate the daterangepicker with initial start/end and Label
+     */
+    page_daterange(rangeStart, rangeEnd);
+
+    /**
+     * functions to display the "active" custom date range and the picker for current page
+     * - assuming start of data collection is January 1st, 2015
+     * TODO:
+     * - consider a venue variable that holds the start date and is checked/updated when setting up
+     */
+    $('#dashboard-report-range').daterangepicker({
+        timePicker:             true,
+        timePicker24Hour:       true,
+        timePickerIncrement:    60,
+        showISOWeekNumbers:     true,
+        locale: {
+            format: 'DD/MM/YYYY',
+            firstDay: 1
+        },
+        ranges: {
+           'Yesterday': [moment().startOf('day').subtract(1, 'days'), moment().startOf('day')],
+           'Past 7 days': [rangeStart, rangeEnd], //default value for the page
+           'Last Week': [moment().subtract(1, 'weeks').startOf('week'), moment().startOf('week')],
+           'Month to-date': [moment().startOf('month'), moment().startOf('day')],
+           'Last Month': [moment().subtract(1, 'months').startOf('month').startOf('day'), moment().startOf('month').startOf('day')],
+           'All Time': ['{{current_user.primaryVenue.venue_tracking.capture_start | date("d/m/Y", "Europe/London")}}', moment()]
+        },
+        startDate:   rangeStart,
+        endDate:     rangeEnd,
+        minDate:     '{{current_user.primaryVenue.venue_wifi.capture_start | date("d/m/Y", "Europe/London")}}',
+        maxDate:     moment().subtract(1, 'day').endOf('day'),
+        opens:       'left',
+        applyClass:  'blue',
+        cancelClass: 'red'
+    }, page_daterange);
+
+    /**
+     * callback function to execute upon selected date range
+     */
+    function page_daterange(start, end) {
+        console.log(start + ':' + end);
+        /**
+         * update these global variables for the daterangepicker and the ajax calls
+         */
+        rangeStart = start;
+        rangeEnd = end;
+        now = moment().valueOf();
+
+        /**
+         * historyhours is used to get stats for the users
+         */
+        var historyHours = Math.round((now - start)/(3600*1000));
+
+        /**
+         * enable spinners on the charts, <span>s and <div>s which will be updated
+         */
+        $('#span_total_visitors_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
+        $('#span_busiest_time_of_day_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
+        $('#span_average_dwell_time_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
+        $('#span_average_visitors_per_day_this_period').html('<i class="fa fa-circle-o-notch fa-spin" style="font-size: 70%;"></i>');
+
+        /**
+         * place the selected range in the <span>s at the top of the page
+         */
+        $('#page_daterange_selected').html(start.format('dddd, D MMMM YYYY') + ' - ' + end.format('dddd, D MMMM YYYY'));
+        $('#page_daterange_selected_small').html(start.format('D MMM YYYY') + ' - ' + end.format('D MMM YYYY'));
+
+        var chart_1_1 = $("#chart_1_1").highcharts();
+        var chart_1_2 = $("#chart_1_2").highcharts();
+        var chart_2_1 = $("#chart_2_1").highcharts();
+        var chart_2_2 = $("#chart_2_2").highcharts();
+        var chart_3_1 = $("#chart_3_1").highcharts();
+        var chart_3_2 = $("#chart_3_2").highcharts();
+        var chart_4_1 = $("#chart_4_1").highcharts();
+
+        chart_1_1.showLoading();
+        chart_1_2.showLoading();
+        chart_2_1.showLoading();
+        chart_2_2.showLoading();
+        chart_3_1.showLoading();
+        chart_3_2.showLoading();
+        chart_4_1.showLoading();
+
+        $('#span_total_visitors_this_period').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#span_busiest_time_of_day_this_period').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#span_average_dwell_time_this_period').html('<i class="fa fa-spinner fa-spin"></i>');
+        $('#span_average_visitors_per_day_this_period').html('<i class="fa fa-spinner fa-spin"></i>');
+
+        /**
+         * get the data for chart 1.2
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/new_vs_repeat/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_1_2_DataReceived
+        });
+
+        /**
+         * get the data for chart 3.1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/visitors_per_hourofday/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    chart_3_1_DataReceived
+        });
+
+        /**
+         * get the data for chart 3.2
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/visitors_durations/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_3_2_DataReceived
+        });
+
+        /**
+         * get the data for chart 2.2
+         */ 
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/weather_daily/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    onChart_2_2_DataReceived
+        });
+
+        /**
+         * get the data for chart 1.1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/internet_user_report/busiest_zones/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    chart_1_1_DataReceived
+        });
+
+        /**
+         * get the data for chart 2.1
+         */
+        $.ajax({
+            url:      site.uri.public + '/elephantwifi/api/stats/venue/males_vs_females_compare_age_count/' + start + '/' + end,
+            type:     'GET',
+            dataType: 'json',
+            success:  onGenderCompareAgeCountDataReceived
+        });
+
+        /**
+         * get the data for chart 4.1
+         */
+        $.ajax({
+            url:        '{{site.uri.public}}/elephantwifi/api/stats/venue/connect_vs_internet_count/' + start + '/' + end,
+            type:       'GET',
+            dataType:   'json',
+            success:    chart_4_1_DataReceived
+        });
+    }
+
+    /***************************************************************
+     * END of daterangepicker
+     ***************************************************************/
 });
 
 </script>

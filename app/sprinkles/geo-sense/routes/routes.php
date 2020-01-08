@@ -44,7 +44,8 @@ $app->group('/geo-sense', function () {
 
 // All the geo-sense admin routes
 $app->group('/admin/geo-sense', function () {
-	$this->get('/drones/summary', 'UserFrosting\Sprinkle\GeoSense\Controller\DroneController:pageDroneSummary');
+	$this->get('/drones/summary', 'UserFrosting\Sprinkle\GeoSense\Controller\DroneController:pageDroneSummary')
+		->setName('geo-sense-drone_summary');
 	$this->get('/drones/all', 'UserFrosting\Sprinkle\GeoSense\Controller\DroneController:pageDronesAll');
 
 	$this->get('/drones', 'UserFrosting\Sprinkle\GeoSense\Controller\DroneController:pageDrones');
@@ -195,6 +196,14 @@ $app->group('/geo-sense/api', function () {
 	$this->get('/whitelist/candidates', 'UserFrosting\Sprinkle\GeoSense\Controller\ApiController:listWhitelistCandidates');
 	
 	$this->get('/drones/all', 'UserFrosting\Sprinkle\GeoSense\Controller\ApiController:listDronesAll');
+
+
+
+
+
+	$this->get('/total_visitors_this_week', 'UserFrosting\Sprinkle\GeoSense\Controller\ApiController:listTotalVisitorsThisWeek');
+	
+	$this->get('/landing_page_map_metrics', 'UserFrosting\Sprinkle\GeoSense\Controller\ApiController:listLandingPageMapMetrics');
 });
 
 

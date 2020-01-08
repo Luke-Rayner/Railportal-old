@@ -206,6 +206,12 @@ $app->group('/elephantwifi/api', function () {
 
 	$this->get('/stats/venue/heat_map/visitors/{start}/{end}', 'UserFrosting\Sprinkle\ElephantWifi\Controller\ApiController:listVisitorHeatmap');
 
+	$this->get('/total_connected_this_week', 'UserFrosting\Sprinkle\ElephantWifi\Controller\ApiController:listTotalConnectedThisWeek');
+
+	$this->get('/landing_page_map_metrics', 'UserFrosting\Sprinkle\ElephantWifi\Controller\ApiController:listLandingPageMapMetrics');
+
+	$this->get('/stats/users_vs_browsers/{start}/{end}', 'UserFrosting\Sprinkle\ElephantWifi\Controller\ApiController:totalUsersVsBrowsers');
+
 	// System API routes
 	$this->get('/list/access_points', 'UserFrosting\Sprinkle\ElephantWifi\Controller\ApiController:listAccessPoints');
 });
@@ -214,4 +220,13 @@ $app->group('/elephantwifi/api', function () {
 
 $app->group('/elephantwifi', function () {
 	$this->get('/log/download_personal_visitor_information', 'UserFrosting\Sprinkle\ElephantWifi\Controller\LoggingController:logDownloadPersonalVisitorInformation');
+
+	$this->get('/wifi_user/dashboard', 'UserFrosting\Sprinkle\ElephantWifi\Controller\WifiUserController:showWifiUserDashboard')
+		->setName('wifi-user-dashboard');
+
+	$this->post('/wifi_user/u/personal_info', 'UserFrosting\Sprinkle\ElephantWifi\Controller\WifiUserController:updateWifiUser');
+
+	$this->get('/wifi_user/delete', 'UserFrosting\Sprinkle\ElephantWifi\Controller\WifiUserController:deleteWifiUser');
+	
+	$this->get('/wifi_user/splash', 'UserFrosting\Sprinkle\ElephantWifi\Controller\WifiUserController:showWifiUserSplash');
 });
