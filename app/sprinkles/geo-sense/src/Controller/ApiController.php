@@ -11008,25 +11008,27 @@ class ApiController extends SimpleController
                     $timestamp = $drone->last_activity['timestamp'];
                     $now = date(time());
 
-                    switch ($drone->state) {
-                        case 0:
-                            $inactive += 1;
-                            break;
-                        case 1:
-                            $active += 1;
-                            if ($timestamp > ($now - 300)) {
-                                $online += 1;
-                            }
-                            else if ($timestamp > ($now - 3600)) {
-                                $quiet += 1;
-                            }
-                            else if ($timestamp < ($now - 3600)) {
-                                $offline += 1;
-                            }
-                            break;
-                        case 2:
-                            $calibrating += 1;
-                            break;
+                    if ($drone->drone_summary == 1) {
+                        switch ($drone->state) {
+                            case 0:
+                                $inactive += 1;
+                                break;
+                            case 1:
+                                $active += 1;
+                                if ($timestamp > ($now - 300)) {
+                                    $online += 1;
+                                }
+                                else if ($timestamp > ($now - 3600)) {
+                                    $quiet += 1;
+                                }
+                                else if ($timestamp < ($now - 3600)) {
+                                    $offline += 1;
+                                }
+                                break;
+                            case 2:
+                                $calibrating += 1;
+                                break;
+                        }
                     }
                 }
             }

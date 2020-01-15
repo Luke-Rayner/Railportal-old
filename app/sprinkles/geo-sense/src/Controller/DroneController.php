@@ -383,7 +383,7 @@ class DroneController extends SimpleController
 
         // Update the drone data
         Drone::where('id', $args['drone_id'])
-                    ->update(array('name' => $data['name'], 'state' => $data['state'], 'zone_id' => $data['zone_id'], 'lat' => $data['lat'], 'lon' => $data['lon'], 'rssi_threshold' => $data['rssi_threshold'], 'delay_period' => $data['delay_period'], 'execute_command' => $data['execute_command']));
+                    ->update(array('name' => $data['name'], 'state' => $data['state'], 'zone_id' => $data['zone_id'], 'lat' => $data['lat'], 'lon' => $data['lon'], 'rssi_threshold' => $data['rssi_threshold'], 'delay_period' => $data['delay_period'], 'execute_command' => $data['execute_command'], 'drone_summary' => $data['drone_summary']));
 
         $ms->addMessageTranslated('success', 'Drone was successfully updated');
 

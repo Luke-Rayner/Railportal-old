@@ -35,7 +35,8 @@ class Drone extends Model
         'execute_command',
         'execute_command_delay',
         'rssi_threshold',
-        'delay_period'
+        'delay_period',
+        'drone_summary',
     ];
 
     /**

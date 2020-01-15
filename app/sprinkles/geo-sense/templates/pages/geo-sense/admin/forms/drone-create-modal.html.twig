@@ -98,6 +98,14 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="drone_summary" class="col-sm-5 control-label">Drone summary</label>
+                        <div class="col-sm-2" style="margin-top:4px;">
+                             <div class="input-group">
+                                 <input id="drone_summary" type="checkbox" name="drone_summary" value="{{target_drone.drone_summary}}" data-on-text="on" data-off-text="off" data-on="success" data-off="primary"{% if target_drone.drone_summary == 1 %} checked="checked"{% endif %}>
+                             </div>
+                         </div>
+                    </div>
+                    <div class="form-group">
                         <div class="col-sm-offset-5 col-sm-7">
                             <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times-circle"></i> Cancel</button>
                             <button type='submit' id="droneSubmit" name="droneSubmit" class="btn btn-primary btn-sm"><i class="fa fa-cloud-upload"></i> Save</button>
@@ -114,5 +122,8 @@
 <script>
 // Load the validator rules for this form
 var validators  = {{validators | raw}};
+
+$('#drone_summary').bootstrapSwitch();
+$('#drone_summary').bootstrapSwitch('setSizeClass', 'switch-mini');
 
 </script>

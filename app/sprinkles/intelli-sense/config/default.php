@@ -40,10 +40,10 @@ return [
     /*
      * Use router cache, disable full error details
      */
-    // 'settings' => [
-    //     'routerCacheFile' => 'routes.cache',
-    //     'displayErrorDetails' => false,
-    // ],
+    'settings' => [
+        // 'routerCacheFile' => 'routes.cache',
+        'displayErrorDetails' => false,
+    ],
 
     'address_book' => [
         'admin' => 'info@elephantwifi.co.uk'

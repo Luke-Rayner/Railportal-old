@@ -16,10 +16,28 @@
 {% block content %}
     <h3 class="form-title font-blue text-center">Welcome to ElephantWifi</h3>
     {% include 'pages/components/common/alerts.html.twig' %}
-    <div class="row">
+    <div class="row" id="button_container">
         <div class="form-actions text-center">
           <a id="login_button" href="{{site.uri.public}}/account/login" class="btn orange" role="button" value="Login">Login to Dashboard</a>
         </div>
     </div>
     {% include 'pages/components/homepage/homepage-links.html.twig' %}
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    // Chrome 1 - 71
+    // var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    // console.log(isIE);
+
+    // if (isIE) {
+    //     $('#button_container').html('<h5 class="text-center">Unfortunately your browser is not supported, please try a different browser.</h5>');
+    //     $('#login_container').show();
+    //     $('#navigation').hide();
+    //     $('.login-options').hide();
+    // }
+    // else {
+    //     $('#login_container').show();
+    // }
+</script>
 {% endblock %}
