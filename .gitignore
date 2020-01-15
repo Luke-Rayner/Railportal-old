@@ -33,6 +33,9 @@ app/storage/*
 # Ignore sprinkles.json config file
 app/sprinkles.json
 
+# Ignore sprinkles config file
+/app/sprinkles/*/config/default.php
+
 # Ignore sample site sprinkle
 app/sprinkles/site-dev
 

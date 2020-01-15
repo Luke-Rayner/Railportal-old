@@ -26,18 +26,13 @@
 
 {% block page_scripts %}
 <script>
-    // Chrome 1 - 71
-    // var isIE = /*@cc_on!@*/false || !!document.documentMode;
-    // console.log(isIE);
+    // Check if the user is using IE
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
-    // if (isIE) {
-    //     $('#button_container').html('<h5 class="text-center">Unfortunately your browser is not supported, please try a different browser.</h5>');
-    //     $('#login_container').show();
-    //     $('#navigation').hide();
-    //     $('.login-options').hide();
-    // }
-    // else {
-    //     $('#login_container').show();
-    // }
+    if (isIE) {
+        $('#button_container').html('<h5 class="text-center">Unfortunately your browser is not supported, please try a different browser.</h5>');
+        $('#navigation').hide();
+        $('.login-options').hide();
+    }
 </script>
 {% endblock %}
